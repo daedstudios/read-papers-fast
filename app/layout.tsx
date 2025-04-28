@@ -3,18 +3,18 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Inter({
-  variable: "--font-geist-sans",
+  variable: "--font-inter-sans",
   subsets: ["latin"],
 });
 
 const geistMono = Inter({
-  variable: "--font-geist-mono",
+  variable: "--font-inter-mono",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: " AI graph learning",
-  description: "Learn Javascript with AI",
+  title: "Read papers fast",
+  description: "Read research papers 10x faster",
 };
 
 export default function RootLayout({
