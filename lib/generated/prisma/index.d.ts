@@ -23,6 +23,16 @@ export type User = $Result.DefaultSelection<Prisma.$UserPayload>
  * 
  */
 export type Post = $Result.DefaultSelection<Prisma.$PostPayload>
+/**
+ * Model PaperSummary
+ * 
+ */
+export type PaperSummary = $Result.DefaultSelection<Prisma.$PaperSummaryPayload>
+/**
+ * Model Section
+ * 
+ */
+export type Section = $Result.DefaultSelection<Prisma.$SectionPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -168,6 +178,26 @@ export class PrismaClient<
     * ```
     */
   get post(): Prisma.PostDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.paperSummary`: Exposes CRUD operations for the **PaperSummary** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PaperSummaries
+    * const paperSummaries = await prisma.paperSummary.findMany()
+    * ```
+    */
+  get paperSummary(): Prisma.PaperSummaryDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.section`: Exposes CRUD operations for the **Section** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Sections
+    * const sections = await prisma.section.findMany()
+    * ```
+    */
+  get section(): Prisma.SectionDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -609,7 +639,9 @@ export namespace Prisma {
 
   export const ModelName: {
     User: 'User',
-    Post: 'Post'
+    Post: 'Post',
+    PaperSummary: 'PaperSummary',
+    Section: 'Section'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -628,7 +660,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "post"
+      modelProps: "user" | "post" | "paperSummary" | "section"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -780,6 +812,154 @@ export namespace Prisma {
           }
         }
       }
+      PaperSummary: {
+        payload: Prisma.$PaperSummaryPayload<ExtArgs>
+        fields: Prisma.PaperSummaryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PaperSummaryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaperSummaryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PaperSummaryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaperSummaryPayload>
+          }
+          findFirst: {
+            args: Prisma.PaperSummaryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaperSummaryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PaperSummaryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaperSummaryPayload>
+          }
+          findMany: {
+            args: Prisma.PaperSummaryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaperSummaryPayload>[]
+          }
+          create: {
+            args: Prisma.PaperSummaryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaperSummaryPayload>
+          }
+          createMany: {
+            args: Prisma.PaperSummaryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PaperSummaryCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaperSummaryPayload>[]
+          }
+          delete: {
+            args: Prisma.PaperSummaryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaperSummaryPayload>
+          }
+          update: {
+            args: Prisma.PaperSummaryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaperSummaryPayload>
+          }
+          deleteMany: {
+            args: Prisma.PaperSummaryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PaperSummaryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PaperSummaryUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaperSummaryPayload>[]
+          }
+          upsert: {
+            args: Prisma.PaperSummaryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaperSummaryPayload>
+          }
+          aggregate: {
+            args: Prisma.PaperSummaryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePaperSummary>
+          }
+          groupBy: {
+            args: Prisma.PaperSummaryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PaperSummaryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PaperSummaryCountArgs<ExtArgs>
+            result: $Utils.Optional<PaperSummaryCountAggregateOutputType> | number
+          }
+        }
+      }
+      Section: {
+        payload: Prisma.$SectionPayload<ExtArgs>
+        fields: Prisma.SectionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SectionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SectionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SectionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SectionPayload>
+          }
+          findFirst: {
+            args: Prisma.SectionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SectionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SectionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SectionPayload>
+          }
+          findMany: {
+            args: Prisma.SectionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SectionPayload>[]
+          }
+          create: {
+            args: Prisma.SectionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SectionPayload>
+          }
+          createMany: {
+            args: Prisma.SectionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SectionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SectionPayload>[]
+          }
+          delete: {
+            args: Prisma.SectionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SectionPayload>
+          }
+          update: {
+            args: Prisma.SectionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SectionPayload>
+          }
+          deleteMany: {
+            args: Prisma.SectionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SectionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SectionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SectionPayload>[]
+          }
+          upsert: {
+            args: Prisma.SectionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SectionPayload>
+          }
+          aggregate: {
+            args: Prisma.SectionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSection>
+          }
+          groupBy: {
+            args: Prisma.SectionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SectionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SectionCountArgs<ExtArgs>
+            result: $Utils.Optional<SectionCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -866,6 +1046,8 @@ export namespace Prisma {
   export type GlobalOmitConfig = {
     user?: UserOmit
     post?: PostOmit
+    paperSummary?: PaperSummaryOmit
+    section?: SectionOmit
   }
 
   /* Types for Logging */
@@ -954,6 +1136,36 @@ export namespace Prisma {
    * Count Types
    */
 
+
+  /**
+   * Count Type PaperSummaryCountOutputType
+   */
+
+  export type PaperSummaryCountOutputType = {
+    sections: number
+  }
+
+  export type PaperSummaryCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    sections?: boolean | PaperSummaryCountOutputTypeCountSectionsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * PaperSummaryCountOutputType without action
+   */
+  export type PaperSummaryCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaperSummaryCountOutputType
+     */
+    select?: PaperSummaryCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * PaperSummaryCountOutputType without action
+   */
+  export type PaperSummaryCountOutputTypeCountSectionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SectionWhereInput
+  }
 
 
   /**
@@ -2977,6 +3189,2207 @@ export namespace Prisma {
 
 
   /**
+   * Model PaperSummary
+   */
+
+  export type AggregatePaperSummary = {
+    _count: PaperSummaryCountAggregateOutputType | null
+    _min: PaperSummaryMinAggregateOutputType | null
+    _max: PaperSummaryMaxAggregateOutputType | null
+  }
+
+  export type PaperSummaryMinAggregateOutputType = {
+    id: string | null
+    title: string | null
+    fileName: string | null
+    url: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type PaperSummaryMaxAggregateOutputType = {
+    id: string | null
+    title: string | null
+    fileName: string | null
+    url: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type PaperSummaryCountAggregateOutputType = {
+    id: number
+    title: number
+    fileName: number
+    url: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type PaperSummaryMinAggregateInputType = {
+    id?: true
+    title?: true
+    fileName?: true
+    url?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type PaperSummaryMaxAggregateInputType = {
+    id?: true
+    title?: true
+    fileName?: true
+    url?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type PaperSummaryCountAggregateInputType = {
+    id?: true
+    title?: true
+    fileName?: true
+    url?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type PaperSummaryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaperSummary to aggregate.
+     */
+    where?: PaperSummaryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaperSummaries to fetch.
+     */
+    orderBy?: PaperSummaryOrderByWithRelationInput | PaperSummaryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PaperSummaryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaperSummaries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaperSummaries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PaperSummaries
+    **/
+    _count?: true | PaperSummaryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PaperSummaryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PaperSummaryMaxAggregateInputType
+  }
+
+  export type GetPaperSummaryAggregateType<T extends PaperSummaryAggregateArgs> = {
+        [P in keyof T & keyof AggregatePaperSummary]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePaperSummary[P]>
+      : GetScalarType<T[P], AggregatePaperSummary[P]>
+  }
+
+
+
+
+  export type PaperSummaryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaperSummaryWhereInput
+    orderBy?: PaperSummaryOrderByWithAggregationInput | PaperSummaryOrderByWithAggregationInput[]
+    by: PaperSummaryScalarFieldEnum[] | PaperSummaryScalarFieldEnum
+    having?: PaperSummaryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PaperSummaryCountAggregateInputType | true
+    _min?: PaperSummaryMinAggregateInputType
+    _max?: PaperSummaryMaxAggregateInputType
+  }
+
+  export type PaperSummaryGroupByOutputType = {
+    id: string
+    title: string
+    fileName: string | null
+    url: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: PaperSummaryCountAggregateOutputType | null
+    _min: PaperSummaryMinAggregateOutputType | null
+    _max: PaperSummaryMaxAggregateOutputType | null
+  }
+
+  type GetPaperSummaryGroupByPayload<T extends PaperSummaryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PaperSummaryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PaperSummaryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PaperSummaryGroupByOutputType[P]>
+            : GetScalarType<T[P], PaperSummaryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PaperSummarySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    fileName?: boolean
+    url?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    sections?: boolean | PaperSummary$sectionsArgs<ExtArgs>
+    _count?: boolean | PaperSummaryCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paperSummary"]>
+
+  export type PaperSummarySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    fileName?: boolean
+    url?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["paperSummary"]>
+
+  export type PaperSummarySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    fileName?: boolean
+    url?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["paperSummary"]>
+
+  export type PaperSummarySelectScalar = {
+    id?: boolean
+    title?: boolean
+    fileName?: boolean
+    url?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type PaperSummaryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "fileName" | "url" | "createdAt" | "updatedAt", ExtArgs["result"]["paperSummary"]>
+  export type PaperSummaryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    sections?: boolean | PaperSummary$sectionsArgs<ExtArgs>
+    _count?: boolean | PaperSummaryCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type PaperSummaryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type PaperSummaryIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $PaperSummaryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PaperSummary"
+    objects: {
+      sections: Prisma.$SectionPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      title: string
+      fileName: string | null
+      url: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["paperSummary"]>
+    composites: {}
+  }
+
+  type PaperSummaryGetPayload<S extends boolean | null | undefined | PaperSummaryDefaultArgs> = $Result.GetResult<Prisma.$PaperSummaryPayload, S>
+
+  type PaperSummaryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PaperSummaryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PaperSummaryCountAggregateInputType | true
+    }
+
+  export interface PaperSummaryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PaperSummary'], meta: { name: 'PaperSummary' } }
+    /**
+     * Find zero or one PaperSummary that matches the filter.
+     * @param {PaperSummaryFindUniqueArgs} args - Arguments to find a PaperSummary
+     * @example
+     * // Get one PaperSummary
+     * const paperSummary = await prisma.paperSummary.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PaperSummaryFindUniqueArgs>(args: SelectSubset<T, PaperSummaryFindUniqueArgs<ExtArgs>>): Prisma__PaperSummaryClient<$Result.GetResult<Prisma.$PaperSummaryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PaperSummary that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PaperSummaryFindUniqueOrThrowArgs} args - Arguments to find a PaperSummary
+     * @example
+     * // Get one PaperSummary
+     * const paperSummary = await prisma.paperSummary.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PaperSummaryFindUniqueOrThrowArgs>(args: SelectSubset<T, PaperSummaryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PaperSummaryClient<$Result.GetResult<Prisma.$PaperSummaryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaperSummary that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaperSummaryFindFirstArgs} args - Arguments to find a PaperSummary
+     * @example
+     * // Get one PaperSummary
+     * const paperSummary = await prisma.paperSummary.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PaperSummaryFindFirstArgs>(args?: SelectSubset<T, PaperSummaryFindFirstArgs<ExtArgs>>): Prisma__PaperSummaryClient<$Result.GetResult<Prisma.$PaperSummaryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaperSummary that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaperSummaryFindFirstOrThrowArgs} args - Arguments to find a PaperSummary
+     * @example
+     * // Get one PaperSummary
+     * const paperSummary = await prisma.paperSummary.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PaperSummaryFindFirstOrThrowArgs>(args?: SelectSubset<T, PaperSummaryFindFirstOrThrowArgs<ExtArgs>>): Prisma__PaperSummaryClient<$Result.GetResult<Prisma.$PaperSummaryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PaperSummaries that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaperSummaryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PaperSummaries
+     * const paperSummaries = await prisma.paperSummary.findMany()
+     * 
+     * // Get first 10 PaperSummaries
+     * const paperSummaries = await prisma.paperSummary.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const paperSummaryWithIdOnly = await prisma.paperSummary.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PaperSummaryFindManyArgs>(args?: SelectSubset<T, PaperSummaryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaperSummaryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PaperSummary.
+     * @param {PaperSummaryCreateArgs} args - Arguments to create a PaperSummary.
+     * @example
+     * // Create one PaperSummary
+     * const PaperSummary = await prisma.paperSummary.create({
+     *   data: {
+     *     // ... data to create a PaperSummary
+     *   }
+     * })
+     * 
+     */
+    create<T extends PaperSummaryCreateArgs>(args: SelectSubset<T, PaperSummaryCreateArgs<ExtArgs>>): Prisma__PaperSummaryClient<$Result.GetResult<Prisma.$PaperSummaryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PaperSummaries.
+     * @param {PaperSummaryCreateManyArgs} args - Arguments to create many PaperSummaries.
+     * @example
+     * // Create many PaperSummaries
+     * const paperSummary = await prisma.paperSummary.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PaperSummaryCreateManyArgs>(args?: SelectSubset<T, PaperSummaryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many PaperSummaries and returns the data saved in the database.
+     * @param {PaperSummaryCreateManyAndReturnArgs} args - Arguments to create many PaperSummaries.
+     * @example
+     * // Create many PaperSummaries
+     * const paperSummary = await prisma.paperSummary.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many PaperSummaries and only return the `id`
+     * const paperSummaryWithIdOnly = await prisma.paperSummary.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PaperSummaryCreateManyAndReturnArgs>(args?: SelectSubset<T, PaperSummaryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaperSummaryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a PaperSummary.
+     * @param {PaperSummaryDeleteArgs} args - Arguments to delete one PaperSummary.
+     * @example
+     * // Delete one PaperSummary
+     * const PaperSummary = await prisma.paperSummary.delete({
+     *   where: {
+     *     // ... filter to delete one PaperSummary
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PaperSummaryDeleteArgs>(args: SelectSubset<T, PaperSummaryDeleteArgs<ExtArgs>>): Prisma__PaperSummaryClient<$Result.GetResult<Prisma.$PaperSummaryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PaperSummary.
+     * @param {PaperSummaryUpdateArgs} args - Arguments to update one PaperSummary.
+     * @example
+     * // Update one PaperSummary
+     * const paperSummary = await prisma.paperSummary.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PaperSummaryUpdateArgs>(args: SelectSubset<T, PaperSummaryUpdateArgs<ExtArgs>>): Prisma__PaperSummaryClient<$Result.GetResult<Prisma.$PaperSummaryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PaperSummaries.
+     * @param {PaperSummaryDeleteManyArgs} args - Arguments to filter PaperSummaries to delete.
+     * @example
+     * // Delete a few PaperSummaries
+     * const { count } = await prisma.paperSummary.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PaperSummaryDeleteManyArgs>(args?: SelectSubset<T, PaperSummaryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PaperSummaries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaperSummaryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PaperSummaries
+     * const paperSummary = await prisma.paperSummary.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PaperSummaryUpdateManyArgs>(args: SelectSubset<T, PaperSummaryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PaperSummaries and returns the data updated in the database.
+     * @param {PaperSummaryUpdateManyAndReturnArgs} args - Arguments to update many PaperSummaries.
+     * @example
+     * // Update many PaperSummaries
+     * const paperSummary = await prisma.paperSummary.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more PaperSummaries and only return the `id`
+     * const paperSummaryWithIdOnly = await prisma.paperSummary.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PaperSummaryUpdateManyAndReturnArgs>(args: SelectSubset<T, PaperSummaryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaperSummaryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one PaperSummary.
+     * @param {PaperSummaryUpsertArgs} args - Arguments to update or create a PaperSummary.
+     * @example
+     * // Update or create a PaperSummary
+     * const paperSummary = await prisma.paperSummary.upsert({
+     *   create: {
+     *     // ... data to create a PaperSummary
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PaperSummary we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PaperSummaryUpsertArgs>(args: SelectSubset<T, PaperSummaryUpsertArgs<ExtArgs>>): Prisma__PaperSummaryClient<$Result.GetResult<Prisma.$PaperSummaryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PaperSummaries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaperSummaryCountArgs} args - Arguments to filter PaperSummaries to count.
+     * @example
+     * // Count the number of PaperSummaries
+     * const count = await prisma.paperSummary.count({
+     *   where: {
+     *     // ... the filter for the PaperSummaries we want to count
+     *   }
+     * })
+    **/
+    count<T extends PaperSummaryCountArgs>(
+      args?: Subset<T, PaperSummaryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PaperSummaryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PaperSummary.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaperSummaryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PaperSummaryAggregateArgs>(args: Subset<T, PaperSummaryAggregateArgs>): Prisma.PrismaPromise<GetPaperSummaryAggregateType<T>>
+
+    /**
+     * Group by PaperSummary.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaperSummaryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PaperSummaryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PaperSummaryGroupByArgs['orderBy'] }
+        : { orderBy?: PaperSummaryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PaperSummaryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPaperSummaryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PaperSummary model
+   */
+  readonly fields: PaperSummaryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PaperSummary.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PaperSummaryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    sections<T extends PaperSummary$sectionsArgs<ExtArgs> = {}>(args?: Subset<T, PaperSummary$sectionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PaperSummary model
+   */
+  interface PaperSummaryFieldRefs {
+    readonly id: FieldRef<"PaperSummary", 'String'>
+    readonly title: FieldRef<"PaperSummary", 'String'>
+    readonly fileName: FieldRef<"PaperSummary", 'String'>
+    readonly url: FieldRef<"PaperSummary", 'String'>
+    readonly createdAt: FieldRef<"PaperSummary", 'DateTime'>
+    readonly updatedAt: FieldRef<"PaperSummary", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PaperSummary findUnique
+   */
+  export type PaperSummaryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaperSummary
+     */
+    select?: PaperSummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaperSummary
+     */
+    omit?: PaperSummaryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaperSummaryInclude<ExtArgs> | null
+    /**
+     * Filter, which PaperSummary to fetch.
+     */
+    where: PaperSummaryWhereUniqueInput
+  }
+
+  /**
+   * PaperSummary findUniqueOrThrow
+   */
+  export type PaperSummaryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaperSummary
+     */
+    select?: PaperSummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaperSummary
+     */
+    omit?: PaperSummaryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaperSummaryInclude<ExtArgs> | null
+    /**
+     * Filter, which PaperSummary to fetch.
+     */
+    where: PaperSummaryWhereUniqueInput
+  }
+
+  /**
+   * PaperSummary findFirst
+   */
+  export type PaperSummaryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaperSummary
+     */
+    select?: PaperSummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaperSummary
+     */
+    omit?: PaperSummaryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaperSummaryInclude<ExtArgs> | null
+    /**
+     * Filter, which PaperSummary to fetch.
+     */
+    where?: PaperSummaryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaperSummaries to fetch.
+     */
+    orderBy?: PaperSummaryOrderByWithRelationInput | PaperSummaryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaperSummaries.
+     */
+    cursor?: PaperSummaryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaperSummaries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaperSummaries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaperSummaries.
+     */
+    distinct?: PaperSummaryScalarFieldEnum | PaperSummaryScalarFieldEnum[]
+  }
+
+  /**
+   * PaperSummary findFirstOrThrow
+   */
+  export type PaperSummaryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaperSummary
+     */
+    select?: PaperSummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaperSummary
+     */
+    omit?: PaperSummaryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaperSummaryInclude<ExtArgs> | null
+    /**
+     * Filter, which PaperSummary to fetch.
+     */
+    where?: PaperSummaryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaperSummaries to fetch.
+     */
+    orderBy?: PaperSummaryOrderByWithRelationInput | PaperSummaryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaperSummaries.
+     */
+    cursor?: PaperSummaryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaperSummaries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaperSummaries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaperSummaries.
+     */
+    distinct?: PaperSummaryScalarFieldEnum | PaperSummaryScalarFieldEnum[]
+  }
+
+  /**
+   * PaperSummary findMany
+   */
+  export type PaperSummaryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaperSummary
+     */
+    select?: PaperSummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaperSummary
+     */
+    omit?: PaperSummaryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaperSummaryInclude<ExtArgs> | null
+    /**
+     * Filter, which PaperSummaries to fetch.
+     */
+    where?: PaperSummaryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaperSummaries to fetch.
+     */
+    orderBy?: PaperSummaryOrderByWithRelationInput | PaperSummaryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PaperSummaries.
+     */
+    cursor?: PaperSummaryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaperSummaries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaperSummaries.
+     */
+    skip?: number
+    distinct?: PaperSummaryScalarFieldEnum | PaperSummaryScalarFieldEnum[]
+  }
+
+  /**
+   * PaperSummary create
+   */
+  export type PaperSummaryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaperSummary
+     */
+    select?: PaperSummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaperSummary
+     */
+    omit?: PaperSummaryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaperSummaryInclude<ExtArgs> | null
+    /**
+     * The data needed to create a PaperSummary.
+     */
+    data: XOR<PaperSummaryCreateInput, PaperSummaryUncheckedCreateInput>
+  }
+
+  /**
+   * PaperSummary createMany
+   */
+  export type PaperSummaryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PaperSummaries.
+     */
+    data: PaperSummaryCreateManyInput | PaperSummaryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PaperSummary createManyAndReturn
+   */
+  export type PaperSummaryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaperSummary
+     */
+    select?: PaperSummarySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaperSummary
+     */
+    omit?: PaperSummaryOmit<ExtArgs> | null
+    /**
+     * The data used to create many PaperSummaries.
+     */
+    data: PaperSummaryCreateManyInput | PaperSummaryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PaperSummary update
+   */
+  export type PaperSummaryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaperSummary
+     */
+    select?: PaperSummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaperSummary
+     */
+    omit?: PaperSummaryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaperSummaryInclude<ExtArgs> | null
+    /**
+     * The data needed to update a PaperSummary.
+     */
+    data: XOR<PaperSummaryUpdateInput, PaperSummaryUncheckedUpdateInput>
+    /**
+     * Choose, which PaperSummary to update.
+     */
+    where: PaperSummaryWhereUniqueInput
+  }
+
+  /**
+   * PaperSummary updateMany
+   */
+  export type PaperSummaryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PaperSummaries.
+     */
+    data: XOR<PaperSummaryUpdateManyMutationInput, PaperSummaryUncheckedUpdateManyInput>
+    /**
+     * Filter which PaperSummaries to update
+     */
+    where?: PaperSummaryWhereInput
+    /**
+     * Limit how many PaperSummaries to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaperSummary updateManyAndReturn
+   */
+  export type PaperSummaryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaperSummary
+     */
+    select?: PaperSummarySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaperSummary
+     */
+    omit?: PaperSummaryOmit<ExtArgs> | null
+    /**
+     * The data used to update PaperSummaries.
+     */
+    data: XOR<PaperSummaryUpdateManyMutationInput, PaperSummaryUncheckedUpdateManyInput>
+    /**
+     * Filter which PaperSummaries to update
+     */
+    where?: PaperSummaryWhereInput
+    /**
+     * Limit how many PaperSummaries to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaperSummary upsert
+   */
+  export type PaperSummaryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaperSummary
+     */
+    select?: PaperSummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaperSummary
+     */
+    omit?: PaperSummaryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaperSummaryInclude<ExtArgs> | null
+    /**
+     * The filter to search for the PaperSummary to update in case it exists.
+     */
+    where: PaperSummaryWhereUniqueInput
+    /**
+     * In case the PaperSummary found by the `where` argument doesn't exist, create a new PaperSummary with this data.
+     */
+    create: XOR<PaperSummaryCreateInput, PaperSummaryUncheckedCreateInput>
+    /**
+     * In case the PaperSummary was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PaperSummaryUpdateInput, PaperSummaryUncheckedUpdateInput>
+  }
+
+  /**
+   * PaperSummary delete
+   */
+  export type PaperSummaryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaperSummary
+     */
+    select?: PaperSummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaperSummary
+     */
+    omit?: PaperSummaryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaperSummaryInclude<ExtArgs> | null
+    /**
+     * Filter which PaperSummary to delete.
+     */
+    where: PaperSummaryWhereUniqueInput
+  }
+
+  /**
+   * PaperSummary deleteMany
+   */
+  export type PaperSummaryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaperSummaries to delete
+     */
+    where?: PaperSummaryWhereInput
+    /**
+     * Limit how many PaperSummaries to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaperSummary.sections
+   */
+  export type PaperSummary$sectionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Section
+     */
+    select?: SectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Section
+     */
+    omit?: SectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SectionInclude<ExtArgs> | null
+    where?: SectionWhereInput
+    orderBy?: SectionOrderByWithRelationInput | SectionOrderByWithRelationInput[]
+    cursor?: SectionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SectionScalarFieldEnum | SectionScalarFieldEnum[]
+  }
+
+  /**
+   * PaperSummary without action
+   */
+  export type PaperSummaryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaperSummary
+     */
+    select?: PaperSummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaperSummary
+     */
+    omit?: PaperSummaryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaperSummaryInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Section
+   */
+
+  export type AggregateSection = {
+    _count: SectionCountAggregateOutputType | null
+    _avg: SectionAvgAggregateOutputType | null
+    _sum: SectionSumAggregateOutputType | null
+    _min: SectionMinAggregateOutputType | null
+    _max: SectionMaxAggregateOutputType | null
+  }
+
+  export type SectionAvgAggregateOutputType = {
+    order: number | null
+  }
+
+  export type SectionSumAggregateOutputType = {
+    order: number | null
+  }
+
+  export type SectionMinAggregateOutputType = {
+    id: string | null
+    title: string | null
+    summary: string | null
+    paperSummaryId: string | null
+    order: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SectionMaxAggregateOutputType = {
+    id: string | null
+    title: string | null
+    summary: string | null
+    paperSummaryId: string | null
+    order: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SectionCountAggregateOutputType = {
+    id: number
+    title: number
+    summary: number
+    paperSummaryId: number
+    order: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type SectionAvgAggregateInputType = {
+    order?: true
+  }
+
+  export type SectionSumAggregateInputType = {
+    order?: true
+  }
+
+  export type SectionMinAggregateInputType = {
+    id?: true
+    title?: true
+    summary?: true
+    paperSummaryId?: true
+    order?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SectionMaxAggregateInputType = {
+    id?: true
+    title?: true
+    summary?: true
+    paperSummaryId?: true
+    order?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SectionCountAggregateInputType = {
+    id?: true
+    title?: true
+    summary?: true
+    paperSummaryId?: true
+    order?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type SectionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Section to aggregate.
+     */
+    where?: SectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Sections to fetch.
+     */
+    orderBy?: SectionOrderByWithRelationInput | SectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Sections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Sections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Sections
+    **/
+    _count?: true | SectionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: SectionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SectionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SectionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SectionMaxAggregateInputType
+  }
+
+  export type GetSectionAggregateType<T extends SectionAggregateArgs> = {
+        [P in keyof T & keyof AggregateSection]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSection[P]>
+      : GetScalarType<T[P], AggregateSection[P]>
+  }
+
+
+
+
+  export type SectionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SectionWhereInput
+    orderBy?: SectionOrderByWithAggregationInput | SectionOrderByWithAggregationInput[]
+    by: SectionScalarFieldEnum[] | SectionScalarFieldEnum
+    having?: SectionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SectionCountAggregateInputType | true
+    _avg?: SectionAvgAggregateInputType
+    _sum?: SectionSumAggregateInputType
+    _min?: SectionMinAggregateInputType
+    _max?: SectionMaxAggregateInputType
+  }
+
+  export type SectionGroupByOutputType = {
+    id: string
+    title: string
+    summary: string
+    paperSummaryId: string
+    order: number
+    createdAt: Date
+    updatedAt: Date
+    _count: SectionCountAggregateOutputType | null
+    _avg: SectionAvgAggregateOutputType | null
+    _sum: SectionSumAggregateOutputType | null
+    _min: SectionMinAggregateOutputType | null
+    _max: SectionMaxAggregateOutputType | null
+  }
+
+  type GetSectionGroupByPayload<T extends SectionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SectionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SectionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SectionGroupByOutputType[P]>
+            : GetScalarType<T[P], SectionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SectionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    summary?: boolean
+    paperSummaryId?: boolean
+    order?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    paperSummary?: boolean | PaperSummaryDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["section"]>
+
+  export type SectionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    summary?: boolean
+    paperSummaryId?: boolean
+    order?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    paperSummary?: boolean | PaperSummaryDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["section"]>
+
+  export type SectionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    summary?: boolean
+    paperSummaryId?: boolean
+    order?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    paperSummary?: boolean | PaperSummaryDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["section"]>
+
+  export type SectionSelectScalar = {
+    id?: boolean
+    title?: boolean
+    summary?: boolean
+    paperSummaryId?: boolean
+    order?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type SectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "summary" | "paperSummaryId" | "order" | "createdAt" | "updatedAt", ExtArgs["result"]["section"]>
+  export type SectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    paperSummary?: boolean | PaperSummaryDefaultArgs<ExtArgs>
+  }
+  export type SectionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    paperSummary?: boolean | PaperSummaryDefaultArgs<ExtArgs>
+  }
+  export type SectionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    paperSummary?: boolean | PaperSummaryDefaultArgs<ExtArgs>
+  }
+
+  export type $SectionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Section"
+    objects: {
+      paperSummary: Prisma.$PaperSummaryPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      title: string
+      summary: string
+      paperSummaryId: string
+      order: number
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["section"]>
+    composites: {}
+  }
+
+  type SectionGetPayload<S extends boolean | null | undefined | SectionDefaultArgs> = $Result.GetResult<Prisma.$SectionPayload, S>
+
+  type SectionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SectionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SectionCountAggregateInputType | true
+    }
+
+  export interface SectionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Section'], meta: { name: 'Section' } }
+    /**
+     * Find zero or one Section that matches the filter.
+     * @param {SectionFindUniqueArgs} args - Arguments to find a Section
+     * @example
+     * // Get one Section
+     * const section = await prisma.section.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SectionFindUniqueArgs>(args: SelectSubset<T, SectionFindUniqueArgs<ExtArgs>>): Prisma__SectionClient<$Result.GetResult<Prisma.$SectionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Section that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SectionFindUniqueOrThrowArgs} args - Arguments to find a Section
+     * @example
+     * // Get one Section
+     * const section = await prisma.section.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SectionFindUniqueOrThrowArgs>(args: SelectSubset<T, SectionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SectionClient<$Result.GetResult<Prisma.$SectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Section that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SectionFindFirstArgs} args - Arguments to find a Section
+     * @example
+     * // Get one Section
+     * const section = await prisma.section.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SectionFindFirstArgs>(args?: SelectSubset<T, SectionFindFirstArgs<ExtArgs>>): Prisma__SectionClient<$Result.GetResult<Prisma.$SectionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Section that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SectionFindFirstOrThrowArgs} args - Arguments to find a Section
+     * @example
+     * // Get one Section
+     * const section = await prisma.section.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SectionFindFirstOrThrowArgs>(args?: SelectSubset<T, SectionFindFirstOrThrowArgs<ExtArgs>>): Prisma__SectionClient<$Result.GetResult<Prisma.$SectionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Sections that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SectionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Sections
+     * const sections = await prisma.section.findMany()
+     * 
+     * // Get first 10 Sections
+     * const sections = await prisma.section.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const sectionWithIdOnly = await prisma.section.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SectionFindManyArgs>(args?: SelectSubset<T, SectionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Section.
+     * @param {SectionCreateArgs} args - Arguments to create a Section.
+     * @example
+     * // Create one Section
+     * const Section = await prisma.section.create({
+     *   data: {
+     *     // ... data to create a Section
+     *   }
+     * })
+     * 
+     */
+    create<T extends SectionCreateArgs>(args: SelectSubset<T, SectionCreateArgs<ExtArgs>>): Prisma__SectionClient<$Result.GetResult<Prisma.$SectionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Sections.
+     * @param {SectionCreateManyArgs} args - Arguments to create many Sections.
+     * @example
+     * // Create many Sections
+     * const section = await prisma.section.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SectionCreateManyArgs>(args?: SelectSubset<T, SectionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Sections and returns the data saved in the database.
+     * @param {SectionCreateManyAndReturnArgs} args - Arguments to create many Sections.
+     * @example
+     * // Create many Sections
+     * const section = await prisma.section.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Sections and only return the `id`
+     * const sectionWithIdOnly = await prisma.section.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SectionCreateManyAndReturnArgs>(args?: SelectSubset<T, SectionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SectionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Section.
+     * @param {SectionDeleteArgs} args - Arguments to delete one Section.
+     * @example
+     * // Delete one Section
+     * const Section = await prisma.section.delete({
+     *   where: {
+     *     // ... filter to delete one Section
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SectionDeleteArgs>(args: SelectSubset<T, SectionDeleteArgs<ExtArgs>>): Prisma__SectionClient<$Result.GetResult<Prisma.$SectionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Section.
+     * @param {SectionUpdateArgs} args - Arguments to update one Section.
+     * @example
+     * // Update one Section
+     * const section = await prisma.section.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SectionUpdateArgs>(args: SelectSubset<T, SectionUpdateArgs<ExtArgs>>): Prisma__SectionClient<$Result.GetResult<Prisma.$SectionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Sections.
+     * @param {SectionDeleteManyArgs} args - Arguments to filter Sections to delete.
+     * @example
+     * // Delete a few Sections
+     * const { count } = await prisma.section.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SectionDeleteManyArgs>(args?: SelectSubset<T, SectionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Sections.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SectionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Sections
+     * const section = await prisma.section.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SectionUpdateManyArgs>(args: SelectSubset<T, SectionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Sections and returns the data updated in the database.
+     * @param {SectionUpdateManyAndReturnArgs} args - Arguments to update many Sections.
+     * @example
+     * // Update many Sections
+     * const section = await prisma.section.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Sections and only return the `id`
+     * const sectionWithIdOnly = await prisma.section.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SectionUpdateManyAndReturnArgs>(args: SelectSubset<T, SectionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SectionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Section.
+     * @param {SectionUpsertArgs} args - Arguments to update or create a Section.
+     * @example
+     * // Update or create a Section
+     * const section = await prisma.section.upsert({
+     *   create: {
+     *     // ... data to create a Section
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Section we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SectionUpsertArgs>(args: SelectSubset<T, SectionUpsertArgs<ExtArgs>>): Prisma__SectionClient<$Result.GetResult<Prisma.$SectionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Sections.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SectionCountArgs} args - Arguments to filter Sections to count.
+     * @example
+     * // Count the number of Sections
+     * const count = await prisma.section.count({
+     *   where: {
+     *     // ... the filter for the Sections we want to count
+     *   }
+     * })
+    **/
+    count<T extends SectionCountArgs>(
+      args?: Subset<T, SectionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SectionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Section.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SectionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SectionAggregateArgs>(args: Subset<T, SectionAggregateArgs>): Prisma.PrismaPromise<GetSectionAggregateType<T>>
+
+    /**
+     * Group by Section.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SectionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SectionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SectionGroupByArgs['orderBy'] }
+        : { orderBy?: SectionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SectionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSectionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Section model
+   */
+  readonly fields: SectionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Section.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SectionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    paperSummary<T extends PaperSummaryDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PaperSummaryDefaultArgs<ExtArgs>>): Prisma__PaperSummaryClient<$Result.GetResult<Prisma.$PaperSummaryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Section model
+   */
+  interface SectionFieldRefs {
+    readonly id: FieldRef<"Section", 'String'>
+    readonly title: FieldRef<"Section", 'String'>
+    readonly summary: FieldRef<"Section", 'String'>
+    readonly paperSummaryId: FieldRef<"Section", 'String'>
+    readonly order: FieldRef<"Section", 'Int'>
+    readonly createdAt: FieldRef<"Section", 'DateTime'>
+    readonly updatedAt: FieldRef<"Section", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Section findUnique
+   */
+  export type SectionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Section
+     */
+    select?: SectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Section
+     */
+    omit?: SectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SectionInclude<ExtArgs> | null
+    /**
+     * Filter, which Section to fetch.
+     */
+    where: SectionWhereUniqueInput
+  }
+
+  /**
+   * Section findUniqueOrThrow
+   */
+  export type SectionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Section
+     */
+    select?: SectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Section
+     */
+    omit?: SectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SectionInclude<ExtArgs> | null
+    /**
+     * Filter, which Section to fetch.
+     */
+    where: SectionWhereUniqueInput
+  }
+
+  /**
+   * Section findFirst
+   */
+  export type SectionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Section
+     */
+    select?: SectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Section
+     */
+    omit?: SectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SectionInclude<ExtArgs> | null
+    /**
+     * Filter, which Section to fetch.
+     */
+    where?: SectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Sections to fetch.
+     */
+    orderBy?: SectionOrderByWithRelationInput | SectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Sections.
+     */
+    cursor?: SectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Sections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Sections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Sections.
+     */
+    distinct?: SectionScalarFieldEnum | SectionScalarFieldEnum[]
+  }
+
+  /**
+   * Section findFirstOrThrow
+   */
+  export type SectionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Section
+     */
+    select?: SectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Section
+     */
+    omit?: SectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SectionInclude<ExtArgs> | null
+    /**
+     * Filter, which Section to fetch.
+     */
+    where?: SectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Sections to fetch.
+     */
+    orderBy?: SectionOrderByWithRelationInput | SectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Sections.
+     */
+    cursor?: SectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Sections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Sections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Sections.
+     */
+    distinct?: SectionScalarFieldEnum | SectionScalarFieldEnum[]
+  }
+
+  /**
+   * Section findMany
+   */
+  export type SectionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Section
+     */
+    select?: SectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Section
+     */
+    omit?: SectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SectionInclude<ExtArgs> | null
+    /**
+     * Filter, which Sections to fetch.
+     */
+    where?: SectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Sections to fetch.
+     */
+    orderBy?: SectionOrderByWithRelationInput | SectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Sections.
+     */
+    cursor?: SectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Sections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Sections.
+     */
+    skip?: number
+    distinct?: SectionScalarFieldEnum | SectionScalarFieldEnum[]
+  }
+
+  /**
+   * Section create
+   */
+  export type SectionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Section
+     */
+    select?: SectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Section
+     */
+    omit?: SectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SectionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Section.
+     */
+    data: XOR<SectionCreateInput, SectionUncheckedCreateInput>
+  }
+
+  /**
+   * Section createMany
+   */
+  export type SectionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Sections.
+     */
+    data: SectionCreateManyInput | SectionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Section createManyAndReturn
+   */
+  export type SectionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Section
+     */
+    select?: SectionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Section
+     */
+    omit?: SectionOmit<ExtArgs> | null
+    /**
+     * The data used to create many Sections.
+     */
+    data: SectionCreateManyInput | SectionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SectionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Section update
+   */
+  export type SectionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Section
+     */
+    select?: SectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Section
+     */
+    omit?: SectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SectionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Section.
+     */
+    data: XOR<SectionUpdateInput, SectionUncheckedUpdateInput>
+    /**
+     * Choose, which Section to update.
+     */
+    where: SectionWhereUniqueInput
+  }
+
+  /**
+   * Section updateMany
+   */
+  export type SectionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Sections.
+     */
+    data: XOR<SectionUpdateManyMutationInput, SectionUncheckedUpdateManyInput>
+    /**
+     * Filter which Sections to update
+     */
+    where?: SectionWhereInput
+    /**
+     * Limit how many Sections to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Section updateManyAndReturn
+   */
+  export type SectionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Section
+     */
+    select?: SectionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Section
+     */
+    omit?: SectionOmit<ExtArgs> | null
+    /**
+     * The data used to update Sections.
+     */
+    data: XOR<SectionUpdateManyMutationInput, SectionUncheckedUpdateManyInput>
+    /**
+     * Filter which Sections to update
+     */
+    where?: SectionWhereInput
+    /**
+     * Limit how many Sections to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SectionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Section upsert
+   */
+  export type SectionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Section
+     */
+    select?: SectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Section
+     */
+    omit?: SectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SectionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Section to update in case it exists.
+     */
+    where: SectionWhereUniqueInput
+    /**
+     * In case the Section found by the `where` argument doesn't exist, create a new Section with this data.
+     */
+    create: XOR<SectionCreateInput, SectionUncheckedCreateInput>
+    /**
+     * In case the Section was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SectionUpdateInput, SectionUncheckedUpdateInput>
+  }
+
+  /**
+   * Section delete
+   */
+  export type SectionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Section
+     */
+    select?: SectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Section
+     */
+    omit?: SectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SectionInclude<ExtArgs> | null
+    /**
+     * Filter which Section to delete.
+     */
+    where: SectionWhereUniqueInput
+  }
+
+  /**
+   * Section deleteMany
+   */
+  export type SectionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Sections to delete
+     */
+    where?: SectionWhereInput
+    /**
+     * Limit how many Sections to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Section without action
+   */
+  export type SectionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Section
+     */
+    select?: SectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Section
+     */
+    omit?: SectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SectionInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -3014,6 +5427,31 @@ export namespace Prisma {
   export type PostScalarFieldEnum = (typeof PostScalarFieldEnum)[keyof typeof PostScalarFieldEnum]
 
 
+  export const PaperSummaryScalarFieldEnum: {
+    id: 'id',
+    title: 'title',
+    fileName: 'fileName',
+    url: 'url',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type PaperSummaryScalarFieldEnum = (typeof PaperSummaryScalarFieldEnum)[keyof typeof PaperSummaryScalarFieldEnum]
+
+
+  export const SectionScalarFieldEnum: {
+    id: 'id',
+    title: 'title',
+    summary: 'summary',
+    paperSummaryId: 'paperSummaryId',
+    order: 'order',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type SectionScalarFieldEnum = (typeof SectionScalarFieldEnum)[keyof typeof SectionScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -3028,6 +5466,14 @@ export namespace Prisma {
   };
 
   export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+  export const NullsOrder: {
+    first: 'first',
+    last: 'last'
+  };
+
+  export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
   /**
@@ -3074,6 +5520,20 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float'
+   */
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float[]'
+   */
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
   /**
    * Deep Input Types
@@ -3192,6 +5652,133 @@ export namespace Prisma {
     authorId?: StringWithAggregatesFilter<"Post"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Post"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Post"> | Date | string
+  }
+
+  export type PaperSummaryWhereInput = {
+    AND?: PaperSummaryWhereInput | PaperSummaryWhereInput[]
+    OR?: PaperSummaryWhereInput[]
+    NOT?: PaperSummaryWhereInput | PaperSummaryWhereInput[]
+    id?: StringFilter<"PaperSummary"> | string
+    title?: StringFilter<"PaperSummary"> | string
+    fileName?: StringNullableFilter<"PaperSummary"> | string | null
+    url?: StringNullableFilter<"PaperSummary"> | string | null
+    createdAt?: DateTimeFilter<"PaperSummary"> | Date | string
+    updatedAt?: DateTimeFilter<"PaperSummary"> | Date | string
+    sections?: SectionListRelationFilter
+  }
+
+  export type PaperSummaryOrderByWithRelationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    fileName?: SortOrderInput | SortOrder
+    url?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    sections?: SectionOrderByRelationAggregateInput
+  }
+
+  export type PaperSummaryWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: PaperSummaryWhereInput | PaperSummaryWhereInput[]
+    OR?: PaperSummaryWhereInput[]
+    NOT?: PaperSummaryWhereInput | PaperSummaryWhereInput[]
+    title?: StringFilter<"PaperSummary"> | string
+    fileName?: StringNullableFilter<"PaperSummary"> | string | null
+    url?: StringNullableFilter<"PaperSummary"> | string | null
+    createdAt?: DateTimeFilter<"PaperSummary"> | Date | string
+    updatedAt?: DateTimeFilter<"PaperSummary"> | Date | string
+    sections?: SectionListRelationFilter
+  }, "id">
+
+  export type PaperSummaryOrderByWithAggregationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    fileName?: SortOrderInput | SortOrder
+    url?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: PaperSummaryCountOrderByAggregateInput
+    _max?: PaperSummaryMaxOrderByAggregateInput
+    _min?: PaperSummaryMinOrderByAggregateInput
+  }
+
+  export type PaperSummaryScalarWhereWithAggregatesInput = {
+    AND?: PaperSummaryScalarWhereWithAggregatesInput | PaperSummaryScalarWhereWithAggregatesInput[]
+    OR?: PaperSummaryScalarWhereWithAggregatesInput[]
+    NOT?: PaperSummaryScalarWhereWithAggregatesInput | PaperSummaryScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"PaperSummary"> | string
+    title?: StringWithAggregatesFilter<"PaperSummary"> | string
+    fileName?: StringNullableWithAggregatesFilter<"PaperSummary"> | string | null
+    url?: StringNullableWithAggregatesFilter<"PaperSummary"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"PaperSummary"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"PaperSummary"> | Date | string
+  }
+
+  export type SectionWhereInput = {
+    AND?: SectionWhereInput | SectionWhereInput[]
+    OR?: SectionWhereInput[]
+    NOT?: SectionWhereInput | SectionWhereInput[]
+    id?: StringFilter<"Section"> | string
+    title?: StringFilter<"Section"> | string
+    summary?: StringFilter<"Section"> | string
+    paperSummaryId?: StringFilter<"Section"> | string
+    order?: IntFilter<"Section"> | number
+    createdAt?: DateTimeFilter<"Section"> | Date | string
+    updatedAt?: DateTimeFilter<"Section"> | Date | string
+    paperSummary?: XOR<PaperSummaryScalarRelationFilter, PaperSummaryWhereInput>
+  }
+
+  export type SectionOrderByWithRelationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    summary?: SortOrder
+    paperSummaryId?: SortOrder
+    order?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    paperSummary?: PaperSummaryOrderByWithRelationInput
+  }
+
+  export type SectionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: SectionWhereInput | SectionWhereInput[]
+    OR?: SectionWhereInput[]
+    NOT?: SectionWhereInput | SectionWhereInput[]
+    title?: StringFilter<"Section"> | string
+    summary?: StringFilter<"Section"> | string
+    paperSummaryId?: StringFilter<"Section"> | string
+    order?: IntFilter<"Section"> | number
+    createdAt?: DateTimeFilter<"Section"> | Date | string
+    updatedAt?: DateTimeFilter<"Section"> | Date | string
+    paperSummary?: XOR<PaperSummaryScalarRelationFilter, PaperSummaryWhereInput>
+  }, "id">
+
+  export type SectionOrderByWithAggregationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    summary?: SortOrder
+    paperSummaryId?: SortOrder
+    order?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: SectionCountOrderByAggregateInput
+    _avg?: SectionAvgOrderByAggregateInput
+    _max?: SectionMaxOrderByAggregateInput
+    _min?: SectionMinOrderByAggregateInput
+    _sum?: SectionSumOrderByAggregateInput
+  }
+
+  export type SectionScalarWhereWithAggregatesInput = {
+    AND?: SectionScalarWhereWithAggregatesInput | SectionScalarWhereWithAggregatesInput[]
+    OR?: SectionScalarWhereWithAggregatesInput[]
+    NOT?: SectionScalarWhereWithAggregatesInput | SectionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Section"> | string
+    title?: StringWithAggregatesFilter<"Section"> | string
+    summary?: StringWithAggregatesFilter<"Section"> | string
+    paperSummaryId?: StringWithAggregatesFilter<"Section"> | string
+    order?: IntWithAggregatesFilter<"Section"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"Section"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Section"> | Date | string
   }
 
   export type UserCreateInput = {
@@ -3320,6 +5907,142 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type PaperSummaryCreateInput = {
+    id?: string
+    title: string
+    fileName?: string | null
+    url?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sections?: SectionCreateNestedManyWithoutPaperSummaryInput
+  }
+
+  export type PaperSummaryUncheckedCreateInput = {
+    id?: string
+    title: string
+    fileName?: string | null
+    url?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sections?: SectionUncheckedCreateNestedManyWithoutPaperSummaryInput
+  }
+
+  export type PaperSummaryUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    fileName?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sections?: SectionUpdateManyWithoutPaperSummaryNestedInput
+  }
+
+  export type PaperSummaryUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    fileName?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sections?: SectionUncheckedUpdateManyWithoutPaperSummaryNestedInput
+  }
+
+  export type PaperSummaryCreateManyInput = {
+    id?: string
+    title: string
+    fileName?: string | null
+    url?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaperSummaryUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    fileName?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaperSummaryUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    fileName?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SectionCreateInput = {
+    id?: string
+    title: string
+    summary: string
+    order?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    paperSummary: PaperSummaryCreateNestedOneWithoutSectionsInput
+  }
+
+  export type SectionUncheckedCreateInput = {
+    id?: string
+    title: string
+    summary: string
+    paperSummaryId: string
+    order?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SectionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    paperSummary?: PaperSummaryUpdateOneRequiredWithoutSectionsNestedInput
+  }
+
+  export type SectionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    paperSummaryId?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SectionCreateManyInput = {
+    id?: string
+    title: string
+    summary: string
+    paperSummaryId: string
+    order?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SectionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SectionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    paperSummaryId?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -3432,12 +6155,225 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type SectionListRelationFilter = {
+    every?: SectionWhereInput
+    some?: SectionWhereInput
+    none?: SectionWhereInput
+  }
+
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
+  }
+
+  export type SectionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type PaperSummaryCountOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    fileName?: SortOrder
+    url?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PaperSummaryMaxOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    fileName?: SortOrder
+    url?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PaperSummaryMinOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    fileName?: SortOrder
+    url?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type PaperSummaryScalarRelationFilter = {
+    is?: PaperSummaryWhereInput
+    isNot?: PaperSummaryWhereInput
+  }
+
+  export type SectionCountOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    summary?: SortOrder
+    paperSummaryId?: SortOrder
+    order?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SectionAvgOrderByAggregateInput = {
+    order?: SortOrder
+  }
+
+  export type SectionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    summary?: SortOrder
+    paperSummaryId?: SortOrder
+    order?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SectionMinOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    summary?: SortOrder
+    paperSummaryId?: SortOrder
+    order?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SectionSumOrderByAggregateInput = {
+    order?: SortOrder
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
 
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
+  }
+
+  export type SectionCreateNestedManyWithoutPaperSummaryInput = {
+    create?: XOR<SectionCreateWithoutPaperSummaryInput, SectionUncheckedCreateWithoutPaperSummaryInput> | SectionCreateWithoutPaperSummaryInput[] | SectionUncheckedCreateWithoutPaperSummaryInput[]
+    connectOrCreate?: SectionCreateOrConnectWithoutPaperSummaryInput | SectionCreateOrConnectWithoutPaperSummaryInput[]
+    createMany?: SectionCreateManyPaperSummaryInputEnvelope
+    connect?: SectionWhereUniqueInput | SectionWhereUniqueInput[]
+  }
+
+  export type SectionUncheckedCreateNestedManyWithoutPaperSummaryInput = {
+    create?: XOR<SectionCreateWithoutPaperSummaryInput, SectionUncheckedCreateWithoutPaperSummaryInput> | SectionCreateWithoutPaperSummaryInput[] | SectionUncheckedCreateWithoutPaperSummaryInput[]
+    connectOrCreate?: SectionCreateOrConnectWithoutPaperSummaryInput | SectionCreateOrConnectWithoutPaperSummaryInput[]
+    createMany?: SectionCreateManyPaperSummaryInputEnvelope
+    connect?: SectionWhereUniqueInput | SectionWhereUniqueInput[]
+  }
+
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
+  }
+
+  export type SectionUpdateManyWithoutPaperSummaryNestedInput = {
+    create?: XOR<SectionCreateWithoutPaperSummaryInput, SectionUncheckedCreateWithoutPaperSummaryInput> | SectionCreateWithoutPaperSummaryInput[] | SectionUncheckedCreateWithoutPaperSummaryInput[]
+    connectOrCreate?: SectionCreateOrConnectWithoutPaperSummaryInput | SectionCreateOrConnectWithoutPaperSummaryInput[]
+    upsert?: SectionUpsertWithWhereUniqueWithoutPaperSummaryInput | SectionUpsertWithWhereUniqueWithoutPaperSummaryInput[]
+    createMany?: SectionCreateManyPaperSummaryInputEnvelope
+    set?: SectionWhereUniqueInput | SectionWhereUniqueInput[]
+    disconnect?: SectionWhereUniqueInput | SectionWhereUniqueInput[]
+    delete?: SectionWhereUniqueInput | SectionWhereUniqueInput[]
+    connect?: SectionWhereUniqueInput | SectionWhereUniqueInput[]
+    update?: SectionUpdateWithWhereUniqueWithoutPaperSummaryInput | SectionUpdateWithWhereUniqueWithoutPaperSummaryInput[]
+    updateMany?: SectionUpdateManyWithWhereWithoutPaperSummaryInput | SectionUpdateManyWithWhereWithoutPaperSummaryInput[]
+    deleteMany?: SectionScalarWhereInput | SectionScalarWhereInput[]
+  }
+
+  export type SectionUncheckedUpdateManyWithoutPaperSummaryNestedInput = {
+    create?: XOR<SectionCreateWithoutPaperSummaryInput, SectionUncheckedCreateWithoutPaperSummaryInput> | SectionCreateWithoutPaperSummaryInput[] | SectionUncheckedCreateWithoutPaperSummaryInput[]
+    connectOrCreate?: SectionCreateOrConnectWithoutPaperSummaryInput | SectionCreateOrConnectWithoutPaperSummaryInput[]
+    upsert?: SectionUpsertWithWhereUniqueWithoutPaperSummaryInput | SectionUpsertWithWhereUniqueWithoutPaperSummaryInput[]
+    createMany?: SectionCreateManyPaperSummaryInputEnvelope
+    set?: SectionWhereUniqueInput | SectionWhereUniqueInput[]
+    disconnect?: SectionWhereUniqueInput | SectionWhereUniqueInput[]
+    delete?: SectionWhereUniqueInput | SectionWhereUniqueInput[]
+    connect?: SectionWhereUniqueInput | SectionWhereUniqueInput[]
+    update?: SectionUpdateWithWhereUniqueWithoutPaperSummaryInput | SectionUpdateWithWhereUniqueWithoutPaperSummaryInput[]
+    updateMany?: SectionUpdateManyWithWhereWithoutPaperSummaryInput | SectionUpdateManyWithWhereWithoutPaperSummaryInput[]
+    deleteMany?: SectionScalarWhereInput | SectionScalarWhereInput[]
+  }
+
+  export type PaperSummaryCreateNestedOneWithoutSectionsInput = {
+    create?: XOR<PaperSummaryCreateWithoutSectionsInput, PaperSummaryUncheckedCreateWithoutSectionsInput>
+    connectOrCreate?: PaperSummaryCreateOrConnectWithoutSectionsInput
+    connect?: PaperSummaryWhereUniqueInput
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type PaperSummaryUpdateOneRequiredWithoutSectionsNestedInput = {
+    create?: XOR<PaperSummaryCreateWithoutSectionsInput, PaperSummaryUncheckedCreateWithoutSectionsInput>
+    connectOrCreate?: PaperSummaryCreateOrConnectWithoutSectionsInput
+    upsert?: PaperSummaryUpsertWithoutSectionsInput
+    connect?: PaperSummaryWhereUniqueInput
+    update?: XOR<XOR<PaperSummaryUpdateToOneWithWhereWithoutSectionsInput, PaperSummaryUpdateWithoutSectionsInput>, PaperSummaryUncheckedUpdateWithoutSectionsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -3505,6 +6441,220 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type SectionCreateWithoutPaperSummaryInput = {
+    id?: string
+    title: string
+    summary: string
+    order?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SectionUncheckedCreateWithoutPaperSummaryInput = {
+    id?: string
+    title: string
+    summary: string
+    order?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SectionCreateOrConnectWithoutPaperSummaryInput = {
+    where: SectionWhereUniqueInput
+    create: XOR<SectionCreateWithoutPaperSummaryInput, SectionUncheckedCreateWithoutPaperSummaryInput>
+  }
+
+  export type SectionCreateManyPaperSummaryInputEnvelope = {
+    data: SectionCreateManyPaperSummaryInput | SectionCreateManyPaperSummaryInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type SectionUpsertWithWhereUniqueWithoutPaperSummaryInput = {
+    where: SectionWhereUniqueInput
+    update: XOR<SectionUpdateWithoutPaperSummaryInput, SectionUncheckedUpdateWithoutPaperSummaryInput>
+    create: XOR<SectionCreateWithoutPaperSummaryInput, SectionUncheckedCreateWithoutPaperSummaryInput>
+  }
+
+  export type SectionUpdateWithWhereUniqueWithoutPaperSummaryInput = {
+    where: SectionWhereUniqueInput
+    data: XOR<SectionUpdateWithoutPaperSummaryInput, SectionUncheckedUpdateWithoutPaperSummaryInput>
+  }
+
+  export type SectionUpdateManyWithWhereWithoutPaperSummaryInput = {
+    where: SectionScalarWhereInput
+    data: XOR<SectionUpdateManyMutationInput, SectionUncheckedUpdateManyWithoutPaperSummaryInput>
+  }
+
+  export type SectionScalarWhereInput = {
+    AND?: SectionScalarWhereInput | SectionScalarWhereInput[]
+    OR?: SectionScalarWhereInput[]
+    NOT?: SectionScalarWhereInput | SectionScalarWhereInput[]
+    id?: StringFilter<"Section"> | string
+    title?: StringFilter<"Section"> | string
+    summary?: StringFilter<"Section"> | string
+    paperSummaryId?: StringFilter<"Section"> | string
+    order?: IntFilter<"Section"> | number
+    createdAt?: DateTimeFilter<"Section"> | Date | string
+    updatedAt?: DateTimeFilter<"Section"> | Date | string
+  }
+
+  export type PaperSummaryCreateWithoutSectionsInput = {
+    id?: string
+    title: string
+    fileName?: string | null
+    url?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaperSummaryUncheckedCreateWithoutSectionsInput = {
+    id?: string
+    title: string
+    fileName?: string | null
+    url?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaperSummaryCreateOrConnectWithoutSectionsInput = {
+    where: PaperSummaryWhereUniqueInput
+    create: XOR<PaperSummaryCreateWithoutSectionsInput, PaperSummaryUncheckedCreateWithoutSectionsInput>
+  }
+
+  export type PaperSummaryUpsertWithoutSectionsInput = {
+    update: XOR<PaperSummaryUpdateWithoutSectionsInput, PaperSummaryUncheckedUpdateWithoutSectionsInput>
+    create: XOR<PaperSummaryCreateWithoutSectionsInput, PaperSummaryUncheckedCreateWithoutSectionsInput>
+    where?: PaperSummaryWhereInput
+  }
+
+  export type PaperSummaryUpdateToOneWithWhereWithoutSectionsInput = {
+    where?: PaperSummaryWhereInput
+    data: XOR<PaperSummaryUpdateWithoutSectionsInput, PaperSummaryUncheckedUpdateWithoutSectionsInput>
+  }
+
+  export type PaperSummaryUpdateWithoutSectionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    fileName?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaperSummaryUncheckedUpdateWithoutSectionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    fileName?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SectionCreateManyPaperSummaryInput = {
+    id?: string
+    title: string
+    summary: string
+    order?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SectionUpdateWithoutPaperSummaryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SectionUncheckedUpdateWithoutPaperSummaryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SectionUncheckedUpdateManyWithoutPaperSummaryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 
