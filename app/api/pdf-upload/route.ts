@@ -1,0 +1,45 @@
+import { NextResponse } from "next/server";
+import { Storage } from "@google-cloud/storage";
+
+export const POST = async (req: Request, res: Response) => {
+ try {
+  const data = await req.formData();
+  const file = data.get("audio") as File;
+
+  if (!file || typeof file === "string") {
+   throw new Error("Audio file not found");
+  }
+
+  const filePath = file?.name;
+
+  const storage = new Storage({
+   projectId: `${GCP_PROJECT_ID}`,
+   credentials: {
+    client_email: `${GCP_SERVICE_ACCOUNT_EMAIL}`,
+    private_key: `${GCP_PRIVATE_KEY}`,
+   },
+  });
+  const bucket = storage.bucket(`${GCP_BUCKET_NAME}`);
+
+  const bytes = await file.arrayBuffer();
+  const buffer = Buffer.from(bytes);
+
+  // Wrap the upload logic in a promise
+  await new Promise((resolve, reject) => {
+   const blob = bucket.file(filePath);
+   const blobStream = blob.createWriteStream({
+    resumable: false,
+   });
+
+   blobStream
+    .on("error", (err) => reject(err))
+    .on("finish", () => resolve(true));
+
+   blobStream.end(buffer);
+  });
+
+  return new NextResponse(JSON.stringify({ success: true }));
+ } catch (error) {
+  return new NextResponse(JSON.stringify(error), { status: 500 });
+ }
+};
