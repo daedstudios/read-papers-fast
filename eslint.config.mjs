@@ -20,6 +20,12 @@ const eslintConfig = [
       "react-hooks/exhaustive-deps": "off",
       "@typescript-eslint/no-empty-object-type": "off",
     },
+    ignorePatterns: [
+      "node_modules/",
+      ".next/",
+      "out/",
+      "lib/generated/**", // Ignore Prisma generated files
+    ],
   }),
 ];
 

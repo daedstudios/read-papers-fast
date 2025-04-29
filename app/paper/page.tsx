@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 interface Section {
   id: string;
   title: string;
-  content: string;
+  summary: string;
   order: number;
   paperSummaryId: string;
 }
@@ -17,7 +17,11 @@ interface PaperSummary {
   sections: Section[];
 }
 
-export default function PaperPage() {
+// Loading component for Suspense fallback
+const PaperLoading = () => <div>Loading paper data...</div>;
+
+// Main component that uses useSearchParams
+function PaperContent() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const [paperSummary, setPaperSummary] = useState<PaperSummary | null>(null);
@@ -69,7 +73,6 @@ export default function PaperPage() {
           {/* <h1 className="text-[1.5rem] font-regular mb-6">
           {paperSummary.title}
         </h1> */}
-
           {paperSummary.sections.map((section) => (
             <div key={section.id} className="mb-[0.5rem]">
               <h2 className="text-[1rem] font-regular mb-2 text-muted-foreground hover:text-foreground cursor-pointer">
@@ -126,5 +129,14 @@ export default function PaperPage() {
         <div className=" w-[22rem] sticky pt-[6rem] px-[1rem]">card</div>
       </div>
     </div>
+  );
+}
+
+// Wrapper page component with Suspense boundary
+export default function PaperPage() {
+  return (
+    <Suspense fallback={<PaperLoading />}>
+      <PaperContent />
+    </Suspense>
   );
 }
