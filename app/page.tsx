@@ -1,115 +1,196 @@
-// components/PDFUploader.tsx
 "use client";
 
-import { useState } from "react";
-import { useChat } from "@ai-sdk/react";
+import React, { useState, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { useAppContext } from "@/components/AppContext";
+import Image from "next/image";
+import { Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 
-export default function PDFUploader() {
-  const [pdfFile, setPdfFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState<boolean>(false);
-  const [message, setMessage] = useState<string>("");
+const Page = () => {
+  const { isLoading, error, result, setIsLoading, setError, setResult } =
+    useAppContext();
+  const [documentUrl, setDocumentUrl] = useState<string>("");
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const {
-    messages,
-    input,
-    handleInputChange,
-    handleSubmit,
-    error,
-    setData,
-    data,
-    setMessages,
-    setInput,
-    stop,
-    status,
-  } = useChat({
-    api: "/api/vertex",
-  });
+  const router = useRouter();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const selectedFile = e.target.files[0];
-      // Only accept PDF files
-      if (selectedFile.type === "application/pdf") {
-        setPdfFile(selectedFile);
-        setMessage("");
+      const file = e.target.files[0];
+      if (file.type === "application/pdf") {
+        setUploadedFile(file);
+        setDocumentUrl("");
       } else {
-        setPdfFile(null);
-        setMessage("Please select a PDF file only");
+        setError("Only PDF files are allowed");
       }
     }
   };
 
-  const uploadPDF = async () => {
-    if (!pdfFile) {
-      setMessage("Please select a PDF file to upload");
-      return;
-    }
+  // Function to read file as base64
+  const readFileAsBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === "string") {
+          // Remove data URL prefix if present
+          const base64String = reader.result.includes("base64,")
+            ? reader.result.split("base64,")[1]
+            : reader.result;
+          resolve(base64String);
+        } else {
+          reject(new Error("Failed to read file as base64"));
+        }
+      };
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
+  };
 
-    setUploading(true);
-    setMessage("Uploading...");
+  const handleVertexCall = async () => {
+    setIsLoading(true);
+    setError(null);
 
-    // Prepare FormData
-    const formData = new FormData();
+    // Start the request before navigation
+    const requestPromise = initiateVertexRequest();
 
-    // Append the PDF file to the FormData object
-    formData.append("pdf", pdfFile);
+    // Navigate to the results page
+    router.push("/survey");
 
-    // Setup the fetch request options
-    const requestOptions: RequestInit = {
-      method: "POST",
-      body: formData,
-    };
-
-    // Send the request to your API endpoint
+    // The request will continue in the background
     try {
-      const response = await fetch("/api/pdf-upload", requestOptions);
-      if (!response.ok) throw new Error("Failed to upload");
-      const data = await response.json();
-      setMessage("Upload successful!");
-      console.log("Upload successful:", data);
-    } catch (error) {
-      setMessage("Error uploading PDF");
-      console.error("Error uploading PDF:", error);
+      const data = await requestPromise;
+      setResult(data);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "An unknown error occurred"
+      );
     } finally {
-      setUploading(false);
+      setIsLoading(false);
     }
+  };
+
+  // Function to start the request and return a promise
+  const initiateVertexRequest = async () => {
+    if (!documentUrl && !uploadedFile) {
+      throw new Error("Please provide a PDF URL or upload a file");
+    }
+
+    let response;
+    if (uploadedFile) {
+      const fileData = await readFileAsBase64(uploadedFile);
+      response = await fetch("/api/vertex", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fileData, fileName: uploadedFile.name }),
+      });
+    } else {
+      response = await fetch("/api/vertex", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ documentUrl }),
+      });
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        errorData.message || `API responded with status: ${response.status}`
+      );
+    }
+
+    return await response.json();
   };
 
   return (
     <div className="pdf-container">
-      <h1 className="text-2xl font-bold mb-4">PDF Document Uploader</h1>
-      {message && (
-        <p
-          className={
-            message.includes("Error") ? "text-red-500" : "text-green-500"
-          }
-        >
-          {message}
-        </p>
-      )}
-      <form id="uploadForm" className="my-4">
-        <div className="mb-4">
-          <label htmlFor="fileInput" className="block mb-2">
-            Select PDF file:
-          </label>
+      <div className="p-[1rem] text-[1.25rem] text-foreground font-medium">
+        readpapersfast.ai
+      </div>
+
+      <div className="flex flex-col justify-center pt-[16rem] mx-auto md:w-[42rem] px-[1rem] md:px-0">
+        <h1 className="justify-center text-[2.25rem] font-medium mb-[2rem]">
+          Read research papers 10x faster
+        </h1>
+        {error && (
+          <p
+            className={
+              error.includes("Error") ? "text-red-500" : "text-green-500"
+            }
+          >
+            {error}
+          </p>
+        )}
+        <form id="uploadForm" className="flex flex-wrap justify-end gap-2">
+          <input
+            type="text"
+            value={documentUrl}
+            onChange={(e) => {
+              setDocumentUrl(e.target.value);
+              setUploadedFile(null);
+              if (fileInputRef.current) fileInputRef.current.value = "";
+            }}
+            placeholder="https://example.com/document.pdf"
+            className="border h-[2.25rem] px-[1rem] w-full rounded-[3rem]"
+          />
+
           <input
             type="file"
-            id="fileInput"
+            ref={fileInputRef}
             accept="application/pdf"
             onChange={handleFileChange}
-            className="border p-2 w-full"
+            className="hidden"
+            id="file-upload"
           />
+          <label
+            htmlFor="file-upload"
+            className="flex items-center justify-center w-[2.25rem] h-[2.25rem] border rounded-[3rem] hover:cursor-pointer"
+          >
+            <Plus size={24} />
+          </label>
+
+          <Button
+            type="button"
+            onClick={handleVertexCall}
+            disabled={isLoading || (!documentUrl && !uploadedFile)}
+            className="bg-blue-500 text-background  px-[4rem] h-[2.25rem] rounded-[3rem] disabled:bg-foreground hover:disabled:bg-muted-foreground hover:cursor-pointer"
+          >
+            {isLoading ? "Uploading..." : "upload"}
+          </Button>
+          {uploadedFile && (
+            <p className="mt-2">Selected file: {uploadedFile.name}</p>
+          )}
+        </form>
+      </div>
+      <div className="flex w-full flex-col items-center pt-[6rem] text-[1rem]">
+        trusted by students of
+        <div className="flex flex-row gap-12 pt-[1rem]">
+          <Image
+            src="/maastricht.svg"
+            alt="maastricht"
+            width={280}
+            height={36}
+            className="opacity-40"
+          ></Image>
+          {/* <Image
+            src="/passau.svg"
+            alt="maastricht"
+            width={240}
+            height={36}
+            className="opacity-40"
+          ></Image>
+          <Image
+            src="/uci.svg"
+            alt="maastricht"
+            width={64}
+            height={36}
+            className="opacity-40"
+          ></Image> */}
         </div>
-        <button
-          type="button"
-          onClick={uploadPDF}
-          disabled={!pdfFile || uploading}
-          className="bg-blue-500 text-white px-4 py-2 rounded disabled:bg-gray-300"
-        >
-          {uploading ? "Uploading..." : "Upload PDF"}
-        </button>
-        {pdfFile && <p className="mt-2">Selected file: {pdfFile.name}</p>}
-      </form>
+      </div>
     </div>
   );
-}
+};
+
+export default Page;

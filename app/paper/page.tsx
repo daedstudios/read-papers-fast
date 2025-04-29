@@ -68,7 +68,7 @@ function PaperContent() {
       <div className="fixed top-[1rem] left-[1rem] text-[1.25rem] text-foreground font-medium">
         readpapersfast.ai
       </div>
-      <div className="flex flex-row w-full">
+      <div className="flex flex-row justify-between w-full">
         <div className="sticky w-[22rem] pt-[6rem] px-[1rem]">
           {/* <h1 className="text-[1.5rem] font-regular mb-6">
           {paperSummary.title}
@@ -83,48 +83,14 @@ function PaperContent() {
           ))}
         </div>
         <div className="justify-center pt-[6rem] h-screen w-[42rem] overflow-y-auto scroll-auto">
-          Human development is now seen as the main goal of human activities,
-          instead of just focusing on economic growth. This idea comes from
-          earlier concepts like the “basic needs” approach by organizations like
-          the ILO and the World Bank, and Amartya Sen’s idea of “capabilities.”
-          In simple terms, human development means giving people more choices so
-          they can live longer, healthier, and more fulfilling lives. However,
-          the idea of “enlarging people’s choices” is very broad. To study the
-          relationship between human development (HD) and economic growth (EG)
-          more clearly, we need to focus on a narrower definition. For this
-          paper, we define human development mainly by the health and education
-          of a country’s people — even though this is a very simplified view.
-          There is a strong connection between economic growth and human
-          development. Economic growth can lead to improvements in human
-          development, and human development can also support economic growth.
-          Human development is now seen as the main goal of human activities,
-          instead of just focusing on economic growth. This idea comes from
-          earlier concepts like the “basic needs” approach by organizations like
-          the ILO and the World Bank, and Amartya Sen’s idea of “capabilities.”
-          In simple terms, human development means giving people more choices so
-          they can live longer, healthier, and more fulfilling lives. However,
-          the idea of “enlarging people’s choices” is very broad. To study the
-          relationship between human development (HD) and economic growth (EG)
-          more clearly, we need to focus on a narrower definition. For this
-          paper, we define human development mainly by the health and education
-          of a country’s people — even though this is a very simplified view.
-          There is a strong connection between economic growth and human
-          development. Economic growth can lead to improvements in human
-          development, and human development can also support economic growth.
-          Human development is now seen as the main goal of human activities,
-          instead of just focusing on economic growth. This idea comes from
-          earlier concepts like the “basic needs” approach by organizations like
-          the ILO and the World Bank, and Amartya Sen’s idea of “capabilities.”
-          In simple terms, human development means giving people more choices so
-          they can live longer, healthier, and more fulfilling lives. However,
-          the idea of “enlarging people’s choices” is very broad. To study the
-          relationship between human development (HD) and economic growth (EG)
-          more clearly, we need to focus on a narrower definition. For this
-          paper, we define human development mainly by the health and education
-          of a country’s people — even though this is a very simplified view.
-          There is a strong connection between economic growth and human
-          development. Economic growth can lead to improvements in human
-          development, and human development can also support economic growth.
+          {paperSummary.sections.map((section) => (
+            <div key={section.id} className="mb-[0.5rem]">
+              <h2 className="text-[1rem] font-regular mb-2 text-muted-foreground hover:text-foreground cursor-pointer">
+                {section.summary}
+              </h2>
+              {/* <div className="prose max-w-none">{section.content}</div> */}
+            </div>
+          ))}
         </div>
         <div className=" w-[22rem] sticky pt-[6rem] px-[1rem]">card</div>
       </div>

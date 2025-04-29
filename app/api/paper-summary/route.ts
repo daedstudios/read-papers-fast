@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@/lib/generated/prisma";
+import { prisma } from "@/lib/SingletonPrismaClient";
 
 export async function GET(request: Request) {
-  const prisma = new PrismaClient();
+  //   const prisma = new PrismaClient();
 
   try {
     const { searchParams } = new URL(request.url);
@@ -41,7 +42,5 @@ export async function GET(request: Request) {
       { error: "Failed to fetch paper summary" },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
