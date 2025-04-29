@@ -154,7 +154,7 @@ const Page = () => {
             type="button"
             onClick={handleVertexCall}
             disabled={isLoading || (!documentUrl && !uploadedFile)}
-            className="bg-blue-500 text-background  px-[4rem] h-[2.25rem] rounded-[3rem] disabled:bg-foreground hover:disabled:bg-muted-foreground hover:cursor-pointer"
+            className=" text-background  px-[4rem] h-[2.25rem] rounded-[3rem] disabled:bg-foreground hover:disabled:bg-muted hover:cursor-pointer"
           >
             {isLoading ? "Uploading..." : "upload"}
           </Button>
