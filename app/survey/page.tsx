@@ -1,14 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import SurveyProgressBar from "./progressBar";
 
 export default function LoadingSurvey() {
+  const [dots, setDots] = useState("");
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDots((prev) => (prev.length >= 3 ? "" : prev + "."));
+    }, 250); // every 500ms add a dot
+
+    return () => clearInterval(interval);
+  }, []);
+
   const [step, setStep] = useState(1);
   const [surveyData, setSurveyData] = useState({
     reason: "",
     confidence: "",
     field: "",
   });
+
+  const totalSteps = 4;
 
   const nextStep = () => setStep((prev) => prev + 1);
 
@@ -17,12 +30,13 @@ export default function LoadingSurvey() {
       <div className="fixed top-[1rem] left-[1rem] text-[1.25rem] text-foreground font-medium">
         readpapersfast.ai
       </div>
+      <SurveyProgressBar step={step} total={totalSteps} />
       <div className="flex flex-col items-center justify-center h-screen gap-[2rem]">
         {step === 1 && (
           <>
             <div className="flex flex-col items-start  w-[42rem]">
               <h2 className="text-[2.25rem] pb-[2rem]">
-                Transcribing jargon...
+                Transcribing jargon{dots}
               </h2>
 
               <label htmlFor="reasonInput" className="pb-[1rem] pl-2">
@@ -40,7 +54,7 @@ export default function LoadingSurvey() {
                 className="w-full border p-2 h-[2.25rem] border-muted rounded-[3rem] active:border-none"
               />
             </div>
-            <div className="flex flex-row items-end justify-end  w-[42rem]">
+            <div className="flex flex-col items-end gap-[2rem] justify-end  w-[42rem]">
               <button
                 onClick={nextStep}
                 className="justify-end bg-foreground text-background rounded-[3rem] h-[2.25rem] px-[2rem] cursor-pointer hover:bg-muted-foreground"
@@ -54,7 +68,7 @@ export default function LoadingSurvey() {
         {step === 2 && (
           <>
             <div className="flex flex-col items-start  w-[42rem]">
-              <h2 className="text-[2.25rem] pb-[2rem]"> Almost there...</h2>
+              <h2 className="text-[2.25rem] pb-[2rem]"> Almost there{dots}</h2>
               <div className="flex flex-col w-full gap-[1rem]">
                 <label htmlFor="reasonInput">
                   How confident are you reading research papers?
@@ -84,7 +98,7 @@ export default function LoadingSurvey() {
                 </div>
               </div>
             </div>
-            <div className="flex flex-row items-end justify-end  w-[42rem]">
+            <div className="flex flex-col gap-[2rem] items-end justify-end  w-[42rem]">
               <button
                 onClick={nextStep}
                 className="justify-end bg-foreground text-background rounded-[3rem] h-[2.25rem] px-[2rem] cursor-pointer hover:bg-muted-foreground"
@@ -98,7 +112,7 @@ export default function LoadingSurvey() {
         {step === 3 && (
           <>
             <div className="flex flex-col items-start  w-[42rem]">
-              <h2 className="text-[2.25rem] pb-[2rem]"> Finishing...</h2>
+              <h2 className="text-[2.25rem] pb-[2rem]"> Finishing{dots}</h2>
               <label htmlFor="reasonInput" className="pb-[1rem]">
                 What field are you studying?
               </label>
