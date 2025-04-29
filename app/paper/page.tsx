@@ -92,7 +92,7 @@ function PaperContent() {
             </div>
           ))}
         </div>
-        <div className=" w-[22rem] sticky pt-[6rem] px-[1rem]">card</div>
+        <div className=" w-[22rem] sticky pt-[6rem] px-[1rem]"></div>
       </div>
     </div>
   );
