@@ -35,7 +35,7 @@ export async function POST(req: Request) {
           content: [
             {
               type: "text",
-              text: 'Extract the structure of this document and return the main categories as a JSON object with an array of sections. Each section should have a "title" and a "summary" field. The summary should all the text of that section. Example: {"sections": [{"title": "Introduction", "summary": "Introduces the main concepts and goals of the paper."}, {"title": "Methodology", "summary": "Describes the research approach and data collection methods."}]}',
+              text: 'Extract the structure of this document and return the main categories as a JSON object with an array of sections. Each section should have a "title" and a "summary" field. The summary should be small. Example: {"sections": [{"title": "Introduction", "summary": "Introduces the main concepts and goals of the paper."}, {"title": "Methodology", "summary": "Describes the research approach and data collection methods."}]}',
             },
             {
               type: "file",

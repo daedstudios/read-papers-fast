@@ -3,11 +3,16 @@
 import { useState, useEffect } from "react";
 import SurveyProgressBar from "./progressBar";
 import { useAppContext } from "@/components/AppContext";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export default function LoadingSurvey() {
   const [dots, setDots] = useState("");
   const { isLoading, error, result, setIsLoading, setError, setResult } =
     useAppContext();
+
+  const router = useRouter();
+
   useEffect(() => {
     const interval = setInterval(() => {
       setDots((prev) => (prev.length >= 3 ? "" : prev + "."));
@@ -31,6 +36,43 @@ export default function LoadingSurvey() {
     console.log("result:", result);
   }, [result]);
 
+  const handleSubmit = async () => {
+    // Only proceed if we have result data with paperSummaryId
+    if (!result?.paperSummary?.id) {
+      setError("No paper data available");
+      return;
+    }
+
+    try {
+      // Attempt to save survey data but don't block navigation on failure
+      const response = await fetch("/api/survey", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...surveyData,
+          paperSummaryId: result.paperSummary.id,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Survey submission error:", errorData.error);
+        // Continue with navigation despite survey save error
+      } else {
+        const data = await response.json();
+        console.log("Survey submitted successfully:", data);
+      }
+    } catch (err) {
+      console.error("Error submitting survey:", err);
+      // Don't block navigation on survey submission error
+    } finally {
+      // Always navigate to the paper page if we have an ID
+      router.push(`/paper?id=${result.paperSummary.id}`);
+    }
+  };
+
   return (
     <div>
       <div className="fixed top-[1rem] left-[1rem] text-[1.25rem] text-foreground font-medium">
@@ -40,6 +82,11 @@ export default function LoadingSurvey() {
         <div className="fixed top-[1rem] right-[1rem] text-[1.25rem] text-foreground font-medium">
           {error && <p>Error: {error}</p>}
           {isLoading && <p>Loading{dots}</p>}
+        </div>
+      )}
+      {result?.success && (
+        <div className="fixed top-[1rem] right-[1rem] text-[1.25rem] text-foreground font-medium">
+          <p>Success: {result.success}</p>
         </div>
       )}
 
@@ -158,16 +205,17 @@ export default function LoadingSurvey() {
                 Thanks for submitting!
               </h2>
               <p className="pb-[2rem] pl-1">
-                You’re research paper will ready soon...
+                You're research paper will ready soon...
               </p>
 
               <div className="flex flex-wrap items-end gap-[2rem] justify-end w-full md:w-[42rem] md:px-0">
-                <button
-                  onClick={() => console.log("Survey Done!", surveyData)}
-                  className="justify-end w-full md:w-auto bg-foreground text-background rounded-[3rem] h-[2.25rem] px-[2rem] cursor-pointer hover:bg-muted-foreground"
+                <Button
+                  onClick={handleSubmit}
+                  disabled={isLoading || !result?.paperSummary?.id}
+                  className="justify-end w-full md:w-auto bg-foreground text-background rounded-[3rem] h-[2.25rem] px-[2rem] cursor-pointer hover:bg-muted-foreground disabled:bg-muted-foreground"
                 >
                   see paper
-                </button>
+                </Button>
               </div>
             </div>
           </>
