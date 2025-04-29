@@ -3,9 +3,9 @@ import { google } from "@ai-sdk/google";
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@/lib/generated/prisma";
 
-const prisma = new PrismaClient();
-
 export async function POST(req: Request) {
+  const prisma = new PrismaClient();
+
   try {
     const body = await req.json();
     const { documentUrl, fileData, fileName } = body;
@@ -96,6 +96,8 @@ export async function POST(req: Request) {
       },
       { status: 500 }
     );
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
