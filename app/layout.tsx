@@ -3,7 +3,7 @@ import "./globals.css";
 import { AppContextProvider } from "@/components/AppContext";
 
 export const metadata: Metadata = {
-  title: "Read papers fast",
+  title: "ReadPapersFast",
   description: "Read research papers 10x faster",
 };
 
