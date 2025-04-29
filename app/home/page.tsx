@@ -83,7 +83,7 @@ export default function PDFUploader() {
         readpapersfast.ai
       </div>
 
-      <div className="flex flex-col justify-center pt-[16rem] mx-auto w-[42rem]">
+      <div className="flex flex-col justify-center pt-[16rem] mx-auto md:w-[42rem] px-[1rem] md:px-0">
         <h1 className="justify-center text-[2.25rem] font-medium mb-[2rem]">
           Read research papers 10x faster
         </h1>
@@ -96,13 +96,13 @@ export default function PDFUploader() {
             {message}
           </p>
         )}
-        <form id="uploadForm" className=" flex flex-row justify-between gap-2">
+        <form id="uploadForm" className="flex flex-wrap justify-end gap-2">
           <input
             type="file"
             id="fileInput"
             accept="application/pdf"
             onChange={handleFileChange}
-            className="border h-[2.25rem] px-[1rem] w-[28rem] rounded-[3rem] text-white"
+            className="border h-[2.25rem] px-[1rem] w-full rounded-[3rem] text-white"
           />
 
           <div className="flex flex-row w-[2.25rem] h-[2.25rem] border  rounded-[3rem] text-foreground items-center text-center">

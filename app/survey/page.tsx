@@ -34,7 +34,7 @@ export default function LoadingSurvey() {
       <div className="flex flex-col items-center justify-center h-screen gap-[2rem]">
         {step === 1 && (
           <>
-            <div className="flex flex-col items-start  w-[42rem]">
+            <div className="flex flex-col items-start w-full px-[1rem] md:px-[0] md:w-[42rem]">
               <h2 className="text-[2.25rem] pb-[2rem]">
                 Transcribing jargon{dots}
               </h2>
@@ -54,10 +54,10 @@ export default function LoadingSurvey() {
                 className="w-full border p-2 h-[2.25rem] border-muted rounded-[3rem] active:border-none"
               />
             </div>
-            <div className="flex flex-col items-end gap-[2rem] justify-end  w-[42rem]">
+            <div className="flex flex-wrap items-end gap-[2rem] justify-end w-full md:w-[42rem] px-[1rem] md:px-0">
               <button
                 onClick={nextStep}
-                className="justify-end bg-foreground text-background rounded-[3rem] h-[2.25rem] px-[2rem] cursor-pointer hover:bg-muted-foreground"
+                className="justify-end w-full md:w-auto bg-foreground text-background rounded-[3rem] h-[2.25rem] px-[2rem] cursor-pointer hover:bg-muted-foreground"
               >
                 next
               </button>
@@ -67,7 +67,7 @@ export default function LoadingSurvey() {
 
         {step === 2 && (
           <>
-            <div className="flex flex-col items-start  w-[42rem]">
+            <div className="flex flex-col items-start w-full px-[1rem] md:px-[0] md:w-[42rem]">
               <h2 className="text-[2.25rem] pb-[2rem]"> Almost there{dots}</h2>
               <div className="flex flex-col w-full gap-[1rem]">
                 <label htmlFor="reasonInput">
@@ -98,10 +98,10 @@ export default function LoadingSurvey() {
                 </div>
               </div>
             </div>
-            <div className="flex flex-col gap-[2rem] items-end justify-end  w-[42rem]">
+            <div className="flex flex-wrap items-end gap-[2rem] justify-end w-full md:w-[42rem] px-[1rem] md:px-0">
               <button
                 onClick={nextStep}
-                className="justify-end bg-foreground text-background rounded-[3rem] h-[2.25rem] px-[2rem] cursor-pointer hover:bg-muted-foreground"
+                className="justify-end w-full md:w-auto bg-foreground text-background rounded-[3rem] h-[2.25rem] px-[2rem] cursor-pointer hover:bg-muted-foreground"
               >
                 next
               </button>
@@ -111,7 +111,7 @@ export default function LoadingSurvey() {
 
         {step === 3 && (
           <>
-            <div className="flex flex-col items-start  w-[42rem]">
+            <div className="flex flex-col items-start w-full px-[1rem] md:px-[0] md:w-[42rem]">
               <h2 className="text-[2.25rem] pb-[2rem]"> Finishing{dots}</h2>
               <label htmlFor="reasonInput" className="pb-[1rem]">
                 What field are you studying?
@@ -125,10 +125,10 @@ export default function LoadingSurvey() {
                 }
                 className="w-full border p-2 h-[2.25rem] border-muted rounded-[3rem] active:border-none"
               />
-              <div className="flex flex-row items-end justify-end  w-[42rem] pt-[1rem]">
+              <div className="flex pt-[1rem] flex-wrap items-end gap-[2rem] justify-end w-full md:w-[42rem]  md:px-0">
                 <button
                   onClick={nextStep}
-                  className="justify-end bg-foreground text-background rounded-[3rem] h-[2.25rem] px-[2rem] cursor-pointer hover:bg-muted-foreground"
+                  className="justify-end w-full md:w-auto bg-foreground text-background rounded-[3rem] h-[2.25rem] px-[2rem] cursor-pointer hover:bg-muted-foreground"
                 >
                   finish
                 </button>
@@ -139,19 +139,19 @@ export default function LoadingSurvey() {
 
         {step === 4 && (
           <>
-            <div className="flex flex-col items-start  w-[42rem]">
-              <h2 className="text-[2.25rem] pb-[1rem]">
+            <div className="flex flex-col items-start w-full px-[1rem] md:px-[0] md:w-[42rem]">
+              <h2 className="text-[2.25rem] pb-[1rem] w-[12rem]">
                 {" "}
                 Thanks for submitting!
               </h2>
-              <p className="pb-[1rem] pl-1">
+              <p className="pb-[2rem] pl-1">
                 You’re research paper will ready soon...
               </p>
 
-              <div className="flex flex-row items-end justify-end  w-[42rem] pt-[1rem]">
+              <div className="flex flex-wrap items-end gap-[2rem] justify-end w-full md:w-[42rem] md:px-0">
                 <button
                   onClick={() => console.log("Survey Done!", surveyData)}
-                  className="justify-end bg-foreground text-background rounded-[3rem] h-[2.25rem] px-[2rem] cursor-pointer hover:bg-muted-foreground"
+                  className="justify-end w-full md:w-auto bg-foreground text-background rounded-[3rem] h-[2.25rem] px-[2rem] cursor-pointer hover:bg-muted-foreground"
                 >
                   see paper
                 </button>
