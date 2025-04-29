@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useAppContext } from "@/components/AppContext";
 import Image from "next/image";
 import { Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
   const { isLoading, error, result, setIsLoading, setError, setResult } =
@@ -12,6 +13,8 @@ const Page = () => {
   const [documentUrl, setDocumentUrl] = useState<string>("");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const router = useRouter();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -49,61 +52,55 @@ const Page = () => {
     setIsLoading(true);
     setError(null);
 
-    // Check if we have either a URL or a file
-    if (!documentUrl && !uploadedFile) {
-      setError("Please provide a PDF URL or upload a file");
-      setIsLoading(false);
-      return;
-    }
+    // Start the request before navigation
+    const requestPromise = initiateVertexRequest();
 
+    // Navigate to the results page
+    router.push("/survey");
+
+    // The request will continue in the background
     try {
-      let response;
-
-      if (uploadedFile) {
-        // Convert file to base64
-        const fileData = await readFileAsBase64(uploadedFile);
-
-        // Call the Vertex API directly with the file data
-        response = await fetch("/api/vertex", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            fileData: fileData,
-            fileName: uploadedFile.name,
-          }),
-        });
-      } else {
-        // Use URL directly
-        response = await fetch("/api/vertex", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            documentUrl,
-          }),
-        });
-      }
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.message || `API responded with status: ${response.status}`
-        );
-      }
-
-      const data = await response.json();
+      const data = await requestPromise;
       setResult(data);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "An unknown error occurred"
       );
-      console.error("Error calling Vertex API:", err);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Function to start the request and return a promise
+  const initiateVertexRequest = async () => {
+    if (!documentUrl && !uploadedFile) {
+      throw new Error("Please provide a PDF URL or upload a file");
+    }
+
+    let response;
+    if (uploadedFile) {
+      const fileData = await readFileAsBase64(uploadedFile);
+      response = await fetch("/api/vertex", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fileData, fileName: uploadedFile.name }),
+      });
+    } else {
+      response = await fetch("/api/vertex", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ documentUrl }),
+      });
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        errorData.message || `API responded with status: ${response.status}`
+      );
+    }
+
+    return await response.json();
   };
 
   return (

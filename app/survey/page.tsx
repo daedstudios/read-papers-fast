@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from "react";
 import SurveyProgressBar from "./progressBar";
+import { useAppContext } from "@/components/AppContext";
 
 export default function LoadingSurvey() {
   const [dots, setDots] = useState("");
-
+  const { isLoading, error, result, setIsLoading, setError, setResult } =
+    useAppContext();
   useEffect(() => {
     const interval = setInterval(() => {
       setDots((prev) => (prev.length >= 3 ? "" : prev + "."));
@@ -25,11 +27,22 @@ export default function LoadingSurvey() {
 
   const nextStep = () => setStep((prev) => prev + 1);
 
+  useEffect(() => {
+    console.log("result:", result);
+  }, [result]);
+
   return (
     <div>
       <div className="fixed top-[1rem] left-[1rem] text-[1.25rem] text-foreground font-medium">
         readpapersfast.ai
       </div>
+      {isLoading && (
+        <div className="fixed top-[1rem] right-[1rem] text-[1.25rem] text-foreground font-medium">
+          {error && <p>Error: {error}</p>}
+          {isLoading && <p>Loading{dots}</p>}
+        </div>
+      )}
+
       <SurveyProgressBar step={step} total={totalSteps} />
       <div className="flex flex-col items-center justify-center h-screen gap-[2rem]">
         {step === 1 && (
