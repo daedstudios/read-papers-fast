@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { Plus } from "lucide-react";
+import Image from "next/image";
 
 export default function PDFUploader() {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
@@ -121,6 +122,32 @@ export default function PDFUploader() {
           </button>
           {pdfFile && <p className="mt-2">Selected file: {pdfFile.name}</p>}
         </form>
+      </div>
+      <div className="flex w-full flex-col items-center pt-[6rem] text-[1rem]">
+        trusted by students of
+        <div className="flex flex-row gap-12 pt-[1rem]">
+          <Image
+            src="/maastricht.svg"
+            alt="maastricht"
+            width={280}
+            height={36}
+            className="opacity-40"
+          ></Image>
+          {/* <Image
+            src="/passau.svg"
+            alt="maastricht"
+            width={240}
+            height={36}
+            className="opacity-40"
+          ></Image>
+          <Image
+            src="/uci.svg"
+            alt="maastricht"
+            width={64}
+            height={36}
+            className="opacity-40"
+          ></Image> */}
+        </div>
       </div>
     </div>
   );
