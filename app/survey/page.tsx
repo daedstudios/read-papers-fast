@@ -78,7 +78,7 @@ export default function LoadingSurvey() {
       <div className="fixed top-[1rem] left-[1rem] text-[1.25rem] text-foreground font-medium">
         ReadPapersFast
       </div>
-      {!isLoading && (
+      {isLoading && (
         <div className="fixed top-[1rem] right-[1rem] text-[1.25rem] text-foreground font-medium">
           {/* {error && <p>Error: {error}</p>} */}
           {isLoading && <p>{dots}</p>}
