@@ -1,16 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
-
-const geistSans = Inter({
-  variable: "--font-inter-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Inter({
-  variable: "--font-inter-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Read papers fast",
@@ -24,11 +13,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }
