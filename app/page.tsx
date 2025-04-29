@@ -106,7 +106,7 @@ const Page = () => {
   return (
     <div className="pdf-container">
       <div className="p-[1rem] text-[1.25rem] text-foreground font-medium">
-        readpapersfast.ai
+        ReadPapersFast
       </div>
 
       <div className="flex flex-col justify-center pt-[16rem] mx-auto md:w-[42rem] px-[1rem] md:px-0">
@@ -154,7 +154,7 @@ const Page = () => {
             type="button"
             onClick={handleVertexCall}
             disabled={isLoading || (!documentUrl && !uploadedFile)}
-            className="bg-blue-500 text-background  px-[4rem] h-[2.25rem] rounded-[3rem] disabled:bg-foreground hover:disabled:bg-muted-foreground hover:cursor-pointer"
+            className=" text-background  px-[4rem] h-[2.25rem] rounded-[3rem] disabled:bg-foreground hover:disabled:bg-muted hover:cursor-pointer"
           >
             {isLoading ? "Uploading..." : "upload"}
           </Button>
@@ -165,28 +165,68 @@ const Page = () => {
       </div>
       <div className="flex w-full flex-col items-center pt-[6rem] text-[1rem]">
         trusted by students of
-        <div className="flex flex-row gap-12 pt-[1rem]">
-          <Image
-            src="/maastricht.svg"
-            alt="maastricht"
-            width={280}
-            height={36}
-            className="opacity-40"
-          ></Image>
-          {/* <Image
-            src="/passau.svg"
-            alt="maastricht"
-            width={240}
-            height={36}
-            className="opacity-40"
-          ></Image>
-          <Image
-            src="/uci.svg"
-            alt="maastricht"
-            width={64}
-            height={36}
-            className="opacity-40"
-          ></Image> */}
+        <div className="relative md:w-[42rem] overflow-hidden py-[3rem]">
+          <div className="flex gap-[8rem] animate-marquee whitespace-nowrap">
+            <Image
+              src="/maastricht.svg"
+              alt="maastricht"
+              width={280}
+              height={36}
+              className="opacity-40"
+            />
+            <Image
+              src="/passau.svg"
+              alt="passau"
+              width={240}
+              height={36}
+              className="opacity-40"
+            />
+            <Image
+              src="/uci.svg"
+              alt="uci"
+              width={64}
+              height={36}
+              className="opacity-40"
+            />
+
+            <Image
+              src="/maastricht.svg"
+              alt="maastricht"
+              width={280}
+              height={36}
+              className="opacity-40"
+            />
+            <Image
+              src="/passau.svg"
+              alt="passau"
+              width={240}
+              height={36}
+              className="opacity-40"
+            />
+            <Image
+              src="/uci.svg"
+              alt="uci"
+              width={64}
+              height={36}
+              className="opacity-40"
+            />
+          </div>
+
+          <style jsx>{`
+            .animate-marquee {
+              display: inline-flex;
+              animation: scroll-left 25s linear infinite;
+            }
+
+            @keyframes scroll-left {
+              0% {
+                transform: translateX(0);
+              }
+              100% {
+                transform: translateX(-50%);
+              }
+            }
+          `}</style>
         </div>
       </div>
     </div>

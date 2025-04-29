@@ -66,7 +66,7 @@ function PaperContent() {
   return (
     <div className="">
       <div className="fixed top-[1rem] left-[1rem] text-[1.25rem] text-foreground font-medium">
-        readpapersfast.ai
+        ReadPapersFast
       </div>
       <div className="flex flex-row justify-between w-full">
         <div className="sticky w-[22rem] pt-[6rem] px-[1rem]">
@@ -84,15 +84,15 @@ function PaperContent() {
         </div>
         <div className="justify-center pt-[6rem] h-screen w-[42rem] overflow-y-auto scroll-auto">
           {paperSummary.sections.map((section) => (
-            <div key={section.id} className="mb-[0.5rem]">
-              <h2 className="text-[1rem] font-regular mb-2 text-muted-foreground hover:text-foreground cursor-pointer">
+            <div key={section.id} className="">
+              <h2 className="text-[1rem] font-regular  text-foreground cursor-pointer">
                 {section.summary}
               </h2>
               {/* <div className="prose max-w-none">{section.content}</div> */}
             </div>
           ))}
         </div>
-        <div className=" w-[22rem] sticky pt-[6rem] px-[1rem]">card</div>
+        <div className=" w-[22rem] sticky pt-[6rem] px-[1rem]"></div>
       </div>
     </div>
   );

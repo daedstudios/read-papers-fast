@@ -76,12 +76,12 @@ export default function LoadingSurvey() {
   return (
     <div>
       <div className="fixed top-[1rem] left-[1rem] text-[1.25rem] text-foreground font-medium">
-        readpapersfast.ai
+        ReadPapersFast
       </div>
       {isLoading && (
         <div className="fixed top-[1rem] right-[1rem] text-[1.25rem] text-foreground font-medium">
-          {error && <p>Error: {error}</p>}
-          {isLoading && <p>Loading{dots}</p>}
+          {/* {error && <p>Error: {error}</p>} */}
+          {isLoading && <p>{dots}</p>}
         </div>
       )}
       {result?.success && (
