@@ -27,15 +27,17 @@ export async function POST(req: Request) {
       );
     }
 
-    const result = await generateText({
-      model: google("gemini-1.5-flash"),
+    // Step 1: Extract just the titles from the PDF
+    console.log("Step 1: Extracting titles from document...");
+    const titlesResult = await generateText({
+      model: google("gemini-1.5-flash-latest"),
       messages: [
         {
           role: "user",
           content: [
             {
               type: "text",
-              text: 'Extract the structure of this document and return the main categories as a JSON object with an array of sections. Each section should have a "title" and a "summary" field. The summary should be small. Example: {"sections": [{"title": "Introduction", "summary": "Introduces the main concepts and goals of the paper."}, {"title": "Methodology", "summary": "Describes the research approach and data collection methods."}]}',
+              text: 'You are an AI document parser. Extract ONLY the section titles from this academic paper. Return them as a JSON array in the format: {"titles": ["Introduction", "Methodology", "Results", "Discussion", "Conclusion", ...]}. Include ALL section titles and subtitles in the document.',
             },
             {
               type: "file",
@@ -45,20 +47,73 @@ export async function POST(req: Request) {
           ],
         },
       ],
+      maxTokens: 2000,
     });
 
-    console.log("AI response:", result.text);
+    console.log("Titles extracted:", titlesResult.text);
 
-    // Create a structured response with sections
+    // Parse the titles from the response
+    const titles = parseTitles(titlesResult.text);
+    if (!titles || titles.length === 0) {
+      throw new Error("Failed to extract section titles from the document");
+    }
+
+    // Step 2: For each title, make a separate request to get the content
+    console.log(`Step 2: Extracting content for ${titles.length} sections...`);
+    const sections = [];
+
+    for (let i = 0; i < titles.length; i++) {
+      const title = titles[i];
+      console.log(`Processing section ${i + 1}/${titles.length}: "${title}"`);
+
+      const contentResult = await generateText({
+        model: google("gemini-1.5-flash-latest"),
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: `You are an AI document parser. Extract the FULL VERBATIM content for the section titled "${title}" from this academic paper. Do NOT summarize or modify the text. Return ONLY the raw text content without any additional commentary. If this exact section title doesn't exist, find the closest matching section.`,
+              },
+              {
+                type: "file",
+                data: pdfSource,
+                mimeType: "application/pdf",
+              },
+            ],
+          },
+        ],
+        maxTokens: 20000,
+      });
+
+      sections.push({
+        title: title,
+        content: contentResult.text.trim(),
+      });
+
+      // Short delay to avoid rate limiting
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+
+    // Create the final structured JSON
+    const finalResult = { sections: sections };
+    const finalResultText = JSON.stringify(finalResult);
+
+    console.log(
+      "Final combined result prepared with sections:",
+      sections.length
+    );
+
+    // Store the result in the database
     try {
-      // Store the result in the database
       const paperSummary = await prisma.paperSummary.create({
         data: {
           title: pdfTitle,
           url: documentUrl || null,
           fileName: pdfFileName,
           sections: {
-            create: parseAndPrepareSections(result.text),
+            create: parseAndPrepareSections(finalResultText),
           },
         },
         include: {
@@ -73,7 +128,7 @@ export async function POST(req: Request) {
       // Return both the AI response and the saved database record
       return NextResponse.json({
         success: true,
-        answer: result.text,
+        answer: finalResultText,
         paperSummary: paperSummary,
       });
     } catch (dbError) {
@@ -81,7 +136,7 @@ export async function POST(req: Request) {
       // If DB operation fails, still return the AI response
       return NextResponse.json({
         success: true,
-        answer: result.text,
+        answer: finalResultText,
         dbError: "Failed to save to database",
       });
     }
@@ -97,10 +152,37 @@ export async function POST(req: Request) {
   }
 }
 
+// Function to parse titles from the AI response
+function parseTitles(jsonText: string): string[] {
+  try {
+    // Remove the markdown formatting if present (```json and ````)
+    const cleanedJsonText = jsonText.replace(/```json|```/g, "").trim();
+
+    // Parse the JSON response
+    const parsedData = JSON.parse(cleanedJsonText);
+
+    // Check if titles array exists
+    if (parsedData.titles && Array.isArray(parsedData.titles)) {
+      return parsedData.titles;
+    } else {
+      console.warn("Unexpected titles response format");
+      return [];
+    }
+  } catch (error) {
+    console.error("Error parsing titles response:", error);
+    // If we can't parse the JSON, try to extract titles using regex
+    const titleMatches = jsonText.match(/"([^"]+)"/g);
+    if (titleMatches) {
+      return titleMatches.map((match) => match.replace(/"/g, ""));
+    }
+    return [];
+  }
+}
+
 // Define an interface for the section structure
 interface Section {
   title: string;
-  summary: string;
+  content: string;
 }
 
 function parseAndPrepareSections(jsonText: string) {
@@ -113,10 +195,10 @@ function parseAndPrepareSections(jsonText: string) {
 
     // Check if sections array exists
     if (parsedData.sections && Array.isArray(parsedData.sections)) {
-      // Map sections to the format expected by Prisma
+      // Map sections to the format expected by Prisma, converting 'content' to 'summary' for database
       return parsedData.sections.map((section: Section, index: number) => ({
         title: section.title,
-        summary: section.summary,
+        summary: section.content, // Store content as summary in the database
         order: index,
       }));
     } else {
@@ -124,7 +206,7 @@ function parseAndPrepareSections(jsonText: string) {
       console.warn("Unexpected AI response format, using fallback structure");
       return [
         {
-          title: "Document Summary",
+          title: "Document Content",
           summary: jsonText,
           order: 0,
         },
@@ -135,7 +217,7 @@ function parseAndPrepareSections(jsonText: string) {
     // If parsing fails, use the raw text
     return [
       {
-        title: "Raw Document Analysis",
+        title: "Raw Document Content",
         summary: jsonText,
         order: 0,
       },
