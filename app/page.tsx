@@ -166,13 +166,9 @@ const Page = () => {
           >
             {isLoading ? "Uploading..." : "upload"}
           </Button>
-
-          {uploadedFile && (
-            <p className="mt-2">Selected file: {uploadedFile.name}</p>
-          )}
         </form>
         <p className="w-full mx-auto text-center text-background px-1 mt-[1rem]">
-          Paste a link or upload a PDF directly
+          {uploadedFile?.name || "Paste a link or upload a PDF directly"}
         </p>
       </div>
       <div className="flex w-full flex-col text-background items-center pt-[6rem] text-[1rem]">

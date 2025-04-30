@@ -5,6 +5,13 @@ import SurveyProgressBar from "./progressBar";
 import { useAppContext } from "@/components/AppContext";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { Textarea } from "@/components/ui/textarea";
+import { Card } from "@/components/ui/card";
+import { CardHeader } from "@/components/ui/card";
+import { CardTitle } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
+import { RadioGroup } from "@/components/ui/radio-group";
+import { RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function LoadingSurvey() {
   const [dots, setDots] = useState("");
@@ -27,6 +34,7 @@ export default function LoadingSurvey() {
     confidence: "",
     field: "",
   });
+  const steps = [1, 2, 3, 4];
 
   const totalSteps = 4;
 
@@ -75,9 +83,10 @@ export default function LoadingSurvey() {
 
   return (
     <div>
-      <div className="fixed top-[1rem] left-[1rem] text-[1.25rem] text-foreground font-medium">
+      <div className="fixed top-[1rem] left-[1rem] text-[1.25rem] text-background font-medium">
         ReadPapersFast
       </div>
+
       {isLoading && (
         <div className="fixed top-[1rem] right-[1rem] text-[1.25rem] text-foreground font-medium">
           {/* {error && <p>Error: {error}</p>} */}
@@ -91,135 +100,168 @@ export default function LoadingSurvey() {
       )}
 
       <SurveyProgressBar step={step} total={totalSteps} />
-      <div className="flex flex-col items-center justify-center h-screen gap-[2rem]">
+      <div
+        className="flex flex-col items-center justify-center h-screen gap-[2rem] px-[1rem]"
+        style={{ backgroundImage: "url('/RPF.jpg')" }}
+      >
         {step === 1 && (
           <>
-            <div className="flex flex-col items-start w-full px-[1rem] md:px-[0] md:w-[42rem]">
-              <h2 className="text-[2.25rem] pb-[2rem]">
-                Transcribing jargon{dots}
-              </h2>
+            <Card className="w-full max-w-[32rem] bg-background/40 shadow-lg border border-muted/30 backdrop-blur-lg rounded-[2rem]">
+              <CardHeader>
+                <CardTitle className="text-[2.25rem] font-medium text-foreground">
+                  Transcribing jargon{dots}
+                </CardTitle>
+              </CardHeader>
 
-              <label htmlFor="reasonInput" className="pb-[1rem] pl-2">
-                Why are you here?
-              </label>
-
-              <input
-                id="reasonInput"
-                type="text"
-                placeholder="e.g., preparing for exams"
-                value={surveyData.reason}
-                onChange={(e) =>
-                  setSurveyData({ ...surveyData, reason: e.target.value })
-                }
-                className="w-full border p-2 h-[2.25rem] border-muted rounded-[3rem] active:border-none"
-              />
-            </div>
-            <div className="flex flex-wrap items-end gap-[2rem] justify-end w-full md:w-[42rem] px-[1rem] md:px-0">
-              <button
-                onClick={nextStep}
-                className="justify-end w-full md:w-auto bg-foreground text-background rounded-[3rem] h-[2.25rem] px-[2rem] cursor-pointer hover:bg-muted-foreground"
-              >
-                next
-              </button>
-            </div>
+              <CardContent className="flex flex-col gap-4">
+                <label
+                  htmlFor="reasonInput"
+                  className="text-[1rem] font-medium text-foreground"
+                >
+                  Why are you here?
+                </label>
+                <Textarea
+                  id="reasonInput"
+                  placeholder="e.g. preparing for exams"
+                  value={surveyData.reason}
+                  onChange={(e) =>
+                    setSurveyData({ ...surveyData, reason: e.target.value })
+                  }
+                  className="min-h-[4rem]  resize-none border border-muted/30"
+                />
+                <div className="flex justify-end">
+                  <Button
+                    onClick={nextStep}
+                    className="rounded-[2rem] cursor-pointer w-full md:w-auto"
+                  >
+                    Next
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </>
         )}
 
         {step === 2 && (
           <>
-            <div className="flex flex-col items-start w-full px-[1rem] md:px-[0] md:w-[42rem]">
-              <h2 className="text-[2.25rem] pb-[2rem]"> Almost there{dots}</h2>
-              <div className="flex flex-col w-full gap-[1rem]">
-                <label htmlFor="reasonInput">
-                  How confident are you reading research papers?
-                </label>
-                <div className="flex flex-row gap-[2rem]">
-                  {["not at all", "somewhat", "very"].map((option) => (
-                    <label
-                      key={option}
-                      className="flex items-center cursor-pointer"
+            <Card className="w-full max-w-[32rem] bg-background/40 shadow-lg border border-muted/30 backdrop-blur-lg rounded-[2rem]">
+              <CardHeader>
+                <CardTitle className="text-[2.25rem] font-medium">
+                  Almost there{dots}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-6">
+                <div>
+                  <p className="font-medium text-[1rem] mb-4">
+                    How confident are you reading research papers?
+                  </p>
+                  <RadioGroup
+                    value={surveyData.confidence}
+                    onValueChange={(value) =>
+                      setSurveyData({ ...surveyData, confidence: value })
+                    }
+                    className="flex flex-row gap-6 mb-4"
+                  >
+                    {["not at all", "somewhat", "very"].map((option) => (
+                      <div key={option} className="flex items-center gap-3">
+                        <RadioGroupItem value={option} id={option} />
+                        <label
+                          htmlFor={option}
+                          className="text-[1rem] cursor-pointer"
+                        >
+                          {option}
+                        </label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                  <div className="flex justify-end">
+                    <Button
+                      onClick={nextStep}
+                      className="rounded-[2rem] cursor-pointer w-full md:w-auto"
                     >
-                      <input
-                        type="radio"
-                        value={option}
-                        checked={surveyData.confidence === option}
-                        onChange={(e) =>
-                          setSurveyData({
-                            ...surveyData,
-                            confidence: e.target.value,
-                          })
-                        }
-                        className="hidden peer"
-                      />
-                      <span className="w-4 h-4 transition-all duration-200 ease-in-out hover:bg-foreground inline-block mr-2 rounded-full border border-foreground peer-checked:bg-foreground "></span>
-                      {option}
-                    </label>
-                  ))}
+                      Next
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div className="flex flex-wrap items-end gap-[2rem] justify-end w-full md:w-[42rem] px-[1rem] md:px-0">
-              <button
-                onClick={nextStep}
-                className="justify-end w-full md:w-auto bg-foreground text-background rounded-[3rem] h-[2.25rem] px-[2rem] cursor-pointer hover:bg-muted-foreground"
-              >
-                next
-              </button>
-            </div>
+              </CardContent>
+            </Card>
           </>
         )}
 
         {step === 3 && (
           <>
-            <div className="flex flex-col items-start w-full px-[1rem] md:px-[0] md:w-[42rem]">
-              <h2 className="text-[2.25rem] pb-[2rem]"> Finishing{dots}</h2>
-              <label htmlFor="reasonInput" className="pb-[1rem]">
-                What field are you studying?
-              </label>
-              <input
-                type="text"
-                placeholder="e.g., economics"
-                value={surveyData.field}
-                onChange={(e) =>
-                  setSurveyData({ ...surveyData, field: e.target.value })
-                }
-                className="w-full border p-2 h-[2.25rem] border-muted rounded-[3rem] active:border-none"
-              />
-              <div className="flex pt-[1rem] flex-wrap items-end gap-[2rem] justify-end w-full md:w-[42rem]  md:px-0">
-                <button
-                  onClick={nextStep}
-                  className="justify-end w-full md:w-auto bg-foreground text-background rounded-[3rem] h-[2.25rem] px-[2rem] cursor-pointer hover:bg-muted-foreground"
+            <Card className="w-full max-w-[32rem] bg-background/40 shadow-lg border border-muted/30 backdrop-blur-lg rounded-[2rem]">
+              <CardHeader>
+                <CardTitle className="text-[2.25rem] font-medium text-foreground">
+                  Finishing{dots}
+                </CardTitle>
+              </CardHeader>
+
+              <CardContent className="flex flex-col gap-4">
+                <label
+                  htmlFor="reasonInput"
+                  className="text-[1rem] font-medium text-foreground"
                 >
-                  finish
-                </button>
-              </div>
-            </div>
+                  What field are you studying?
+                </label>
+                <Textarea
+                  id="reasonInput"
+                  placeholder="e.g. economics"
+                  value={surveyData.reason}
+                  onChange={(e) =>
+                    setSurveyData({ ...surveyData, reason: e.target.value })
+                  }
+                  className="min-h-[4rem]  resize-none border border-muted/30"
+                />
+                <div className="flex justify-end">
+                  <Button
+                    onClick={nextStep}
+                    className="rounded-[2rem] cursor-pointer w-full md:w-auto"
+                  >
+                    Next
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </>
         )}
 
         {step === 4 && (
           <>
-            <div className="flex flex-col items-start w-full px-[1rem] md:px-[0] md:w-[42rem]">
-              <h2 className="text-[2.25rem] pb-[1rem] w-[12rem]">
-                {" "}
-                Thanks for submitting!
-              </h2>
-              <p className="pb-[2rem] pl-1">
-                You're research paper will ready soon...
-              </p>
+            <Card className="w-full max-w-[32rem] bg-background/40 shadow-lg border border-muted/30 backdrop-blur-lg rounded-[2rem]">
+              <CardHeader>
+                <CardTitle className="text-[2.25rem] font-medium text-foreground">
+                  Thanks for submitting!
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-4">
+                <p className="text-[1rem] font-medium text-foreground">
+                  Your research paper will be ready soon...
+                </p>
 
-              <div className="flex flex-wrap items-end gap-[2rem] justify-end w-full md:w-[42rem] md:px-0">
-                <Button
-                  onClick={handleSubmit}
-                  disabled={isLoading || !result?.paperSummary?.id}
-                  className="justify-end w-full md:w-auto bg-foreground text-background rounded-[3rem] h-[2.25rem] px-[2rem] cursor-pointer hover:bg-muted-foreground disabled:bg-muted-foreground"
-                >
-                  see paper
-                </Button>
-              </div>
-            </div>
+                <div className="flex justify-end w-full">
+                  <Button
+                    onClick={handleSubmit}
+                    disabled={isLoading || !result?.paperSummary?.id}
+                    className="rounded-[2rem] cursor-pointer w-full md:w-auto"
+                  >
+                    See paper
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </>
         )}
+        <div className="flex justify-center items-center gap-2 mt-6">
+          {steps.map((s) => (
+            <span
+              key={s}
+              className={`h-2 w-2 rounded-full transition-all duration-300 ${
+                step === s ? "bg-black scale-110" : "bg-white opacity-60"
+              }`}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
