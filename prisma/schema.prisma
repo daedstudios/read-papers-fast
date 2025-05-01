@@ -11,9 +11,10 @@ datasource db {
 
 model User {
   id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String
+  clerkUserId   String    @unique // clerk user id
+  email         String    @unique
+  name          String?
+  imageUrl      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
