@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import Header from "@/components/header";
 
 interface Section {
   id: string;
@@ -65,34 +66,46 @@ function PaperContent() {
 
   return (
     <div className="">
-      <div className="fixed top-[1rem] left-[1rem] text-[1.25rem] text-foreground font-medium">
-        ReadPapersFast
-      </div>
-      <div className="flex flex-row justify-between w-full">
-        <div className="sticky w-[22rem] pt-[6rem] px-[1rem]">
-          {/* <h1 className="text-[1.5rem] font-regular mb-6">
-          {paperSummary.title}
-        </h1> */}
+      <Header />
+      <div className="flex flex-row justify-between w-full max-w-[88rem] mx-auto">
+        <div className="w-[22rem] hidden md:block h-screen sticky top-0 overflow-y-auto px-[1rem] pt-[6rem]">
           {paperSummary.sections.map((section) => (
-            <div key={section.id} className="mb-[0.5rem]">
-              <h2 className="text-[1rem] font-regular mb-2 text-muted-foreground hover:text-foreground cursor-pointer">
+            <a
+              key={section.id}
+              href={`#${section.id}`}
+              className="block mb-2 text-sm text-muted-foreground hover:text-foreground"
+            >
+              {section.title}
+            </a>
+          ))}
+        </div>
+
+        <div className=" w-[42rem] overflow-y-scroll  px-[2rem] pt-[6rem] h-screen">
+          {paperSummary.sections.map((section) => (
+            <div key={section.id} className="mb-[4rem]">
+              <h2
+                id={section.id}
+                className="text-[1.5rem] font-medium mb-2 text-foreground"
+              >
                 {section.title}
               </h2>
-              {/* <div className="prose max-w-none">{section.content}</div> */}
-            </div>
-          ))}
-        </div>
-        <div className="justify-center pt-[6rem] h-screen w-[42rem] overflow-y-auto scroll-auto">
-          {paperSummary.sections.map((section) => (
-            <div key={section.id} className="">
-              <h2 className="text-[1rem] font-regular  text-foreground cursor-pointer">
+              <div className="prose max-w-none text-foreground leading-[200%]">
                 {section.summary}
-              </h2>
-              {/* <div className="prose max-w-none">{section.content}</div> */}
+              </div>
             </div>
           ))}
         </div>
-        <div className=" w-[22rem] sticky pt-[6rem] px-[1rem]"></div>
+        <div className="w-[22rem] hidden lg:block h-screen  overflow-y-auto px-[1rem] pt-[6rem]">
+          {paperSummary.sections.map((section) => (
+            <a
+              key={section.id}
+              href={`#${section.id}`}
+              className="block mb-2 text-sm text-muted-foreground hover:text-foreground"
+            >
+              {section.title}
+            </a>
+          ))}
+        </div>
       </div>
     </div>
   );

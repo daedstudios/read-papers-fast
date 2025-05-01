@@ -12,6 +12,7 @@ import { CardTitle } from "@/components/ui/card";
 import { CardContent } from "@/components/ui/card";
 import { RadioGroup } from "@/components/ui/radio-group";
 import { RadioGroupItem } from "@/components/ui/radio-group";
+import Image from "next/image";
 
 export default function LoadingSurvey() {
   const [dots, setDots] = useState("");
@@ -100,16 +101,21 @@ export default function LoadingSurvey() {
       )}
 
       <SurveyProgressBar step={step} total={totalSteps} />
-      <div
-        className="flex flex-col items-center justify-center h-screen gap-[2rem] px-[1rem]"
-        style={{ backgroundImage: "url('/RPF.jpg')" }}
-      >
+      <div className="flex flex-col items-center justify-center h-screen max-h-screen gap-[2rem] px-[1rem]">
+        <Image
+          src="/RPF.jpg"
+          alt="Background"
+          fill
+          priority
+          className="object-cover z-[-2] "
+        />
+        <div className="fixed inset-0 bg-black/20 blur-lg z-[-1]" />
         {step === 1 && (
           <>
             <Card className="w-full max-w-[32rem] bg-background/40 shadow-lg border border-muted/30 backdrop-blur-lg rounded-[2rem]">
               <CardHeader>
                 <CardTitle className="text-[2.25rem] font-medium text-foreground">
-                  Transcribing jargon{dots}
+                  Transcribing{dots}
                 </CardTitle>
               </CardHeader>
 
@@ -127,7 +133,7 @@ export default function LoadingSurvey() {
                   onChange={(e) =>
                     setSurveyData({ ...surveyData, reason: e.target.value })
                   }
-                  className="min-h-[4rem]  resize-none border border-muted/30"
+                  className="min-h-[4rem] placeholder:text-muted/60  resize-none border border-muted/30"
                 />
                 <div className="flex justify-end">
                   <Button
@@ -211,7 +217,7 @@ export default function LoadingSurvey() {
                   onChange={(e) =>
                     setSurveyData({ ...surveyData, reason: e.target.value })
                   }
-                  className="min-h-[4rem]  resize-none border border-muted/30"
+                  className="min-h-[4rem] placeholder:text-muted/60 resize-none border border-muted/30"
                 />
                 <div className="flex justify-end">
                   <Button
