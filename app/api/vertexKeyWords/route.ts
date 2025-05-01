@@ -49,7 +49,7 @@ export async function POST(req: Request) {
     // Extract acronyms and full forms using generateObject
     const result = await generateObject({
       model: google("gemini-1.5-flash-latest", {
-        structuredOutputs: true,
+        structuredOutputs: false,
       }),
       schema: AcronymSchema,
       messages: [
@@ -66,7 +66,7 @@ export async function POST(req: Request) {
                 ]
               }
               
-              Ensure that the "keyword" contains only the acronym, the "value" contains its exact full form as defined in the paper, and the "explination" provides a concise description of what the acronym represents in the paper's context. Include only acronyms and their corresponding full forms explicitly mentioned in the document.`,
+              Ensure that the "keyword" contains only the acronym, the "value" contains its exact full form as defined in the paper, and the "explination" provides a detailed description of what the acronym represents in the paper's context.`,
             },
             {
               type: "file",
@@ -76,6 +76,7 @@ export async function POST(req: Request) {
           ],
         },
       ],
+      maxTokens: 10000,
     });
 
     console.log("Acronyms extracted successfully");
