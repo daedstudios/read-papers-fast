@@ -20,10 +20,17 @@ interface Section {
   paperSummaryId: string;
 }
 
+interface Acronyms {
+  keyword: string;
+  value: string;
+  explanation: string;
+}
+
 interface PaperSummary {
   id: string;
   title: string;
   sections: Section[];
+  acronyms: Acronyms[];
 }
 
 // Loading component for Suspense fallback
@@ -143,7 +150,7 @@ function PaperContent() {
               />
 
               <div className="relative z-10 p-4 space-y-4">
-                {paperSummary.acronyms.map((acronym) => (
+                {paperSummary?.acronyms?.map((acronym) => (
                   <div
                     key={acronym.keyword}
                     className="rounded-xl bg-muted/60 backdrop-blur-sm p-4 shadow-sm border border-border"
