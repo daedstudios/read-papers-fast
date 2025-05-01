@@ -3,6 +3,13 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Header from "@/components/header";
+import {
+  Sidebar,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Section {
   id: string;
@@ -65,22 +72,35 @@ function PaperContent() {
   if (!paperSummary) return <div>No paper summary found</div>;
 
   return (
-    <div className="">
-      <Header />
-      <div className="flex flex-row justify-between w-full max-w-[88rem] mx-auto">
-        <div className="w-[22rem] hidden md:block h-screen sticky top-0 overflow-y-auto px-[1rem] pt-[6rem]">
-          {paperSummary.sections.map((section) => (
-            <a
-              key={section.id}
-              href={`#${section.id}`}
-              className="block mb-2 text-sm text-muted-foreground hover:text-foreground"
-            >
-              {section.title}
-            </a>
-          ))}
-        </div>
+    <>
+      <div className="flex flex-row justify-between w-full mx-auto max-w-[88rem] h-[90vh] mt-[10vh]">
+        <ScrollArea className="w-[22rem] hidden md:block px-[1rem] h-full">
+          <Sidebar className="relative w-full ">
+            <SidebarMenu className="bg-background">
+              {paperSummary.sections.map((section) => (
+                <SidebarMenuItem key={section.id}>
+                  <SidebarMenuButton asChild>
+                    <a
+                      href={`#${section.id}`}
+                      // className="block mb-2 text-sm text-muted-foreground hover:text-foreground"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        document.getElementById(section.id)?.scrollIntoView({
+                          behavior: "smooth",
+                          block: "start",
+                        });
+                      }}
+                    >
+                      <span className="text-[1rem]">{section.title}</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </Sidebar>
+        </ScrollArea>
 
-        <div className=" w-[42rem] overflow-y-scroll  px-[2rem] pt-[6rem] h-screen">
+        <ScrollArea className="w-[42rem]  px-[2rem] h-full">
           {paperSummary.sections.map((section) => (
             <div key={section.id} className="mb-[4rem]">
               <h2
@@ -94,20 +114,20 @@ function PaperContent() {
               </div>
             </div>
           ))}
-        </div>
-        <div className="w-[22rem] hidden lg:block h-screen  overflow-y-auto px-[1rem] pt-[6rem]">
-          {paperSummary.sections.map((section) => (
-            <a
-              key={section.id}
-              href={`#${section.id}`}
-              className="block mb-2 text-sm text-muted-foreground hover:text-foreground"
-            >
-              {section.title}
-            </a>
-          ))}
-        </div>
+        </ScrollArea>
+        <ScrollArea className="w-[22rem] hidden lg:block h-full  overflow-y-auto px-[1rem]">
+          {/* {paperSummary.sections.map((section) => (
+          <a
+            key={section.id}
+            href={`#${section.id}`}
+            className="block mb-2 text-sm text-muted-foreground hover:text-foreground"
+          >
+            {section.title}
+          </a>
+        ))} */}
+        </ScrollArea>
       </div>
-    </div>
+    </>
   );
 }
 
