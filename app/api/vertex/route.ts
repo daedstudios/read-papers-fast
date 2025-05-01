@@ -123,14 +123,18 @@ export async function POST(req: Request) {
     const delay = (ms: number) =>
       new Promise((resolve) => setTimeout(resolve, ms));
 
+    // Determine if this is a production environment
+    const isProduction = process.env.NODE_ENV === "production";
+    const delayTime = isProduction ? 1000 : 300;
+
     const contentPromises = titles.map(async (title, index) => {
-      // Add a small delay between requests (200ms * index)
-      await delay(300 * index);
+      // Add a delay between requests - 1000ms per index in production, 300ms in dev
+      await delay(delayTime * index);
 
       console.log(
         `Initiating request for section ${index + 1}/${
           titles.length
-        }: "${title}" after ${200 * index}ms delay`
+        }: "${title}" after ${delayTime * index}ms delay`
       );
 
       const contentResult = await generateText({
