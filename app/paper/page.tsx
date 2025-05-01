@@ -10,6 +10,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import Image from "next/image";
 
 interface Section {
   id: string;
@@ -78,8 +79,15 @@ function PaperContent() {
       </div>
       <div className="flex flex-row justify-between w-full h-[90vh] mt-[10vh]">
         <ScrollArea className="w-[22rem] hidden md:block px-[1rem] h-full">
-          <Sidebar className="relative w-full ">
-            <SidebarMenu className="bg-background">
+          <Sidebar className="relative w-full h-full  ">
+            <SidebarMenu className="bg-background m-4 w-[18rem] h-full">
+              <Image
+                src="/LANDING-2.png"
+                alt="Background"
+                fill
+                priority
+                className="object-cover fixed top-0 rounded-[1rem] full"
+              />
               {paperSummary.sections.map((section) => (
                 <SidebarMenuItem key={section.id}>
                   <SidebarMenuButton asChild>
@@ -94,7 +102,9 @@ function PaperContent() {
                         });
                       }}
                     >
-                      <span className="text-[1rem]">{section.title}</span>
+                      <span className="text-[1rem] truncate text-ellipsis break-words ">
+                        {section.title}
+                      </span>
                     </a>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -104,6 +114,9 @@ function PaperContent() {
         </ScrollArea>
 
         <ScrollArea className="w-[42rem]  px-[2rem] h-full">
+          <h1 className="text-[2.25rem] font-medium pb-[3rem]">
+            {paperSummary.title}
+          </h1>
           {paperSummary.sections.map((section) => (
             <div key={section.id} className="mb-[4rem]">
               <h2
@@ -118,16 +131,37 @@ function PaperContent() {
             </div>
           ))}
         </ScrollArea>
-        <ScrollArea className="w-[22rem] hidden lg:block h-full  overflow-y-auto px-[1rem]">
-          {/* {paperSummary.sections.map((section) => (
-          <a
-            key={section.id}
-            href={`#${section.id}`}
-            className="block mb-2 text-sm text-muted-foreground hover:text-foreground"
-          >
-            {section.title}
-          </a>
-        ))} */}
+        <ScrollArea className="w-[28rem] hidden px-[1rem] lg:block h-full">
+          <Sidebar className="relative w-full h-full">
+            <SidebarMenu className="bg-background h-full rounded-[1rem] overflow-hidden relative">
+              <Image
+                src="/LANDING-2.png"
+                alt="Background"
+                fill
+                priority
+                className="object-cover absolute inset-0 z-0"
+              />
+
+              <div className="relative z-10 p-4 space-y-4">
+                {paperSummary.acronyms.map((acronym) => (
+                  <div
+                    key={acronym.keyword}
+                    className="rounded-xl bg-muted/60 backdrop-blur-sm p-4 shadow-sm border border-border"
+                  >
+                    <p className="text-[1rem] font-medium text-muted-foreground">
+                      {acronym.keyword}
+                    </p>
+                    <p className="text-[1.25rem] font-medium text-foreground">
+                      {acronym.value}
+                    </p>
+                    <p className="text-[1rem] text-muted-foreground mt-1">
+                      {acronym.explanation}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </SidebarMenu>
+          </Sidebar>
         </ScrollArea>
       </div>
     </>
