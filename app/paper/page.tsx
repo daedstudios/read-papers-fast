@@ -73,7 +73,10 @@ function PaperContent() {
 
   return (
     <>
-      <div className="flex flex-row justify-between w-full mx-auto max-w-[88rem] h-[90vh] mt-[10vh]">
+      <div className="fixed top-[1rem] left-[1rem] text-[1.25rem] text-foreground font-medium">
+        ReadPapersFast
+      </div>
+      <div className="flex flex-row justify-between w-full h-[90vh] mt-[10vh]">
         <ScrollArea className="w-[22rem] hidden md:block px-[1rem] h-full">
           <Sidebar className="relative w-full ">
             <SidebarMenu className="bg-background">

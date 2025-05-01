@@ -10,7 +10,7 @@ export default function SurveyProgressBar({
   return (
     <div className="fixed top-0 w-full bg-transparent   h-[0.5rem] overflow-hidden mb-4">
       <div
-        className="h-full bg-background transition-all duration-300"
+        className="h-full bg-foreground transition-all duration-300"
         style={{ width: `${progress}%` }}
       />
     </div>

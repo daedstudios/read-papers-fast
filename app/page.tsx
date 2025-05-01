@@ -56,7 +56,7 @@ const Page = () => {
   return (
     <div className="pdf-container max-h-screen  bg-cover bg-center">
       <Image
-        src="/RPF.jpg"
+        src="/LANDING-2.png"
         alt="Background"
         fill
         priority
@@ -64,12 +64,12 @@ const Page = () => {
       />
       <div className="fixed inset-0 bg-black/20 blur-lg z-[-1]" />
 
-      <div className="p-[1rem] text-[1.25rem] text-background font-medium">
+      <div className="p-[1rem] text-[1.25rem] text-foreground font-medium">
         ReadPapersFast
       </div>
 
       <div className="flex flex-col justify-center pt-[16rem] mx-auto md:w-[42rem] px-[1rem] md:px-0">
-        <h1 className="justify-center text-center text-[2.25rem] font-medium mb-[2rem] text-background">
+        <h1 className="justify-center text-center text-[2.25rem] font-medium mb-[2rem] text-foreground">
           Read research papers 10x faster
         </h1>
         {error && (
@@ -83,7 +83,7 @@ const Page = () => {
         )}
         <form
           id="uploadForm"
-          className="flex flex-col md:flex-row justify-end gap-2 border border-muted/30 p-[1rem] rounded-[2rem] bg-background/40 shadow shadow-background/30"
+          className="flex flex-col md:flex-row justify-end gap-2 border border-muted/30 p-[1rem] rounded-[2rem] bg-background/30 shadow shadow-background/30"
         >
           <div className="flex flex-row gap-2 w-full">
             <Input
@@ -108,7 +108,7 @@ const Page = () => {
             />
             <label
               htmlFor="file-upload"
-              className="flex items-center hover:bg-muted justify-center w-[2.25rem] h-[2.25rem] min-w-[2.25rem] min-h-[2.25rem] border border-muted-foreground bg-background rounded-[3rem] hover:cursor-pointer"
+              className="flex items-center hover:bg-muted justify-center w-[2.25rem] h-[2.25rem] min-w-[2.25rem] min-h-[2.25rem] border border-muted/30 bg-background rounded-[3rem] hover:cursor-pointer"
             >
               <Plus size={24} className="text-foreground" />
             </label>
@@ -122,7 +122,7 @@ const Page = () => {
             {isLoading ? "Uploading..." : "upload"}
           </Button>
         </form>
-        <p className="w-full mx-auto text-center text-background px-1 mt-[1rem]">
+        <p className="w-full mx-auto text-center text-foreground px-1 mt-[1rem]">
           {uploadedFile?.name || "Paste a link or upload a PDF directly"}
         </p>
       </div>
@@ -135,21 +135,21 @@ const Page = () => {
               alt="maastricht"
               width={280}
               height={36}
-              className="opacity-60"
+              className="opacity-80"
             />
             <Image
               src="/passau2.svg"
               alt="passau"
               width={240}
               height={36}
-              className="opacity-60"
+              className="opacity-80"
             />
             <Image
               src="/uci2.svg"
               alt="uci"
               width={64}
               height={36}
-              className="opacity-60"
+              className="opacity-80"
             />
 
             <Image
@@ -157,21 +157,21 @@ const Page = () => {
               alt="maastricht"
               width={280}
               height={36}
-              className="opacity-60"
+              className="opacity-80"
             />
             <Image
               src="/passau2.svg"
               alt="passau"
               width={240}
               height={36}
-              className="opacity-60"
+              className="opacity-80"
             />
             <Image
               src="/uci2.svg"
               alt="uci"
               width={64}
               height={36}
-              className="opacity-60"
+              className="opacity-80"
             />
           </div>
 
