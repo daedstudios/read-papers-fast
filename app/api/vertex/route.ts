@@ -1,12 +1,13 @@
-import { generateText } from "ai";
+import { generateText, generateObject } from "ai";
 import { google } from "@ai-sdk/google";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/SingletonPrismaClient";
+import { z } from "zod";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { documentUrl, fileData, fileName } = body;
+    const { documentUrl, fileData, fileName, paperSummaryId } = body;
 
     // Determine the source of the PDF
     let pdfSource;
@@ -27,17 +28,26 @@ export async function POST(req: Request) {
       );
     }
 
-    // Step 1: Extract just the titles from the PDF
+    // Step 1: Extract just the titles from the PDF using generateObject
     console.log("Step 1: Extracting titles from document...");
-    const titlesResult = await generateText({
-      model: google("gemini-1.5-flash-latest"),
+
+    // Define the schema for titles
+    const TitlesSchema = z.object({
+      titles: z.array(z.string()),
+    });
+
+    const titlesResult = await generateObject({
+      model: google("gemini-1.5-flash-latest", {
+        structuredOutputs: false,
+      }),
+      schema: TitlesSchema,
       messages: [
         {
           role: "user",
           content: [
             {
               type: "text",
-              text: 'You are an AI document parser. Extract ONLY the section titles from this academic paper. Return them as a JSON array in the format: {"titles": ["Introduction", "Methodology", "Results", "Discussion", "Conclusion", ...]}. Include ALL section titles and subtitles in the document.',
+              text: 'You are an AI document parser. Extract ONLY the MAJOR section titles from this academic paper. Ignore any sub-section titles or minor headings. Return them as a JSON object in the format: {"titles": ["Introduction", "Methodology", "Results", "Discussion", "Conclusion", ...]}. Include only the main sections of the document, typically found at the top level of the document structure.',
             },
             {
               type: "file",
@@ -47,14 +57,14 @@ export async function POST(req: Request) {
           ],
         },
       ],
-      maxTokens: 2000,
+      maxTokens: 3000,
     });
 
-    console.log("Titles extracted:", titlesResult.text);
+    console.log("Titles extracted:", titlesResult);
 
-    // Parse the titles from the response
-    const titles = parseTitles(titlesResult.text);
-    if (!titles || titles.length === 0) {
+    const titles = titlesResult.object.titles as string[];
+
+    if (!titles || titles?.length === 0) {
       throw new Error("Failed to extract section titles from the document");
     }
 
@@ -84,7 +94,7 @@ export async function POST(req: Request) {
             ],
           },
         ],
-        maxTokens: 20000,
+        maxTokens: 15000,
       });
 
       sections.push({
@@ -107,11 +117,11 @@ export async function POST(req: Request) {
 
     // Store the result in the database
     try {
-      const paperSummary = await prisma.paperSummary.create({
+      const paperSummary = await prisma.paperSummary.update({
+        where: {
+          id: paperSummaryId,
+        },
         data: {
-          title: pdfTitle,
-          url: documentUrl || null,
-          fileName: pdfFileName,
           sections: {
             create: parseAndPrepareSections(finalResultText),
           },
@@ -124,8 +134,6 @@ export async function POST(req: Request) {
           },
         },
       });
-
-      // Return both the AI response and the saved database record
       return NextResponse.json({
         success: true,
         answer: finalResultText,
@@ -149,33 +157,6 @@ export async function POST(req: Request) {
       },
       { status: 500 }
     );
-  }
-}
-
-// Function to parse titles from the AI response
-function parseTitles(jsonText: string): string[] {
-  try {
-    // Remove the markdown formatting if present (```json and ````)
-    const cleanedJsonText = jsonText.replace(/```json|```/g, "").trim();
-
-    // Parse the JSON response
-    const parsedData = JSON.parse(cleanedJsonText);
-
-    // Check if titles array exists
-    if (parsedData.titles && Array.isArray(parsedData.titles)) {
-      return parsedData.titles;
-    } else {
-      console.warn("Unexpected titles response format");
-      return [];
-    }
-  } catch (error) {
-    console.error("Error parsing titles response:", error);
-    // If we can't parse the JSON, try to extract titles using regex
-    const titleMatches = jsonText.match(/"([^"]+)"/g);
-    if (titleMatches) {
-      return titleMatches.map((match) => match.replace(/"/g, ""));
-    }
-    return [];
   }
 }
 
@@ -203,7 +184,6 @@ function parseAndPrepareSections(jsonText: string) {
       }));
     } else {
       // Fallback if the expected structure is not found
-      console.warn("Unexpected AI response format, using fallback structure");
       return [
         {
           title: "Document Content",

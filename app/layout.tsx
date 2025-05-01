@@ -40,9 +40,11 @@ export default function RootLayout({
                 </Button>
               </SignUpButton>
             </SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
+            <div className="z-100">
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
+            </div>
           </header>
           <AppContextProvider>{children}</AppContextProvider>
         </body>

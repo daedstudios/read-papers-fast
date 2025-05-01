@@ -7,6 +7,7 @@ import Image from "next/image";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
+import { initiateRequests } from "@/utilities/PromptChain";
 
 const Page = () => {
   const { isLoading, error, result, setIsLoading, setError, setResult } =
@@ -29,40 +30,20 @@ const Page = () => {
     }
   };
 
-  // Function to read file as base64
-  const readFileAsBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (typeof reader.result === "string") {
-          // Remove data URL prefix if present
-          const base64String = reader.result.includes("base64,")
-            ? reader.result.split("base64,")[1]
-            : reader.result;
-          resolve(base64String);
-        } else {
-          reject(new Error("Failed to read file as base64"));
-        }
-      };
-      reader.onerror = () => reject(reader.error);
-      reader.readAsDataURL(file);
-    });
-  };
-
   const handleVertexCall = async () => {
     setIsLoading(true);
     setError(null);
 
-    // Start the request before navigation
-    const requestPromise = initiateVertexRequest();
+    // Start both requests in parallel before navigation using the utility function
+    const requestsPromise = initiateRequests(documentUrl || null, uploadedFile);
 
     // Navigate to the results page
     router.push("/survey");
 
-    // The request will continue in the background
+    // The requests will continue in the background
     try {
-      const data = await requestPromise;
-      setResult(data);
+      const combinedData = await requestsPromise;
+      setResult(combinedData);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "An unknown error occurred"
@@ -70,38 +51,6 @@ const Page = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // Function to start the request and return a promise
-  const initiateVertexRequest = async () => {
-    if (!documentUrl && !uploadedFile) {
-      throw new Error("Please provide a PDF URL or upload a file");
-    }
-
-    let response;
-    if (uploadedFile) {
-      const fileData = await readFileAsBase64(uploadedFile);
-      response = await fetch("/api/vertex", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fileData, fileName: uploadedFile.name }),
-      });
-    } else {
-      response = await fetch("/api/vertex", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ documentUrl }),
-      });
-    }
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(
-        errorData.message || `API responded with status: ${response.status}`
-      );
-    }
-
-    return await response.json();
   };
 
   return (
