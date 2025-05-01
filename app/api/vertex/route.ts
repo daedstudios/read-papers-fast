@@ -120,11 +120,17 @@ export async function POST(req: Request) {
     );
 
     // Create an array of promises for each section content request
+    const delay = (ms: number) =>
+      new Promise((resolve) => setTimeout(resolve, ms));
+
     const contentPromises = titles.map(async (title, index) => {
+      // Add a small delay between requests (200ms * index)
+      await delay(300 * index);
+
       console.log(
         `Initiating request for section ${index + 1}/${
           titles.length
-        }: "${title}"`
+        }: "${title}" after ${200 * index}ms delay`
       );
 
       const contentResult = await generateText({
