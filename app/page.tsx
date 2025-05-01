@@ -105,10 +105,16 @@ const Page = () => {
   };
 
   return (
-    <div
-      className="pdf-container min-h-screen bg-cover bg-center"
-      style={{ backgroundImage: "url('/RPF.jpg')" }}
-    >
+    <div className="pdf-container max-h-screen  bg-cover bg-center">
+      <Image
+        src="/RPF.jpg"
+        alt="Background"
+        fill
+        priority
+        className="object-cover z-[-1]  "
+      />
+      <div className="fixed inset-0 bg-black/20 blur-lg z-[-1]" />
+
       <div className="p-[1rem] text-[1.25rem] text-background font-medium">
         ReadPapersFast
       </div>
