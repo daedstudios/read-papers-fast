@@ -9,7 +9,9 @@ import {
   SignedOut,
   UserButton,
 } from "@clerk/nextjs";
+
 import { Button } from "@/components/ui/button";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 export const metadata: Metadata = {
   title: "ReadPapersFast",
