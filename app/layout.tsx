@@ -24,6 +24,15 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body className="antialiased">
+          <header className="flex absolute top-0 ml-auto w-full justify-end bg-transparent items-center p-4 gap-4 h-16">
+            <SignedOut>
+              <SignInButton />
+              <SignUpButton />
+            </SignedOut>
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
+          </header>
           <AppContextProvider>{children}</AppContextProvider>
         </body>
       </html>
