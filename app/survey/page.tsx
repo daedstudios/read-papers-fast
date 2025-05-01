@@ -84,7 +84,7 @@ export default function LoadingSurvey() {
 
   return (
     <div>
-      <div className="fixed top-[1rem] left-[1rem] text-[1.25rem] text-background font-medium">
+      <div className="fixed top-[1rem] left-[1rem] text-[1.25rem] text-foreground font-medium">
         ReadPapersFast
       </div>
 
@@ -103,7 +103,7 @@ export default function LoadingSurvey() {
       <SurveyProgressBar step={step} total={totalSteps} />
       <div className="flex flex-col items-center justify-center h-screen max-h-screen gap-[2rem] px-[1rem]">
         <Image
-          src="/RPF.jpg"
+          src="/LANDING-2.png"
           alt="Background"
           fill
           priority
@@ -112,7 +112,7 @@ export default function LoadingSurvey() {
         <div className="fixed inset-0 bg-black/20 blur-lg z-[-1]" />
         {step === 1 && (
           <>
-            <Card className="w-full max-w-[32rem] bg-background/40 shadow-lg border border-muted/30 backdrop-blur-lg rounded-[2rem]">
+            <Card className="w-full max-w-[32rem] bg-background/10 shadow-lg border border-muted/30 backdrop-blur-lg rounded-[2rem]">
               <CardHeader>
                 <CardTitle className="text-[2.25rem] font-medium text-foreground">
                   Transcribing{dots}
@@ -133,7 +133,7 @@ export default function LoadingSurvey() {
                   onChange={(e) =>
                     setSurveyData({ ...surveyData, reason: e.target.value })
                   }
-                  className="min-h-[4rem] placeholder:text-muted/60  resize-none border border-muted/30"
+                  className="min-h-[4rem] placeholder:text-muted-foreground  resize-none border border-muted-foreground"
                 />
                 <div className="flex justify-end">
                   <Button
@@ -150,7 +150,7 @@ export default function LoadingSurvey() {
 
         {step === 2 && (
           <>
-            <Card className="w-full max-w-[32rem] bg-background/40 shadow-lg border border-muted/30 backdrop-blur-lg rounded-[2rem]">
+            <Card className="w-full max-w-[32rem] bg-background/10 shadow-lg border border-muted/30 backdrop-blur-lg rounded-[2rem]">
               <CardHeader>
                 <CardTitle className="text-[2.25rem] font-medium">
                   Almost there{dots}
@@ -196,7 +196,7 @@ export default function LoadingSurvey() {
 
         {step === 3 && (
           <>
-            <Card className="w-full max-w-[32rem] bg-background/40 shadow-lg border border-muted/30 backdrop-blur-lg rounded-[2rem]">
+            <Card className="w-full max-w-[32rem] bg-background/10 shadow-lg border border-muted/30 backdrop-blur-lg rounded-[2rem]">
               <CardHeader>
                 <CardTitle className="text-[2.25rem] font-medium text-foreground">
                   Finishing{dots}
@@ -217,7 +217,7 @@ export default function LoadingSurvey() {
                   onChange={(e) =>
                     setSurveyData({ ...surveyData, reason: e.target.value })
                   }
-                  className="min-h-[4rem] placeholder:text-muted/60 resize-none border border-muted/30"
+                  className="min-h-[4rem] placeholder:text-muted-foreground  resize-none border border-muted-foreground"
                 />
                 <div className="flex justify-end">
                   <Button
@@ -234,7 +234,7 @@ export default function LoadingSurvey() {
 
         {step === 4 && (
           <>
-            <Card className="w-full max-w-[32rem] bg-background/40 shadow-lg border border-muted/30 backdrop-blur-lg rounded-[2rem]">
+            <Card className="w-full max-w-[32rem] bg-background/10 shadow-lg border border-muted/30 backdrop-blur-lg rounded-[2rem]">
               <CardHeader>
                 <CardTitle className="text-[2.25rem] font-medium text-foreground">
                   Thanks for submitting!
