@@ -3,6 +3,7 @@ import { google } from "@ai-sdk/google";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/SingletonPrismaClient";
+import { auth } from "@clerk/nextjs/server";
 
 // Define type for paper info based on the Zod schema
 type PaperInfoType = {
@@ -16,6 +17,10 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { documentUrl, fileData, fileName } = body;
+
+    const { userId } = await auth();
+
+    console.log("User ID:", userId);
 
     let pdfSource;
     let pdfFileName = null;
