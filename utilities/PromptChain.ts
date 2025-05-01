@@ -25,19 +25,18 @@ export const readFileAsBase64 = (file: File): Promise<string> => {
 };
 
 /**
- * Function to start both requests in parallel and return a promise with combined results
+ * Function to make sequential API calls to process a document
+ * First calls base endpoint to create paper record, then uses the ID for vertex endpoints
  * @param documentUrl - URL of document to analyze (optional)
  * @param uploadedFile - File to analyze (optional)
  * @returns Promise with the combined results
  */
-export const initiateRequests = async (
-  documentUrl: string | null,
-  uploadedFile: File | null
-) => {
+export const initiateRequests = async (documentUrl: string | null, uploadedFile: File | null) => {
   if (!documentUrl && !uploadedFile) {
     throw new Error("Please provide a PDF URL or upload a file");
   }
 
+  // Prepare request body
   let requestBody;
   if (uploadedFile) {
     const fileData = await readFileAsBase64(uploadedFile);
@@ -46,17 +45,51 @@ export const initiateRequests = async (
     requestBody = JSON.stringify({ documentUrl });
   }
 
-  // Start both requests in parallel
-  const vertexPromise = fetch("/api/vertex", {
+  // STEP 1: Call base endpoint to extract basic info and create DB record
+  console.log("Step 1: Creating paper record with basic information...");
+  const baseResponse = await fetch("/api/base", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: requestBody,
   });
 
+  if (!baseResponse.ok) {
+    const errorData = await baseResponse.json();
+    throw new Error(
+      errorData.message || 
+      `Base API responded with status: ${baseResponse.status}`
+    );
+  }
+
+  const baseData = await baseResponse.json();
+  
+  if (!baseData.success || !baseData.paperSummaryId) {
+    throw new Error("Failed to create paper record or get paper ID");
+  }
+
+  const paperSummaryId = baseData.paperSummaryId;
+  console.log(`Paper record created with ID: ${paperSummaryId}`);
+
+  // STEP 2: Call vertex and vertexKeyWords endpoints in parallel with the paper ID
+  console.log("Step 2: Extracting sections and keywords...");
+  
+  // Add the paper ID to the request body
+  const enrichedRequestBody = JSON.stringify({
+    ...JSON.parse(requestBody),
+    paperSummaryId: paperSummaryId
+  });
+
+  // Start both requests in parallel
+  const vertexPromise = fetch("/api/vertex", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: enrichedRequestBody,
+  });
+
   const keywordsPromise = fetch("/api/vertexKeyWords", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: requestBody,
+    body: enrichedRequestBody,
   });
 
   // Wait for both requests to complete
@@ -66,27 +99,34 @@ export const initiateRequests = async (
   ]);
 
   // Process vertex response
-  if (!vertexResponse.ok) {
-    const errorData = await vertexResponse.json();
-    throw new Error(
-      errorData.message ||
-        `Vertex API responded with status: ${vertexResponse.status}`
-    );
+  let vertexData = null;
+  if (vertexResponse.ok) {
+    vertexData = await vertexResponse.json();
+  } else {
+    console.error("Section extraction failed");
+    const errorData = await vertexResponse.json().catch(() => ({}));
+    console.error(errorData.message || `Vertex API responded with status: ${vertexResponse.status}`);
   }
-  const vertexData = await vertexResponse.json();
 
   // Process keywords response
   let keywordsData = null;
   if (keywordsResponse.ok) {
     keywordsData = await keywordsResponse.json();
   } else {
-    console.error("Keywords extraction failed, continuing without keywords");
+    console.error("Keywords extraction failed");
+    const errorData = await keywordsResponse.json().catch(() => ({}));
+    console.error(errorData.message || `Keywords API responded with status: ${keywordsResponse.status}`);
   }
 
-  // Combine both results
-  console.log("keywordsData:", keywordsData);
+  // Combine all results into a single response object
   return {
-    ...vertexData,
-    keywords: keywordsData?.success ? keywordsData.acronyms : [],
+    // success: true,
+    // paperSummaryId: paperSummaryId,
+    // paperInfo: baseData.paperInfo || {},
+    // sections: vertexData?.paperSummary?.sections || [],
+    // keywords: keywordsData?.success ? keywordsData.acronyms : [],
+    // hasKeywords: !!keywordsData?.success,
+    // hasSections: !!vertexData?.success,
+    ...vertexData
   };
 };

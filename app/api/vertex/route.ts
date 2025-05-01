@@ -7,7 +7,7 @@ import { z } from "zod";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { documentUrl, fileData, fileName } = body;
+    const { documentUrl, fileData, fileName, paperSummaryId } = body;
 
     // Determine the source of the PDF
     let pdfSource;
@@ -117,11 +117,11 @@ export async function POST(req: Request) {
 
     // Store the result in the database
     try {
-      const paperSummary = await prisma.paperSummary.create({
+      const paperSummary = await prisma.paperSummary.update({
+        where: {
+          id: paperSummaryId,
+        },
         data: {
-          title: pdfTitle,
-          url: documentUrl || null,
-          fileName: pdfFileName,
           sections: {
             create: parseAndPrepareSections(finalResultText),
           },
@@ -134,8 +134,6 @@ export async function POST(req: Request) {
           },
         },
       });
-
-      // Return both the AI response and the saved database record
       return NextResponse.json({
         success: true,
         answer: finalResultText,

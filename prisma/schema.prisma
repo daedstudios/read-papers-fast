@@ -29,14 +29,18 @@ model Post {
 }
 
 model PaperSummary {
-  id          String   @id @default(cuid())
-  title       String
-  fileName    String?
-  url         String?
-  sections    Section[]
-  surveys     Survey[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(cuid())
+  title           String
+  fileName        String?
+  url             String?
+  authors         String[] // Changed to array of strings for multiple authors
+  publishedDate   String?    // Optional field for paper publication date as string
+  summary         String?     @db.Text // Summary of the paper
+  sections        Section[]
+  surveys         Survey[]
+  acronyms        Acronym[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model Section {
@@ -59,4 +63,17 @@ model Survey {
   paperSummaryId String?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+}
+
+model Acronym {
+  id             String       @id @default(cuid())
+  keyword        String
+  value          String
+  explanation    String       @db.Text
+  paperSummary   PaperSummary @relation(fields: [paperSummaryId], references: [id], onDelete: Cascade)
+  paperSummaryId String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([keyword, paperSummaryId])
 }
