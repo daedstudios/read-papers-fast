@@ -120,19 +120,19 @@ function PaperContent() {
           </Sidebar>
         </ScrollArea>
 
-        <ScrollArea className="w-[42rem]  px-[2rem] h-full">
-          <h1 className="text-[2.25rem] font-medium pb-[3rem]">
+        <ScrollArea className="w-[42rem]  mx-[2rem] h-full">
+          <h1 className="text-[2.25rem] max-w-[40rem] font-medium pb-[3rem]">
             {paperSummary.title}
           </h1>
           {paperSummary.sections.map((section) => (
-            <div key={section.id} className="mb-[4rem]">
+            <div key={section.id} className="mb-[4rem] max-w-[40rem] mx-auto">
               <h2
                 id={section.id}
-                className="text-[1.5rem] font-medium mb-2 text-foreground"
+                className="text-[1.5rem] font-medium mb-2 text-foreground break-words"
               >
                 {section.title}
               </h2>
-              <div className="prose max-w-none text-foreground leading-[200%]">
+              <div className="prose max-w-full text-foreground leading-[200%] break-words">
                 {section.summary}
               </div>
             </div>

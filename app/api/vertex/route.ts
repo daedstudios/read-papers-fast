@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     });
 
     const titlesResult = await generateObject({
-      model: google("gemini-1.5-flash-latest", {
+      model: google("gemini-2.0-flash-001", {
         structuredOutputs: false,
       }),
       schema: TitlesSchema,
@@ -57,84 +57,27 @@ export async function POST(req: Request) {
           ],
         },
       ],
+      maxTokens: 10000,
     });
 
-    console.log("Titles extracted, processing response...");
+    console.log("Titles extracted:", titlesResult);
 
-    // Get titles directly from the object
-    // Check if titlesResult is defined and has the expected structure
-    let titles: string[] = [];
+    const titles = titlesResult.object.titles as string[];
 
-    if (
-      titlesResult &&
-      typeof titlesResult.object === "object" &&
-      "titles" in titlesResult.object &&
-      Array.isArray(titlesResult.object.titles)
-    ) {
-      titles = titlesResult.object.titles;
-    } else {
-      console.warn("Unexpected titles result format:", titlesResult);
-
-      // Fallback: Try to extract titles from the full response
-      const fullResponse = JSON.stringify(titlesResult);
-      try {
-        // Try to find a titles array in the response
-        const match = fullResponse.match(
-          /"titles":\s*(\[(?:"[^"]*"(?:,\s*"[^"]*")*)\])/
-        );
-        if (match && match[1]) {
-          const extractedTitles = JSON.parse(match[1]);
-          if (Array.isArray(extractedTitles) && extractedTitles.length > 0) {
-            console.log(
-              "Extracted titles using fallback method:",
-              extractedTitles
-            );
-            titles = extractedTitles;
-          }
-        }
-      } catch (e) {
-        console.error("Error in fallback titles extraction:", e);
-      }
-
-      // If still no titles, use a hardcoded fallback
-      if (titles.length === 0) {
-        titles = [
-          "Abstract",
-          "Introduction",
-          "Methodology",
-          "Results",
-          "Discussion",
-          "Conclusion",
-        ];
-        console.log("Using default fallback titles:", titles);
-      }
-    }
-
-    if (titles.length === 0) {
+    if (!titles || titles?.length === 0) {
       throw new Error("Failed to extract section titles from the document");
     }
 
-    // Step 2: For each title, make requests in parallel to get the content
-    console.log(
-      `Step 2: Extracting content for ${titles.length} sections in parallel...`
-    );
+    // Step 2: For each title, make a separate request to get the content
+    console.log(`Step 2: Extracting content for ${titles.length} sections...`);
+    const sections = [];
 
-    // Create an array of promises for each section content request
-    const delay = (ms: number) =>
-      new Promise((resolve) => setTimeout(resolve, ms));
-
-    const contentPromises = titles.map(async (title, index) => {
-      // Add a small delay between requests (200ms * index)
-      await delay(300 * index);
-
-      console.log(
-        `Initiating request for section ${index + 1}/${
-          titles.length
-        }: "${title}" after ${200 * index}ms delay`
-      );
+    for (let i = 0; i < titles.length; i++) {
+      const title = titles[i];
+      console.log(`Processing section ${i + 1}/${titles.length}: "${title}"`);
 
       const contentResult = await generateText({
-        model: google("gemini-1.5-flash-latest"),
+        model: google("gemini-2.0-flash-001"),
         messages: [
           {
             role: "user",
@@ -151,21 +94,17 @@ export async function POST(req: Request) {
             ],
           },
         ],
-        maxTokens: 15000,
+        maxTokens: 90000,
       });
 
-      return {
+      sections.push({
         title: title,
         content: contentResult.text.trim(),
-      };
-    });
+      });
 
-    // Wait for all content extraction promises to resolve
-    const sections = await Promise.all(contentPromises);
-
-    console.log(
-      `All ${sections.length} section contents extracted successfully`
-    );
+      // Short delay to avoid rate limiting
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    }
 
     // Create the final structured JSON
     const finalResult = { sections: sections };
@@ -178,71 +117,28 @@ export async function POST(req: Request) {
 
     // Store the result in the database
     try {
-      // Handle paperSummaryId if provided (for update flow)
-      if (paperSummaryId) {
-        // First delete any existing sections for this paper
-        await prisma.section.deleteMany({
-          where: {
-            paperSummaryId: paperSummaryId,
+      const paperSummary = await prisma.paperSummary.update({
+        where: {
+          id: paperSummaryId,
+        },
+        data: {
+          sections: {
+            create: parseAndPrepareSections(finalResultText),
           },
-        });
-
-        // Add the new sections to the paper
-        const sectionData = parseAndPrepareSections(finalResultText);
-
-        await prisma.section.createMany({
-          data: sectionData.map((section: any) => ({
-            ...section,
-            paperSummaryId: paperSummaryId,
-          })),
-        });
-
-        // Get the updated paper with sections
-        const updatedPaperSummary = await prisma.paperSummary.findUnique({
-          where: {
-            id: paperSummaryId,
-          },
-          include: {
-            sections: {
-              orderBy: {
-                order: "asc",
-              },
+        },
+        include: {
+          sections: {
+            orderBy: {
+              order: "asc",
             },
           },
-        });
-
-        return NextResponse.json({
-          success: true,
-          answer: finalResultText,
-          paperSummary: updatedPaperSummary,
-        });
-      } else {
-        // Create new paper summary (original flow)
-        const paperSummary = await prisma.paperSummary.create({
-          data: {
-            title: pdfTitle,
-            url: documentUrl || null,
-            fileName: pdfFileName,
-            sections: {
-              create: parseAndPrepareSections(finalResultText),
-            },
-          },
-          include: {
-            sections: {
-              orderBy: {
-                order: "asc",
-              },
-            },
-          },
-        });
-
-        // Return both the AI response and the saved database record
-        return NextResponse.json({
-          success: true,
-          answer: finalResultText,
-          paperSummary: paperSummary,
-        });
-      }
+        },
+      });
+      return NextResponse.json({
+        success: true,
+        answer: finalResultText,
+        paperSummary: paperSummary,
+      });
     } catch (dbError) {
       console.error("Database error:", dbError);
       // If DB operation fails, still return the AI response
@@ -288,7 +184,6 @@ function parseAndPrepareSections(jsonText: string) {
       }));
     } else {
       // Fallback if the expected structure is not found
-      console.warn("Unexpected AI response format, using fallback structure");
       return [
         {
           title: "Document Content",
