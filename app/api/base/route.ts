@@ -18,9 +18,9 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { documentUrl, fileData, fileName } = body;
 
-    const { userId } = await auth();
+    // const { userId } = await auth();
 
-    console.log("User ID:", userId);
+    // console.log("User ID:", userId);
 
     let pdfSource;
     let pdfFileName = null;
