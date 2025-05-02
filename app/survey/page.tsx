@@ -106,13 +106,13 @@ export default function LoadingSurvey() {
       )}
 
       <SurveyProgressBar step={step} total={totalSteps} />
-      <div className="flex flex-col items-center justify-center h-screen max-h-screen gap-[2rem] px-[1rem]">
+      <div className="flex flex-col items-center justify-center h-full gap-[2rem] px-[1rem]">
         <Image
           src="/LANDING-2.png"
           alt="Background"
           fill
           priority
-          className="object-cover z-[-2] "
+          className="object-cover fixed inset-0 h-full w-full z-[-2] "
         />
         <div className="fixed inset-0 bg-black/20 blur-lg z-[-1]" />
         {step === 1 && (

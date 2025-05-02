@@ -54,7 +54,7 @@ const Page = () => {
   };
 
   return (
-    <div className="pdf-container max-h-screen overflow-hidden bg-cover bg-center">
+    <div className="pdf-container h-full overflow-hidden bg-cover bg-center">
       <Image
         src="/LANDING-2.png"
         alt="Background"
