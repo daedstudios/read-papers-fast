@@ -1,8 +1,3 @@
-export const config = {
-  maxDuration: 900, // 15 minutes in seconds
-  background: true,
-};
-
 import { generateText, generateObject } from "ai";
 import { google } from "@ai-sdk/google";
 import { NextResponse } from "next/server";
