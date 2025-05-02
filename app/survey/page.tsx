@@ -13,6 +13,7 @@ import { CardContent } from "@/components/ui/card";
 import { RadioGroup } from "@/components/ui/radio-group";
 import { RadioGroupItem } from "@/components/ui/radio-group";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function LoadingSurvey() {
   const [dots, setDots] = useState("");
@@ -85,7 +86,11 @@ export default function LoadingSurvey() {
   return (
     <div>
       <div className="fixed top-[1rem] left-[1rem] text-[1.25rem] text-foreground font-medium">
-        ReadPapersFast
+        <Link href="/" passHref>
+          <button className="text-[1.25rem] cursor-pointer text-foreground font-medium">
+            ReadPapersFast
+          </button>
+        </Link>
       </div>
 
       {isLoading && (
@@ -107,12 +112,12 @@ export default function LoadingSurvey() {
           alt="Background"
           fill
           priority
-          className="object-cover z-[-2] "
+          className="object-cover fixed  h-full w-full z-[-2] "
         />
-        <div className="fixed inset-0 bg-black/20 blur-lg z-[-1]" />
+        <div className="fixed  bg-black/20 blur-lg z-[-1]" />
         {step === 1 && (
           <>
-            <Card className="w-full max-w-[32rem] bg-background/10 shadow-lg border border-muted/30 backdrop-blur-lg rounded-[2rem]">
+            <Card className="w-full max-w-[32rem] max-h-screen  bg-background/10 shadow-lg border border-muted/30 backdrop-blur-lg rounded-[2rem]">
               <CardHeader>
                 <CardTitle className="text-[2.25rem] font-medium text-foreground">
                   Transcribing{dots}
