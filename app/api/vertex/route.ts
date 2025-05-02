@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     });
 
     const titlesResult = await generateObject({
-      model: google("gemini-1.5-flash-latest", {
+      model: google("gemini-2.0-flash-001", {
         structuredOutputs: false,
       }),
       schema: TitlesSchema,
@@ -57,6 +57,7 @@ export async function POST(req: Request) {
           ],
         },
       ],
+      maxTokens: 4000,
     });
 
     console.log("Titles extracted, processing response...");

@@ -48,7 +48,7 @@ export async function POST(req: Request) {
 
     // Extract acronyms and full forms using generateObject
     const result = await generateObject({
-      model: google("gemini-1.5-flash-latest", {
+      model: google("gemini-2.0-flash-001", {
         structuredOutputs: false,
       }),
       schema: AcronymSchema,
@@ -76,7 +76,7 @@ export async function POST(req: Request) {
           ],
         },
       ],
-      maxTokens: 10000,
+      maxTokens: 8000,
     });
 
     console.log("Acronyms extracted successfully");
