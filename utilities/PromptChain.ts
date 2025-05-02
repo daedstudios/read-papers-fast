@@ -56,13 +56,13 @@ export const initiateRequests = async (documentUrl: string | null, uploadedFile:
   if (!baseResponse.ok) {
     const errorData = await baseResponse.json();
     throw new Error(
-      errorData.message || 
-      `Base API responded with status: ${baseResponse.status}`
+      errorData.message ||
+        `Base API responded with status: ${baseResponse.status}`
     );
   }
 
   const baseData = await baseResponse.json();
-  
+
   if (!baseData.success || !baseData.paperSummaryId) {
     throw new Error("Failed to create paper record or get paper ID");
   }
@@ -72,11 +72,11 @@ export const initiateRequests = async (documentUrl: string | null, uploadedFile:
 
   // STEP 2: Call vertex and vertexKeyWords endpoints in parallel with the paper ID
   console.log("Step 2: Extracting sections and keywords...");
-  
+
   // Add the paper ID to the request body
   const enrichedRequestBody = JSON.stringify({
     ...JSON.parse(requestBody),
-    paperSummaryId: paperSummaryId
+    paperSummaryId: paperSummaryId,
   });
 
   // Start both requests in parallel
@@ -86,17 +86,21 @@ export const initiateRequests = async (documentUrl: string | null, uploadedFile:
     body: enrichedRequestBody,
   });
 
-  const keywordsPromise = fetch("/api/vertexKeyWords", {
+  // Call vertex endpoint first
+  console.log("Extracting sections...");
+  const vertexResponse = await fetch("/api/vertex", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: enrichedRequestBody,
   });
 
-  // Wait for both requests to complete
-  const [vertexResponse, keywordsResponse] = await Promise.all([
-    vertexPromise,
-    keywordsPromise,
-  ]);
+  // Call keywords endpoint after vertex completes
+  console.log("Extracting keywords...");
+  const keywordsResponse = await fetch("/api/vertexKeyWords", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: enrichedRequestBody,
+  });
 
   // Process vertex response
   let vertexData = null;
@@ -105,7 +109,10 @@ export const initiateRequests = async (documentUrl: string | null, uploadedFile:
   } else {
     console.error("Section extraction failed");
     const errorData = await vertexResponse.json().catch(() => ({}));
-    console.error(errorData.message || `Vertex API responded with status: ${vertexResponse.status}`);
+    console.error(
+      errorData.message ||
+        `Vertex API responded with status: ${vertexResponse.status}`
+    );
   }
 
   // Process keywords response
@@ -115,7 +122,10 @@ export const initiateRequests = async (documentUrl: string | null, uploadedFile:
   } else {
     console.error("Keywords extraction failed");
     const errorData = await keywordsResponse.json().catch(() => ({}));
-    console.error(errorData.message || `Keywords API responded with status: ${keywordsResponse.status}`);
+    console.error(
+      errorData.message ||
+        `Keywords API responded with status: ${keywordsResponse.status}`
+    );
   }
 
   // Combine all results into a single response object
@@ -127,6 +137,6 @@ export const initiateRequests = async (documentUrl: string | null, uploadedFile:
     // keywords: keywordsData?.success ? keywordsData.acronyms : [],
     // hasKeywords: !!keywordsData?.success,
     // hasSections: !!vertexData?.success,
-    ...vertexData
+    ...vertexData,
   };
 };

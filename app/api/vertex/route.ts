@@ -57,7 +57,7 @@ export async function POST(req: Request) {
           ],
         },
       ],
-      maxTokens: 10000,
+      maxTokens: 20000,
     });
 
     console.log("Titles extracted:", titlesResult);
