@@ -112,9 +112,9 @@ export default function LoadingSurvey() {
           alt="Background"
           fill
           priority
-          className="object-cover fixed inset-0 h-full w-full z-[-2] "
+          className="object-cover fixed  h-full w-full z-[-2] "
         />
-        <div className="fixed inset-0 bg-black/20 blur-lg z-[-1]" />
+        <div className="fixed  bg-black/20 blur-lg z-[-1]" />
         {step === 1 && (
           <>
             <Card className="w-full max-w-[32rem] max-h-screen  bg-background/10 shadow-lg border border-muted/30 backdrop-blur-lg rounded-[2rem]">
