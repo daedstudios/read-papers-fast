@@ -60,9 +60,9 @@ const Page = () => {
         alt="Background"
         fill
         priority
-        className="object-cover fixed inset-0 h-full w-full z-[-1]"
+        className="object-cover fixed  h-full w-full z-[-2] "
       />
-      <div className="fixed inset-0 bg-black/20  z-[-1]" />
+      <div className="fixed  bg-black/20 blur-lg z-[-1]" />
 
       <div className="p-[1rem] text-[1.25rem] text-foreground font-medium">
         ReadPapersFast
@@ -83,7 +83,7 @@ const Page = () => {
         )}
         <form
           id="uploadForm"
-          className="flex flex-col md:flex-row justify-end gap-2 border border-muted/30 p-[1rem] rounded-[2rem] bg-background/30 shadow shadow-background/30"
+          className="flex flex-col md:flex-row justify-end gap-2 border border-muted backdrop-blur-lg p-[1rem] rounded-[2rem] bg-background/10 shadow shadow-background/30"
         >
           <div className="flex flex-row gap-2 w-full">
             <Input
@@ -126,52 +126,52 @@ const Page = () => {
           {uploadedFile?.name || "Paste a link or upload a PDF directly"}
         </p>
       </div>
-      <div className="flex w-full flex-col text-background items-center pt-[6rem] text-[1rem]">
+      <div className="flex w-full z-4 flex-col text-foreground opacity-60 items-center pt-[6rem] text-[1rem]">
         trusted by students of
         <div className="relative md:w-[42rem] overflow-hidden py-[3rem]">
           <div className="flex gap-[8rem] animate-marquee whitespace-nowrap">
             <Image
-              src="/maastricht2.svg"
+              src="/maastricht3.svg"
               alt="maastricht"
               width={280}
               height={36}
-              className="opacity-80"
+              className="opacity-100"
             />
             <Image
-              src="/passau2.svg"
+              src="/passau3.svg"
               alt="passau"
               width={240}
               height={36}
-              className="opacity-80"
+              className="opacity-100"
             />
             <Image
-              src="/uci2.svg"
+              src="/uci3.svg"
               alt="uci"
               width={64}
               height={36}
-              className="opacity-80"
+              className="opacity-100"
             />
 
             <Image
-              src="/maastricht2.svg"
+              src="/maastricht3.svg"
               alt="maastricht"
               width={280}
               height={36}
-              className="opacity-80"
+              className="opacity-100"
             />
             <Image
-              src="/passau2.svg"
+              src="/passau3.svg"
               alt="passau"
               width={240}
               height={36}
-              className="opacity-80"
+              className="opacity-100"
             />
             <Image
-              src="/uci2.svg"
+              src="/uci3.svg"
               alt="uci"
               width={64}
               height={36}
-              className="opacity-80"
+              className="opacity-100"
             />
           </div>
 
