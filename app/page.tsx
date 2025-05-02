@@ -60,16 +60,16 @@ const Page = () => {
         alt="Background"
         fill
         priority
-        className="object-cover z-[-1]  "
+        className="object-cover z-[-1]"
       />
-      <div className="fixed inset-0 bg-black/20 blur-lg z-[-1]" />
+      <div className="fixed inset-0 bg-black/20  z-[-1]" />
 
       <div className="p-[1rem] text-[1.25rem] text-foreground font-medium">
         ReadPapersFast
       </div>
 
-      <div className="flex flex-col justify-center pt-[16rem] mx-auto md:w-[42rem] px-[1rem] md:px-0">
-        <h1 className="justify-center text-center text-[2.25rem] font-medium mb-[2rem] text-foreground">
+      <div className="flex flex-col justify-center max-h-screen md:pt-[16rem] pt-[12rem] mx-auto md:w-[42rem] px-[1rem] md:px-0">
+        <h1 className=" text-center text-[2.25rem] font-medium mb-[2rem] text-foreground">
           Read research papers 10x faster
         </h1>
         {error && (

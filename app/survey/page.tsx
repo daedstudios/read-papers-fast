@@ -13,6 +13,7 @@ import { CardContent } from "@/components/ui/card";
 import { RadioGroup } from "@/components/ui/radio-group";
 import { RadioGroupItem } from "@/components/ui/radio-group";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function LoadingSurvey() {
   const [dots, setDots] = useState("");
@@ -85,7 +86,11 @@ export default function LoadingSurvey() {
   return (
     <div>
       <div className="fixed top-[1rem] left-[1rem] text-[1.25rem] text-foreground font-medium">
-        ReadPapersFast
+        <Link href="/" passHref>
+          <button className="text-[1.25rem] cursor-pointer text-foreground font-medium">
+            ReadPapersFast
+          </button>
+        </Link>
       </div>
 
       {isLoading && (

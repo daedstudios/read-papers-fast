@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
+import Link from "next/link";
 
 interface Section {
   id: string;
@@ -82,7 +83,11 @@ function PaperContent() {
   return (
     <>
       <div className="fixed top-[1rem] left-[1rem] text-[1.25rem] text-foreground font-medium">
-        ReadPapersFast
+        <Link href="/" passHref>
+          <button className="text-[1.25rem] cursor-pointer text-foreground font-medium">
+            ReadPapersFast
+          </button>
+        </Link>
       </div>
       <div className="flex flex-row justify-between w-full h-[90vh] mt-[10vh]">
         <ScrollArea className="w-[22rem] hidden md:block px-[1rem] h-full">
