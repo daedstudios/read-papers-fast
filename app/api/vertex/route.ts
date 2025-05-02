@@ -47,7 +47,7 @@ export async function POST(req: Request) {
           content: [
             {
               type: "text",
-              text: 'You are an AI document parser. Extract ONLY the MAJOR section titles from this academic paper. Ignore any sub-section titles or minor headings. Return them as a JSON object in the format: {"titles": ["Introduction", "Methodology", "Results", "Discussion", "Conclusion", ...]}. Include only the main sections of the document, typically found at the top level of the document structure.',
+              text: 'You are an AI document parser. Extract all the section and subsections titles from this academic paper.Return them as a JSON object in the format: {"titles": ["Introduction", "Methodology", "Results", "Discussion", "Conclusion", ...]}. Include only the main sections and subsections of the document, typically found at the top level of the document structure.',
             },
             {
               type: "file",
