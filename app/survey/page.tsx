@@ -93,18 +93,6 @@ export default function LoadingSurvey() {
         </Link>
       </div>
 
-      {isLoading && (
-        <div className="fixed top-[1rem] right-[1rem] text-[1.25rem] text-foreground font-medium">
-          {/* {error && <p>Error: {error}</p>} */}
-          {isLoading && <p>{dots}</p>}
-        </div>
-      )}
-      {result?.success && (
-        <div className="fixed top-[1rem] right-[1rem] text-[1.25rem] text-foreground font-medium">
-          <p>Success: {result.success}</p>
-        </div>
-      )}
-
       <SurveyProgressBar step={step} total={totalSteps} />
       <div className="flex flex-col items-center justify-center h-screen max-h-screen gap-[2rem] px-[1rem]">
         <Image
@@ -238,30 +226,30 @@ export default function LoadingSurvey() {
         )}
 
         {step === 4 && (
-          <>
-            <Card className="w-full max-w-[32rem] bg-background/10 shadow-lg border border-muted/30 backdrop-blur-lg rounded-[2rem]">
-              <CardHeader>
-                <CardTitle className="text-[2.25rem] font-medium text-foreground">
-                  Thanks for submitting!
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex flex-col gap-4">
-                <p className="text-[1rem] font-medium text-foreground">
-                  Your research paper will be ready soon...
-                </p>
+          <Card className="w-full max-w-[32rem] bg-background/10 shadow-lg border border-muted/30 backdrop-blur-lg rounded-[2rem]">
+            <CardHeader>
+              <CardTitle className="text-[2.25rem] font-medium text-foreground">
+                {result?.success ? "Paper Ready" : "Thanks for submitting!"}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              <p className="text-[1rem] font-medium text-foreground">
+                {result?.success
+                  ? "Thank you for your patience, ou can now view your paper."
+                  : `Your research paper will be ready soon ${dots}`}
+              </p>
 
-                <div className="flex justify-end w-full">
-                  <Button
-                    onClick={handleSubmit}
-                    disabled={isLoading || !result?.paperSummary?.id}
-                    className="rounded-[2rem] cursor-pointer w-full md:w-auto"
-                  >
-                    See paper
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </>
+              <div className="flex justify-end w-full">
+                <Button
+                  onClick={handleSubmit}
+                  disabled={isLoading || !result?.paperSummary?.id}
+                  className="rounded-[2rem] cursor-pointer w-full md:w-auto"
+                >
+                  {result?.success ? "Open Paper" : "See paper"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         )}
         <div className="flex justify-center items-center gap-2 mt-6">
           {steps.map((s) => (
