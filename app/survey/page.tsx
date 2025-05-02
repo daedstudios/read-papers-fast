@@ -117,7 +117,7 @@ export default function LoadingSurvey() {
         <div className="fixed inset-0 bg-black/20 blur-lg z-[-1]" />
         {step === 1 && (
           <>
-            <Card className="w-full max-w-[32rem] bg-background/10 shadow-lg border border-muted/30 backdrop-blur-lg rounded-[2rem]">
+            <Card className="w-full max-w-[32rem] max-h-screen  bg-background/10 shadow-lg border border-muted/30 backdrop-blur-lg rounded-[2rem]">
               <CardHeader>
                 <CardTitle className="text-[2.25rem] font-medium text-foreground">
                   Transcribing{dots}

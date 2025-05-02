@@ -54,13 +54,13 @@ const Page = () => {
   };
 
   return (
-    <div className="pdf-container max-h-screen  bg-cover bg-center">
+    <div className="pdf-container max-h-screen overflow-hidden bg-cover bg-center">
       <Image
         src="/LANDING-2.png"
         alt="Background"
         fill
         priority
-        className="object-cover z-[-1]"
+        className="object-cover fixed inset-0 h-full w-full z-[-1]"
       />
       <div className="fixed inset-0 bg-black/20  z-[-1]" />
 
@@ -68,7 +68,7 @@ const Page = () => {
         ReadPapersFast
       </div>
 
-      <div className="flex flex-col justify-center max-h-screen md:pt-[16rem] pt-[12rem] mx-auto md:w-[42rem] px-[1rem] md:px-0">
+      <div className="flex flex-col justify-center max-h-screen md:pt-[16rem] pt-[8rem] mx-auto md:w-[42rem] px-[1rem] md:px-0">
         <h1 className=" text-center text-[2.25rem] font-medium mb-[2rem] text-foreground">
           Read research papers 10x faster
         </h1>
