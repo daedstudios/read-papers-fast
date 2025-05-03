@@ -100,6 +100,10 @@ function PaperContent() {
                 priority
                 className="object-cover fixed top-0 rounded-[1rem] full"
               />
+              <h2 className="text-[1.5rem] font-medium text-foreground z-3 pb-[1rem]">
+                {" "}
+                Table of contents
+              </h2>
               {paperSummary.sections.map((section) => (
                 <SidebarMenuItem key={section.id}>
                   <SidebarMenuButton asChild>
@@ -152,6 +156,10 @@ function PaperContent() {
                 priority
                 className="object-cover absolute inset-0 z-0"
               />
+              <h2 className="text-[1.5rem] font-medium text-foreground z-3 p-[1rem]">
+                {" "}
+                Keywords
+              </h2>
 
               <div className="relative z-10 p-4 space-y-4">
                 {paperSummary?.acronyms?.map((acronym) => (
