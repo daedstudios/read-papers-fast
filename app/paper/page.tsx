@@ -13,6 +13,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
 import Link from "next/link";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 interface Section {
   id: string;
@@ -33,6 +34,9 @@ interface PaperSummary {
   title: string;
   sections: Section[];
   acronyms: Acronyms[];
+  authors: string[];
+  publishedDate: string;
+  summary: string;
 }
 
 // Loading component for Suspense fallback
@@ -81,6 +85,32 @@ function PaperContent() {
   if (error) return <div>Error: {error}</div>;
   if (!paperSummary) return <div>No paper summary found</div>;
 
+  function formatHumanDate(dateStr: string): string {
+    const [year, month, day] = dateStr.split("-");
+
+    const monthNames = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+
+    if (month === "00" || !month) return year;
+    const monthIndex = parseInt(month, 10) - 1;
+
+    if (isNaN(monthIndex) || monthIndex < 0 || monthIndex > 11) return year;
+
+    return `${monthNames[monthIndex]} ${year}`;
+  }
+
   return (
     <>
       <div className="fixed top-[1rem] left-[1rem] text-[1.25rem] text-foreground font-medium">
@@ -91,45 +121,74 @@ function PaperContent() {
         </Link>
       </div>
       <div className="flex flex-row justify-between w-full h-[90vh] mt-[10vh]">
-        <ScrollArea className="w-[22rem] hidden md:block px-[1rem] h-full">
-          <Sidebar className="relative w-full h-full  ">
-            <SidebarMenu className="bg-background m-4 w-[18rem] h-full">
+        <div className="flex flex-col w-[22rem] gap-[1rem] h-full">
+          <ScrollArea className="w-[22rem] hidden md:block px-[1rem]  rounded-[1rem]">
+            <Sidebar className="relative w-full h-full  ">
+              <SidebarMenu className="bg-background m-4 w-[18rem] h-full">
+                <Image
+                  src="/LANDING-2.png"
+                  alt="Background"
+                  fill
+                  priority
+                  className="object-cover fixed top-0 full"
+                />
+                <SidebarHeader className="text-[1.5rem] font-medium text-foreground z-3 pb-[1rem]">
+                  {" "}
+                  Table of contents
+                </SidebarHeader>
+                {paperSummary.sections.map((section) => (
+                  <SidebarMenuItem key={section.id}>
+                    <SidebarMenuButton asChild>
+                      <a
+                        href={`#${section.id}`}
+                        // className="block mb-2 text-sm text-muted-foreground hover:text-foreground"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          document.getElementById(section.id)?.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start",
+                          });
+                        }}
+                      >
+                        <span className="text-[1rem] truncate text-ellipsis break-words ">
+                          {section.title}
+                        </span>
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </Sidebar>
+          </ScrollArea>
+          <ScrollArea className="m-[1rem] relative  overflow-hidden rounded-[1rem]">
+            <Card className="">
               <Image
                 src="/LANDING-2.png"
                 alt="Background"
                 fill
                 priority
-                className="object-cover fixed top-0 rounded-[1rem] full"
+                className="object-cover rounded-[1rem]"
               />
-              <SidebarHeader className="text-[1.5rem] font-medium text-foreground z-3 pb-[1rem]">
-                {" "}
-                Table of contents
-              </SidebarHeader>
-              {paperSummary.sections.map((section) => (
-                <SidebarMenuItem key={section.id}>
-                  <SidebarMenuButton asChild>
-                    <a
-                      href={`#${section.id}`}
-                      // className="block mb-2 text-sm text-muted-foreground hover:text-foreground"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        document.getElementById(section.id)?.scrollIntoView({
-                          behavior: "smooth",
-                          block: "start",
-                        });
-                      }}
-                    >
-                      <span className="text-[1rem] truncate text-ellipsis break-words ">
-                        {section.title}
-                      </span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </Sidebar>
-        </ScrollArea>
-        <ScrollArea className="w-[42rem]  mx-[2rem] h-full">
+              <CardHeader className="z-5 text-[1.5rem] font-medium">
+                Authors
+              </CardHeader>
+              <CardContent className="flex flex-col z-10 space-y-2">
+                {paperSummary.authors?.map((author, index) => (
+                  <p
+                    key={index}
+                    className="text-[1rem] text-foreground bg-background/70 backdrop-blur-sm px-3 py-1 rounded-md inline-block"
+                  >
+                    {author}
+                  </p>
+                ))}
+              </CardContent>
+            </Card>
+          </ScrollArea>
+        </div>
+        <ScrollArea className="w-[42rem]  mx-[2rem] h-full ">
+          <p className="text-[1rem] z-10 text-foreground font-medium">
+            Publishing Date: {formatHumanDate(paperSummary.publishedDate)}
+          </p>
           <h1 className="text-[2.25rem] max-w-[40rem] font-medium pb-[3rem]">
             {paperSummary.title}
           </h1>
@@ -147,42 +206,63 @@ function PaperContent() {
             </div>
           ))}
         </ScrollArea>
-        <ScrollArea className="w-[28rem] hidden px-[1rem] lg:block h-full">
-          <Sidebar className="relative w-full h-full">
-            <SidebarMenu className="bg-background h-full rounded-[1rem] overflow-hidden relative">
+        <div className="flex flex-col w-[28rem] justify-between gap-[1rem] h-full">
+          <ScrollArea className="m-[1rem] relative overflow-hidden rounded-[1rem]">
+            <Card className="">
               <Image
                 src="/LANDING-2.png"
                 alt="Background"
                 fill
                 priority
-                className="object-cover absolute inset-0 z-0"
+                className="object-cover rounded-[1rem]"
               />
-              <SidebarHeader className="text-[1.5rem] font-medium text-foreground z-3 p-[1rem]">
-                {" "}
-                Keywords
-              </SidebarHeader>
+              <CardHeader className="z-5 text-[1.5rem] font-medium">
+                Paper Summary
+              </CardHeader>
+              <CardContent className="flex flex-col z-10 space-y-2">
+                <p className="text-[1rem] text-foreground bg-background/70 backdrop-blur-sm px-3 py-1 rounded-md inline-block">
+                  {paperSummary.summary}
+                </p>
+              </CardContent>
+            </Card>
+          </ScrollArea>
+          <ScrollArea className="w-[28rem] hidden max-h-[24rem] px-[1rem] lg:block h-full rounded-[1rem] mb-[1rem]">
+            <Sidebar className="relative w-full h-full ">
+              <Image
+                src="/LANDING-2.png"
+                alt="Background"
+                fill
+                priority
+                className="object-cover rounded-[1rem] z-3"
+              />
+              <SidebarMenu className="bg-background h-full rounded-[1rem] overflow-hidden relative">
+                <SidebarHeader className="text-[1.5rem] font-medium text-foreground z-3 p-[1rem]">
+                  {" "}
+                  Keywords
+                </SidebarHeader>
 
-              <div className="relative z-10 p-[1rem] space-y-4">
-                {paperSummary?.acronyms?.map((acronym) => (
-                  <div
-                    key={acronym.keyword}
-                    className="rounded-xl bg-muted/60 backdrop-blur-sm p-4 shadow-sm border border-border"
-                  >
-                    <p className="text-[1rem] font-medium text-muted-foreground">
-                      {acronym.keyword}
-                    </p>
-                    <p className="text-[1.25rem] font-medium text-foreground">
-                      {acronym.value}
-                    </p>
-                    <p className="text-[1rem] text-muted-foreground mt-1">
-                      {acronym.explanation}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </SidebarMenu>
-          </Sidebar>
-        </ScrollArea>
+                <div className="relative z-10 p-[1rem] space-y-4">
+                  {paperSummary?.acronyms?.map((acronym) => (
+                    <div
+                      key={acronym.keyword}
+                      className="rounded-xl bg-muted/60 backdrop-blur-sm p-4 shadow-sm border border-border"
+                    >
+                      <p className="text-[1rem] font-medium text-muted-foreground">
+                        {acronym.keyword}
+                      </p>
+                      <p className="text-[1.25rem] font-medium text-foreground">
+                        {acronym.value}
+                      </p>
+                      <p className="text-[1rem] text-muted-foreground mt-1">
+                        {acronym.explanation}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </SidebarMenu>
+            </Sidebar>
+          </ScrollArea>
+        </div>
       </div>
     </>
   );
