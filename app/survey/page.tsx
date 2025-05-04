@@ -82,6 +82,14 @@ export default function LoadingSurvey() {
       router.push(`/paper?id=${result.paperSummary.id}`);
     }
   };
+  const [countdown, setCountdown] = useState(120);
+
+  useEffect(() => {
+    if (!result?.success && countdown > 0) {
+      const timer = setTimeout(() => setCountdown((prev) => prev - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [countdown, result?.success]);
 
   return (
     <div>
@@ -235,8 +243,8 @@ export default function LoadingSurvey() {
             <CardContent className="flex flex-col gap-4">
               <p className="text-[1rem] font-medium text-foreground">
                 {result?.success
-                  ? "Thank you for your patience, ou can now view your paper."
-                  : `Your research paper will be ready soon ${dots}`}
+                  ? "Thank you for your patience, you can now view your paper."
+                  : `Your research paper will be ready soon. Estimated time: ${countdown}s...`}
               </p>
 
               <div className="flex justify-end w-full">
