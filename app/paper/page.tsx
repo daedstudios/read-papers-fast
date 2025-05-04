@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Header from "@/components/header";
 import {
   Sidebar,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -100,6 +101,10 @@ function PaperContent() {
                 priority
                 className="object-cover fixed top-0 rounded-[1rem] full"
               />
+              <SidebarHeader className="text-[1.5rem] font-medium text-foreground z-3 pb-[1rem]">
+                {" "}
+                Table of contents
+              </SidebarHeader>
               {paperSummary.sections.map((section) => (
                 <SidebarMenuItem key={section.id}>
                   <SidebarMenuButton asChild>
@@ -152,8 +157,12 @@ function PaperContent() {
                 priority
                 className="object-cover absolute inset-0 z-0"
               />
+              <SidebarHeader className="text-[1.5rem] font-medium text-foreground z-3 p-[1rem]">
+                {" "}
+                Keywords
+              </SidebarHeader>
 
-              <div className="relative z-10 p-4 space-y-4">
+              <div className="relative z-10 p-[1rem] space-y-4">
                 {paperSummary?.acronyms?.map((acronym) => (
                   <div
                     key={acronym.keyword}
