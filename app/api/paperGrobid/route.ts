@@ -23,19 +23,33 @@ export async function GET(request: Request) {
       },
     });
 
-    if (grobidContent.length === 0) {
-      return NextResponse.json(
-        { error: "No Grobid content found for this paper ID" },
-        { status: 404 }
-      );
-    }
+     const grobidAbstract = await prisma.paperSummary.findUnique({
+       where: {
+         id: id,
+       },
+     });
 
-    return NextResponse.json(
-      {
-        grobidContent,
-      },
-      { status: 200 }
-    );
+     const grobidFigures = await prisma.paperFigures.findMany({
+       where: {
+         paper_summary_id: id,
+       },
+     });
+
+     if (grobidContent.length === 0) {
+       return NextResponse.json(
+         { error: "No Grobid content found for this paper ID" },
+         { status: 404 }
+       );
+     }
+
+     return NextResponse.json(
+       {
+         grobidContent,
+         grobidAbstract,
+         grobidFigures,
+       },
+       { status: 200 }
+     );
   } catch (error) {
     console.error("Error fetching paper data:", error);
     return NextResponse.json(
