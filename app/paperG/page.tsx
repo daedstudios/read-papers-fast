@@ -36,7 +36,6 @@ interface Acronyms {
   value: string;
   explanation: string;
 }
-
 interface GrobidParagraph {
   order_index: number;
   text: string;
@@ -54,8 +53,39 @@ interface GrobidSection {
   para: GrobidParagraph[];
 }
 
+interface GrobidFigure {
+  id: string;
+  figure_id: string;
+  figure_type: string;
+  head: string;
+  label: string;
+  description: string;
+  coords: string;
+  graphic_coords: string;
+  graphic_type: string;
+  page_number: number;
+  paper_summary_id: string;
+  created_at: string;
+  updated_at: string;
+  source_file: string;
+  extracted_image_path: string | null;
+  image_url: string;
+}
+
 interface GrobidContentResponse {
   grobidContent: GrobidSection[];
+  grobidFigures: GrobidFigure[];
+}
+
+interface ImageUrl {
+  url: string;
+  width: number;
+  height: number;
+  pageNumber: number;
+  ext: string;
+  label?: string;
+  figure_id?: string;
+  description?: string;
 }
 
 // Loading component for Suspense fallback
@@ -74,9 +104,65 @@ function PaperContent() {
   const keyWordRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
 
+  const [imageUrls, setImageUrls] = useState<ImageUrl[] | []>([]);
+
   useEffect(() => {
-    console.log("Grobid Content:", paperSummary);
+    if (paperSummary) {
+      const figuresWithImages = paperSummary.grobidFigures
+        .filter((figure) => figure.figure_type === "figure" && figure.image_url)
+        .map((figure) => {
+          // Parse the JSON string into an array of image objects
+          const imageData = figure.image_url
+            ? JSON.parse(figure.image_url)
+            : [];
+
+          return {
+            label: figure.label,
+            // Extract the actual image URLs from the parsed data
+            imageUrls: imageData.map((img: any) => ({
+              url: img.image_url,
+              width: img.width,
+              height: img.height,
+              pageNumber: img.page_number,
+              ext: img.image_ext,
+            })),
+            figure_id: figure.figure_id,
+            description: figure.description,
+          };
+        });
+
+      console.log("Figures with images:", figuresWithImages);
+
+      // Now you can access values directly, for example:
+      figuresWithImages.forEach((figure, index) => {
+        if (figure.imageUrls.length > 0) {
+          console.log(`Figure ${index} has URL:`, figure.imageUrls);
+          for (const image of figure.imageUrls) {
+            console.log(
+              `Image URL: ${image.url}, Width: ${image.width}, Height: ${image.height}`
+            );
+            setImageUrls((prev) => [
+              ...prev,
+              {
+                url: image.url,
+                width: image.width,
+                height: image.height,
+                pageNumber: image.pageNumber,
+                ext: image.ext,
+                label: figure.label,
+                figure_id: figure.figure_id,
+                description: figure.description,
+              },
+            ]);
+          }
+        }
+      });
+    }
   }, [paperSummary]);
+
+  useEffect(() => {
+    console.log("imageUrls", imageUrls);
+  }, [imageUrls.length]);
 
   useEffect(() => {
     async function fetchPaperSummary() {
@@ -248,17 +334,60 @@ function PaperContent() {
 
                   {para.refs && Object.keys(para.refs).length > 0 && (
                     <ul className="pl-4 list-disc text-muted-foreground text-sm">
-                      {Object.entries(para.refs).map(
-                        ([refKey, refValue]: [string, any]) => (
-                          <li key={refKey}>{refKey}</li>
-                        )
-                      )}
+                      {(() => {
+                        const refItems = [];
+                        for (const [refKey, refValue] of Object.entries(
+                          para.refs
+                        )) {
+                          if ((refValue as any).type === "figure") {
+                            console.log(
+                              `"Figure:", ${refKey}, ${(refValue as any).id})`
+                            );
+                          }
+                          refItems.push(
+                            <li key={refKey}>
+                              {refKey}
+                              {(refValue as any).type}
+                            </li>
+                          );
+                          // You can add if-else conditions here
+                        }
+                        return refItems;
+                      })()}
                     </ul>
                   )}
                 </div>
               ))}
             </div>
           ))}
+          {imageUrls.length > 0 && (
+            <div className="my-8">
+              <h3 className="text-xl font-semibold mb-4">Figures</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {imageUrls.map((image, index) => (
+                  <div
+                    key={index}
+                    className="border rounded-lg p-4 flex flex-col"
+                  >
+                    <div className="relative w-full h-60">
+                      <Image
+                        src={image.url}
+                        alt={image.label || `Figure ${index + 1}`}
+                        fill
+                        className="object-contain"
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                      />
+                    </div>
+                    {image.description && (
+                      <p className="mt-2 text-center text-sm text-muted-foreground">
+                        {image.description}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </ScrollArea>
         <ScrollArea
           className="w-[22rem] hidden rounded-[1rem] max-h-[24rem] absolute top-0 left-0 lg:block px-[1rem] md:h-full"
