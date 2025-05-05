@@ -72,9 +72,22 @@ interface GrobidFigure {
   image_url: string;
 }
 
+interface GrobidAbstract {
+  text: string;
+  authors: string[];
+  title: string;
+  publishedDate: string;
+  summary: string;
+  url: string;
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface GrobidContentResponse {
   grobidContent: GrobidSection[];
   grobidFigures: GrobidFigure[];
+  grobidAbstract: GrobidAbstract;
 }
 
 interface ImageUrl {
@@ -315,6 +328,39 @@ function PaperContent() {
         </ScrollArea>
 
         <ScrollArea className="w-[42rem] mx-[2rem] h-full">
+          {paperSummary?.grobidAbstract && (
+            <div className="mb-10">
+              <h1 className="text-4xl font-medium mb-4">
+                {paperSummary.grobidAbstract.title}
+              </h1>
+
+              {paperSummary.grobidAbstract.authors.length > 0 && (
+                <div className="mb-4">
+                  <p className="text-muted-foreground italic">
+                    {paperSummary.grobidAbstract.authors.join(", ")}
+                    {paperSummary.grobidAbstract.publishedDate && (
+                      <span>
+                        {" "}
+                        ·{" "}
+                        {new Date(
+                          paperSummary.grobidAbstract.publishedDate
+                        ).toLocaleDateString()}
+                      </span>
+                    )}
+                  </p>
+                </div>
+              )}
+
+              <div className="bg-muted/30 rounded-lg p-6 mb-8">
+                <h2 className="text-xl font-semibold mb-3">Abstract</h2>
+                <p className="text-foreground leading-relaxed">
+                  {paperSummary.grobidAbstract.summary}
+                </p>
+              </div>
+
+              <div className="border-b border-border mb-8 pb-2"></div>
+            </div>
+          )}
           {paperSummary?.grobidContent.map((section) => (
             <div key={section.id} className="mb-[3rem]">
               {/* Section heading */}
