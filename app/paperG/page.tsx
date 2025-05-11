@@ -20,6 +20,8 @@ import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import { Drawer } from "vaul";
 import { DrawerHeader } from "@/components/ui/drawer";
+import { Card, CardContent } from "@/components/ui/card";
+import { CardHeader } from "@/components/ui/card";
 
 gsap.registerPlugin(useGSAP);
 
@@ -51,6 +53,7 @@ interface GrobidSection {
   paperSummaryID: string;
   paper_id: string;
   para: GrobidParagraph[];
+  summary: string;
 }
 
 interface GrobidFigure {
@@ -350,14 +353,6 @@ function PaperContent() {
                   </p>
                 </div>
               )}
-
-              <div className="bg-muted/30 rounded-lg p-6 mb-8">
-                <h2 className="text-xl font-semibold mb-3">Abstract</h2>
-                <p className="text-foreground leading-relaxed">
-                  {paperSummary.grobidAbstract.summary}
-                </p>
-              </div>
-
               <div className="border-b border-border mb-8 pb-2"></div>
             </div>
           )}
@@ -435,28 +430,74 @@ function PaperContent() {
             </div>
           )}
         </ScrollArea>
-        <ScrollArea
-          className="w-[22rem] hidden rounded-[1rem] max-h-[24rem] absolute top-0 left-0 lg:block px-[1rem] md:h-full"
-          ref={keyWordRef}
-        >
-          <Sidebar className="relative w-full ">
-            <SidebarMenu className="bg-background h-full  overflow-hidden relative">
+        <div className="flex flex-col pb-[1rem] gap-[1rem] h-full">
+          <ScrollArea className="mx-[1rem] hidden w-[22rem] lg:block relative overflow-hidden rounded-[1rem]">
+            <Card className="">
               <Image
                 src="/LANDING-2.png"
                 alt="Background"
                 fill
                 priority
-                className="object-cover fixed top-0 rounded-[1rem] full"
+                className="object-cover rounded-[1rem]"
               />
-              <SidebarHeader className="text-[1.5rem] font-medium text-foreground z-3 p-[1rem]">
-                {" "}
+              <CardHeader className="z-5 text-[1.5rem] font-medium">
+                Paper Summary
+              </CardHeader>
+              <CardContent className="flex flex-col z-10 space-y-2">
+                <p className="text-[1rem] text-foreground bg-background/70 backdrop-blur-sm px-3 py-1 rounded-md inline-block">
+                  {paperSummary?.grobidAbstract.summary}
+                </p>
+              </CardContent>
+            </Card>
+          </ScrollArea>
+          <ScrollArea
+            className=" hidden mx-[1rem] rounded-[1rem] w-[22rem] max-h-[22rem] absolute top-0 left-0 lg:block px-[1rem] "
+            ref={keyWordRef}
+          >
+            <Card className="">
+              <Image
+                src="/LANDING-2.png"
+                alt="Background"
+                fill
+                priority
+                className="object-cover rounded-[1rem]"
+              />
+              <CardHeader className="z-5 text-[1.5rem] font-medium">
                 Keywords
-              </SidebarHeader>
-
-              <div className="relative z-10 p-[1rem] space-y-4"></div>
-            </SidebarMenu>
-          </Sidebar>
-        </ScrollArea>
+              </CardHeader>
+              <CardContent className="flex flex-col z-10 space-y-2"></CardContent>
+            </Card>
+          </ScrollArea>
+          <ScrollArea className="mx-[1rem] relative hidden lg:block overflow-hidden rounded-[1rem]">
+            <Card className="">
+              <Image
+                src="/LANDING-2.png"
+                alt="Background"
+                fill
+                priority
+                className="object-cover rounded-[1rem]"
+              />
+              <CardHeader className="z-5 text-[1.5rem] font-medium">
+                Authors
+              </CardHeader>
+              <CardContent className="flex flex-col z-10 space-y-2">
+                {paperSummary?.grobidAbstract?.authors?.map((author, index) => (
+                  <a
+                    key={index}
+                    href={`https://www.google.com/search?q=${encodeURIComponent(
+                      author
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[1rem] text-foreground bg-background/70 backdrop-blur-sm px-3 py-1 rounded-md inline-block hover:underline"
+                  >
+                    {author}
+                  </a>
+                ))}
+              </CardContent>
+            </Card>
+          </ScrollArea>
+        </div>
       </div>
     </>
   );
