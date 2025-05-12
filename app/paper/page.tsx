@@ -113,13 +113,6 @@ function PaperContent() {
 
   return (
     <>
-      <div className="fixed top-[1rem] left-[1rem] text-[1.25rem] text-foreground font-medium">
-        <Link href="/" passHref>
-          <button className="text-[1.25rem] cursor-pointer text-foreground font-medium">
-            ReadPapersFast
-          </button>
-        </Link>
-      </div>
       <div className="flex flex-row justify-between w-full h-[90vh] mt-[10vh]">
         <div className="flex flex-col w-[22rem] gap-[1rem] h-full">
           <ScrollArea className="w-[22rem] hidden md:block px-[1rem]  rounded-[1rem]">

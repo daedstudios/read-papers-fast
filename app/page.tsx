@@ -65,10 +65,6 @@ const Page = () => {
       />
       <div className="fixed  bg-black/20 blur-lg z-[-1]" />
 
-      <div className="p-[1rem] text-[1.25rem] text-foreground font-medium">
-        ReadPapersFast
-      </div>
-
       <div className="flex flex-col justify-center max-h-screen md:pt-[14rem] pt-[8rem] mx-auto md:w-[42rem] px-[1rem] md:px-0">
         <h1 className=" text-center text-[2.25rem] font-medium my-[2rem] text-foreground">
           Read research papers 10x faster
@@ -126,7 +122,7 @@ const Page = () => {
         <p className="w-full mx-auto text-center text-foreground px-1 mt-[1rem]">
           {uploadedFile?.name || "Paste a link or upload a PDF directly."}
           <Link
-            href="/paper?id=cma7ox0vl0000jm0alhs6io1k"
+            href="/paperG?id=f153dc68-ce57-421e-a1ae-9ce346daf722"
             className=" font-medium"
           >
             {" "}

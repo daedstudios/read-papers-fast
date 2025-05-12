@@ -20,6 +20,8 @@ import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import { Drawer } from "vaul";
 import { DrawerHeader } from "@/components/ui/drawer";
+import { Card, CardContent } from "@/components/ui/card";
+import { CardHeader } from "@/components/ui/card";
 
 gsap.registerPlugin(useGSAP);
 
@@ -51,6 +53,7 @@ interface GrobidSection {
   paperSummaryID: string;
   paper_id: string;
   para: GrobidParagraph[];
+  summary: string;
 }
 
 interface GrobidFigure {
@@ -210,13 +213,6 @@ function PaperContent() {
 
   return (
     <>
-      <div className="fixed top-[1rem] left-[1rem] text-[1.25rem] text-foreground font-medium">
-        <Link href="/" passHref>
-          <button className="text-[1.25rem] cursor-pointer text-foreground font-medium">
-            ReadPapersFast
-          </button>
-        </Link>
-      </div>
       <Drawer.Root open={open} onOpenChange={setOpen}>
         <Drawer.Trigger asChild>
           <div className="fixed bottom-0 h-[4.5rem] left-0 w-full z-50 flex bg-transparent items-center justify-center md:hidden px-[2rem]">
@@ -237,7 +233,7 @@ function PaperContent() {
 
         <Drawer.Content className="fixed rounded-[1rem] bottom-0 left-0 w-full h-[70%] bg-background z-50 p-4 overflow-auto">
           <div className="fixed inset-0 z-20 bg-background block md:hidden">
-            <ScrollArea className="h-full w-full p-4" ref={menuRef}>
+            <ScrollArea className="h-full w-full p-4 " ref={menuRef}>
               <div className="bg-background w-full h-full">
                 <Image
                   src="/LANDING-2.png"
@@ -254,7 +250,7 @@ function PaperContent() {
                   {paperSummary?.grobidContent?.map((section) => (
                     <SidebarMenuItem
                       key={section.id}
-                      className="list-none appearance-none p-[0.5rem]"
+                      className="list-none appearance-none p-[0.5rem] "
                     >
                       <SidebarMenuButton asChild>
                         <a
@@ -285,26 +281,21 @@ function PaperContent() {
       </Drawer.Root>
       <div className="flex flex-row justify-between w-full h-[92vh] mt-[8vh]">
         <ScrollArea
-          className="md:w-[22rem] rounded-[1rem] hidden absolute h-0 w-0 top-0 left-0 md:block px-[1rem] md:h-full"
+          className="md:w-[22rem] border-r hidden border-t md:block p-[1rem] md:h-full"
           ref={menuRef}
         >
-          <Sidebar className="relative w-full h-full" collapsible="offcanvas">
-            <SidebarMenu className="bg-background m-4 w-[18rem] h-full">
-              <Image
-                src="/LANDING-2.png"
-                alt="Background"
-                fill
-                priority
-                className="object-cover fixed top-0 rounded-[1rem] full"
-              />
-              <SidebarHeader className="text-[1.5rem] font-medium text-foreground z-3 pb-[1rem] relative">
-                Table of contents
-              </SidebarHeader>
-
+          <Sidebar
+            className="relative w-[20rem] h-full"
+            collapsible="offcanvas"
+          >
+            <SidebarMenu className="bg-background h-full">
               <div className="relative z-10">
                 {paperSummary?.grobidContent?.map((section) => (
                   <SidebarMenuItem key={section.id}>
-                    <SidebarMenuButton asChild>
+                    <SidebarMenuButton
+                      asChild
+                      className="hover:bg-[url('/LANDING-2.png')] bg-cover active:bg-[url('/LANDING-2.png')] data-[active=true]:text-background"
+                    >
                       <a
                         href={`#${section.id}`}
                         onClick={(e) => {
@@ -315,7 +306,7 @@ function PaperContent() {
                           });
                         }}
                       >
-                        <span className="text-[1rem] truncate text-ellipsis break-words block">
+                        <span className="text-[1rem] truncate text-ellipsis break-words block ">
                           {section.head_n} {section.head}
                         </span>
                       </a>
@@ -327,7 +318,7 @@ function PaperContent() {
           </Sidebar>
         </ScrollArea>
 
-        <ScrollArea className="w-[42rem] mx-[2rem] h-full">
+        <ScrollArea className="w-full border-t p-[1rem] h-full">
           {paperSummary?.grobidAbstract && (
             <div className="mb-10">
               <h1 className="text-4xl font-medium mb-4">
@@ -350,14 +341,6 @@ function PaperContent() {
                   </p>
                 </div>
               )}
-
-              <div className="bg-muted/30 rounded-lg p-6 mb-8">
-                <h2 className="text-xl font-semibold mb-3">Abstract</h2>
-                <p className="text-foreground leading-relaxed">
-                  {paperSummary.grobidAbstract.summary}
-                </p>
-              </div>
-
               <div className="border-b border-border mb-8 pb-2"></div>
             </div>
           )}
@@ -435,28 +418,60 @@ function PaperContent() {
             </div>
           )}
         </ScrollArea>
-        <ScrollArea
-          className="w-[22rem] hidden rounded-[1rem] max-h-[24rem] absolute top-0 left-0 lg:block px-[1rem] md:h-full"
-          ref={keyWordRef}
-        >
-          <Sidebar className="relative w-full ">
-            <SidebarMenu className="bg-background h-full  overflow-hidden relative">
-              <Image
+        <div className="flex flex-col  h-full border-t lg:p-[1rem] gap-[1rem] lg:border-l">
+          <ScrollArea className="hidden  w-[22rem] lg:block relative overflow-hidden ">
+            <Card className="">
+              <CardHeader className="z-5 text-[1rem] font-medium">
+                Paper Summary
+              </CardHeader>
+              <CardContent className="flex flex-col z-10 ">
+                <p className="text-[1rem] text-muted-foreground bg-background/70 backdrop-blur-sm  rounded-md inline-block">
+                  {paperSummary?.grobidAbstract.summary}
+                </p>
+              </CardContent>
+            </Card>
+          </ScrollArea>
+          <ScrollArea
+            className=" hidden  w-[22rem] max-h-[22rem] absolute top-0 left-0 lg:block  "
+            ref={keyWordRef}
+          >
+            <Card className="">
+              <CardHeader className="z-5 text-[1rem] font-medium">
+                Keywords
+              </CardHeader>
+              <CardContent className="flex flex-col z-10 space-y-2"></CardContent>
+            </Card>
+          </ScrollArea>
+          <ScrollArea className=" relative hidden lg:block overflow-hidden ">
+            <Card className="">
+              {/* <Image
                 src="/LANDING-2.png"
                 alt="Background"
                 fill
                 priority
-                className="object-cover fixed top-0 rounded-[1rem] full"
-              />
-              <SidebarHeader className="text-[1.5rem] font-medium text-foreground z-3 p-[1rem]">
-                {" "}
-                Keywords
-              </SidebarHeader>
-
-              <div className="relative z-10 p-[1rem] space-y-4"></div>
-            </SidebarMenu>
-          </Sidebar>
-        </ScrollArea>
+                className="object-cover rounded-[1rem]"
+              /> */}
+              <CardHeader className="z-5 text-[1rem] font-medium">
+                Authors
+              </CardHeader>
+              <CardContent className="flex flex-col z-10 space-y-2">
+                {paperSummary?.grobidAbstract?.authors?.map((author, index) => (
+                  <a
+                    key={index}
+                    href={`https://www.google.com/search?q=${encodeURIComponent(
+                      author
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[1rem] text-foreground bg-background/70 backdrop-blur-sm px-3 py-1 rounded-md inline-block hover:underline"
+                  >
+                    {author}
+                  </a>
+                ))}
+              </CardContent>
+            </Card>
+          </ScrollArea>
+        </div>
       </div>
     </>
   );
