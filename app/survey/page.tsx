@@ -93,14 +93,6 @@ export default function LoadingSurvey() {
 
   return (
     <div>
-      <div className="fixed top-[1rem] left-[1rem] text-[1.25rem] text-foreground font-medium">
-        <Link href="/" passHref>
-          <button className="text-[1.25rem] cursor-pointer text-foreground font-medium">
-            ReadPapersFast
-          </button>
-        </Link>
-      </div>
-
       <SurveyProgressBar step={step} total={totalSteps} />
       <div className="flex flex-col items-center justify-center h-screen max-h-screen gap-[2rem] px-[1rem]">
         <Image
