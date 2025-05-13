@@ -120,7 +120,11 @@ function PaperContent() {
   const menuRef = useRef<HTMLDivElement>(null);
   const keyWordRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
+
+  const toggleTheme = () => {
+    setTheme(resolvedTheme === "light" ? "dark" : "light");
+  };
 
   const [imageUrls, setImageUrls] = useState<ImageUrl[] | []>([]);
 
@@ -214,8 +218,8 @@ function PaperContent() {
   }, [id]);
 
   useEffect(() => {
-    console.log("theme", theme);
-  }, [theme]);
+    console.log("resolvedTheme", resolvedTheme);
+  }, [resolvedTheme]);
 
   return (
     <>
@@ -290,19 +294,7 @@ function PaperContent() {
           className="md:w-[22rem] border-r hidden border-t md:block p-[1rem] md:h-full"
           ref={menuRef}
         >
-          <Button
-            onClick={() => {
-              if (theme === "dark") {
-                setTheme("light");
-              }
-              if (theme === "light") {
-                setTheme("dark");
-              }
-            }}
-          >
-            theme
-          </Button>
-          <p className="dark:bg-red bg-yellow-300">safvasv</p>
+          <Button onClick={toggleTheme}>theme</Button>
           <Sidebar
             className="relative w-[20rem] h-full"
             collapsible="offcanvas"

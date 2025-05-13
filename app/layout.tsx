@@ -14,11 +14,21 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
+import { cn } from "@/lib/utils";
+import { Inter } from "next/font/google";
 
 export const metadata: Metadata = {
   title: "ReadPapersFast",
   description: "Read research papers 10x faster",
 };
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export default function RootLayout({
   children,
@@ -28,12 +38,19 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
-        <body className="antialiased">
+        <body
+          className={cn(
+            `antialiased`,
+            inter.className,
+            // GeistSans.className,
+            "border-border"
+          )}
+        >
           <ThemeProvider
             attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
+            // defaultTheme="system"
+            // enableSystem
+            // disableTransitionOnChange
           >
             <header className="flex flex-row absolute m-[1rem] w-screen justify-between bg-transparent h-16">
               <Link href="/" passHref>
