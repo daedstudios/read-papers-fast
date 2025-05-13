@@ -22,6 +22,7 @@ import { Drawer } from "vaul";
 import { DrawerHeader } from "@/components/ui/drawer";
 import { Card, CardContent } from "@/components/ui/card";
 import { CardHeader } from "@/components/ui/card";
+import { useTheme } from "next-themes";
 
 gsap.registerPlugin(useGSAP);
 
@@ -119,6 +120,7 @@ function PaperContent() {
   const menuRef = useRef<HTMLDivElement>(null);
   const keyWordRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   const [imageUrls, setImageUrls] = useState<ImageUrl[] | []>([]);
 
@@ -211,6 +213,10 @@ function PaperContent() {
     fetchPaperSummary();
   }, [id]);
 
+  useEffect(() => {
+    console.log("theme", theme);
+  }, [theme]);
+
   return (
     <>
       <Drawer.Root open={open} onOpenChange={setOpen}>
@@ -284,6 +290,19 @@ function PaperContent() {
           className="md:w-[22rem] border-r hidden border-t md:block p-[1rem] md:h-full"
           ref={menuRef}
         >
+          <Button
+            onClick={() => {
+              if (theme === "dark") {
+                setTheme("light");
+              }
+              if (theme === "light") {
+                setTheme("dark");
+              }
+            }}
+          >
+            theme
+          </Button>
+          <p className="dark:bg-red bg-yellow-300">safvasv</p>
           <Sidebar
             className="relative w-[20rem] h-full"
             collapsible="offcanvas"
