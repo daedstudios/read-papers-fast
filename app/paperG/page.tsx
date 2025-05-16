@@ -215,7 +215,7 @@ function PaperContent() {
     <>
       <Drawer.Root open={open} onOpenChange={setOpen}>
         <Drawer.Trigger asChild>
-          <div className="fixed bottom-0 h-[4.5rem] left-0 w-full z-50 flex bg-transparent items-center justify-center md:hidden px-[2rem]">
+          <div className="fixed bottom-0 h-[4.5rem] left-0 w-full z-50 flex bg-transparent items-center justify-center md:hidden px-[1rem]">
             <Button className="text-foreground  w-full h-[3rem] rounded-[2rem] backdrop-blur-lg text-[1rem] hover:shadow-md cursor-pointer">
               <Image
                 src="/LANDING-2.png"
@@ -235,13 +235,13 @@ function PaperContent() {
           <div className="fixed inset-0 z-20 bg-background block md:hidden">
             <ScrollArea className="h-full w-full p-4 " ref={menuRef}>
               <div className="bg-background w-full h-full">
-                <Image
+                {/* <Image
                   src="/LANDING-2.png"
                   alt="Background"
                   fill
                   priority
                   className="object-cover fixed top-0 rounded-[1rem] full"
-                />
+                /> */}
                 <SidebarHeader className="relative text-[1.5rem] z-100 text-foreground font-medium pb-4">
                   Table of contents
                 </SidebarHeader>

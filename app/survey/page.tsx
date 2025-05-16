@@ -105,7 +105,7 @@ export default function LoadingSurvey() {
         <div className="fixed  bg-black/20 blur-lg z-[-1]" />
         {step === 1 && (
           <>
-            <Card className="w-full max-w-[32rem] max-h-screen  bg-background/10 shadow-lg border border-muted/30 backdrop-blur-lg rounded-[2rem]">
+            <Card className="w-full max-w-[32rem] max-h-screen  bg-background/10 shadow-lg border border-muted backdrop-blur-lg rounded-[2rem]">
               <CardHeader>
                 <CardTitle className="text-[2.25rem] font-medium text-foreground">
                   Transcribing{dots}
@@ -143,7 +143,7 @@ export default function LoadingSurvey() {
 
         {step === 2 && (
           <>
-            <Card className="w-full max-w-[32rem] bg-background/10 shadow-lg border border-muted/30 backdrop-blur-lg rounded-[2rem]">
+            <Card className="w-full max-w-[32rem] bg-background/10 shadow-lg border border-muted backdrop-blur-lg rounded-[2rem]">
               <CardHeader>
                 <CardTitle className="text-[2.25rem] font-medium">
                   Almost there{dots}
@@ -189,7 +189,7 @@ export default function LoadingSurvey() {
 
         {step === 3 && (
           <>
-            <Card className="w-full max-w-[32rem] bg-background/10 shadow-lg border border-muted/30 backdrop-blur-lg rounded-[2rem]">
+            <Card className="w-full max-w-[32rem] bg-background/10 shadow-lg border border-muted backdrop-blur-lg rounded-[2rem]">
               <CardHeader>
                 <CardTitle className="text-[2.25rem] font-medium text-foreground">
                   Finishing{dots}
@@ -226,7 +226,7 @@ export default function LoadingSurvey() {
         )}
 
         {step === 4 && (
-          <Card className="w-full max-w-[32rem] bg-background/10 shadow-lg border border-muted/30 backdrop-blur-lg rounded-[2rem]">
+          <Card className="w-full max-w-[32rem] bg-background/10 shadow-lg border border-muted backdrop-blur-lg rounded-[2rem]">
             <CardHeader>
               <CardTitle className="text-[2.25rem] font-medium text-foreground">
                 {result?.success ? "Paper Ready" : "Thanks for submitting!"}
