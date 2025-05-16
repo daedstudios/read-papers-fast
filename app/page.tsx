@@ -55,149 +55,159 @@ const Page = () => {
   };
 
   return (
-    <div className="pdf-container h-full overflow-hidden bg-cover bg-center">
-      <Image
-        src="/LANDING-2.png"
-        alt="Background"
-        fill
-        priority
-        className="object-cover fixed  h-full w-full z-[-2] "
-      />
-      <div className="fixed  bg-black/20 blur-lg z-[-1]" />
+    <>
+      <div className="pdf-container max-w-screen max-h-screen overflow-hidden bg-cover bg-center">
+        <Image
+          src="/LANDING-2.png"
+          alt="Background"
+          fill
+          priority
+          className="object-cover  z-[-2] "
+        />
+        <div className="fixed  bg-black/20 blur-lg z-[-1]" />
 
-      <div className="flex flex-col justify-center max-h-screen md:pt-[14rem] pt-[8rem] mx-auto md:w-[42rem] px-[1rem] md:px-0">
-        <h1 className=" text-center text-[2.25rem] font-medium my-[2rem] text-foreground">
-          Read research papers 10x faster
-        </h1>
-        {error && (
-          <p
-            className={
-              error.includes("Error") ? "text-red-500" : "text-green-500"
-            }
-          >
-            {error}
-          </p>
-        )}
-        <form
-          id="uploadForm"
-          className="flex flex-col md:flex-row justify-end gap-2 border border-muted backdrop-blur-lg p-[1rem]  rounded-[2rem] bg-background/10 shadow shadow-foreground/30"
-        >
-          <div className="flex flex-row gap-2 w-full">
-            <Input
-              type="text"
-              value={documentUrl}
-              onChange={(e) => {
-                setDocumentUrl(e.target.value);
-                setUploadedFile(null);
-                if (fileInputRef.current) fileInputRef.current.value = "";
-              }}
-              placeholder="https://example.com/document.pdf"
-              className="h-[2.25rem] px-[1rem] w-full rounded-[3rem] border-muted/30 bg-background"
-            />
-
-            <Input
-              type="file"
-              ref={fileInputRef}
-              accept="application/pdf"
-              onChange={handleFileChange}
-              className="hidden"
-              id="file-upload"
-            />
-            <label
-              htmlFor="file-upload"
-              className="flex items-center hover:bg-muted justify-center w-[2.25rem] h-[2.25rem] min-w-[2.25rem] min-h-[2.25rem] border border-muted/30 bg-background rounded-[3rem] hover:cursor-pointer"
+        <div className="flex flex-col justify-center max-h-screen md:pt-[14rem] pt-[12rem] mx-auto md:w-[42rem] px-[1rem] md:px-0">
+          <h1 className=" text-center text-[2.25rem] font-medium my-[2rem] text-foreground">
+            Read research papers 10x faster
+          </h1>
+          {error && (
+            <p
+              className={
+                error.includes("Error") ? "text-red-500" : "text-green-500"
+              }
             >
-              <Plus size={24} className="text-foreground" />
-            </label>
-          </div>
-          <Button
-            type="button"
-            onClick={handleVertexCall}
-            disabled={isLoading || (!documentUrl && !uploadedFile)}
-            className=" text-background bg-foreground px-[4rem] h-[2.25rem] rounded-[3rem] disabled:bg-foreground hover:disabled:bg-muted hover:cursor-pointer "
+              {error}
+            </p>
+          )}
+          <form
+            id="uploadForm"
+            className="flex flex-col md:flex-row justify-end gap-2 border border-muted backdrop-blur-lg p-[1rem]  rounded-[2rem] bg-background/10 shadow shadow-foreground/30"
           >
-            {isLoading ? "Uploading..." : "upload"}
-          </Button>
-        </form>
-        <p className="w-full mx-auto text-center text-foreground px-1 mt-[1rem]">
-          {uploadedFile?.name || "Paste a link or upload a PDF directly."}
-          <Link
-            href="/paperG?id=f153dc68-ce57-421e-a1ae-9ce346daf722"
-            className=" font-medium"
-          >
+            <div className="flex flex-col w-full gap-[1rem] items-center">
+              <div className="flex md:flex-row flex-col gap-2 w-full">
+                <div className="flex flex-row gap-2 w-full">
+                  <Input
+                    type="text"
+                    value={documentUrl}
+                    onChange={(e) => {
+                      setDocumentUrl(e.target.value);
+                      setUploadedFile(null);
+                      if (fileInputRef.current) fileInputRef.current.value = "";
+                    }}
+                    placeholder="https://example.com/document.pdf"
+                    className="h-[2.25rem] px-[1rem]  rounded-[3rem] border-muted/30 bg-background"
+                  />
+
+                  <Input
+                    type="file"
+                    ref={fileInputRef}
+                    accept="application/pdf"
+                    onChange={handleFileChange}
+                    className="hidden"
+                    id="file-upload"
+                  />
+                  <label
+                    htmlFor="file-upload"
+                    className="flex items-center hover:bg-muted justify-center w-[2.25rem] h-[2.25rem] min-w-[2.25rem] min-h-[2.25rem] border border-muted bg-background rounded-[3rem] hover:cursor-pointer"
+                  >
+                    <Plus size={24} className="text-foreground" />
+                  </label>
+                </div>
+                <Button
+                  type="button"
+                  onClick={handleVertexCall}
+                  disabled={isLoading || (!documentUrl && !uploadedFile)}
+                  className=" text-background bg-foreground h-[2.25rem] rounded-[3rem] w-full md:w-[6rem] disabled:bg-foreground hover:disabled:bg-muted hover:cursor-pointer "
+                >
+                  {isLoading ? "Uploading..." : "upload"}
+                </Button>
+              </div>
+              <p className="w-full mx-auto text-center text-foreground px-1">
+                Paste a link or upload a PDF directly.
+                <Link
+                  href="/paperG?id=f153dc68-ce57-421e-a1ae-9ce346daf722"
+                  className="px-1 font-medium underline"
+                >
+                  See example
+                </Link>
+              </p>
+            </div>
+          </form>
+
+          <div className="bg-background rounded-[2rem] py-[0.25rem] my-[1rem] mx-auto px-4 text-foreground border">
             {" "}
-            See example
-          </Link>
-        </p>
-      </div>
-
-      <div className="flex w-full z-4 flex-col text-foreground opacity-60 items-center pt-[6rem] text-[1rem]">
-        trusted by students of
-        <div className="relative md:w-[42rem] overflow-hidden py-[3rem]">
-          <div className="flex gap-[8rem] animate-marquee whitespace-nowrap">
-            <Image
-              src="/maastricht3.svg"
-              alt="maastricht"
-              width={280}
-              height={36}
-              className="opacity-100"
-            />
-            <Image
-              src="/passau3.svg"
-              alt="passau"
-              width={240}
-              height={36}
-              className="opacity-100"
-            />
-            <Image
-              src="/uci3.svg"
-              alt="uci"
-              width={64}
-              height={36}
-              className="opacity-100"
-            />
-
-            <Image
-              src="/maastricht3.svg"
-              alt="maastricht"
-              width={280}
-              height={36}
-              className="opacity-100"
-            />
-            <Image
-              src="/passau3.svg"
-              alt="passau"
-              width={240}
-              height={36}
-              className="opacity-100"
-            />
-            <Image
-              src="/uci3.svg"
-              alt="uci"
-              width={64}
-              height={36}
-              className="opacity-100"
-            />
+            {uploadedFile?.name}{" "}
           </div>
+        </div>
 
-          <style jsx>{`
-            .animate-marquee {
-              display: inline-flex;
-              animation: scroll-left 25s linear infinite;
-            }
+        <div className="flex w-full z-4 flex-col text-foreground opacity-60 items-center pt-[6rem] text-[1rem]">
+          trusted by students of
+          <div className="relative md:w-[42rem] overflow-hidden py-[3rem]">
+            <div className="flex gap-[8rem] animate-marquee whitespace-nowrap">
+              <Image
+                src="/maastricht3.svg"
+                alt="maastricht"
+                width={280}
+                height={36}
+                className="opacity-100"
+              />
+              <Image
+                src="/passau3.svg"
+                alt="passau"
+                width={240}
+                height={36}
+                className="opacity-100"
+              />
+              <Image
+                src="/uci3.svg"
+                alt="uci"
+                width={64}
+                height={36}
+                className="opacity-100"
+              />
 
-            @keyframes scroll-left {
-              0% {
-                transform: translateX(0);
+              <Image
+                src="/maastricht3.svg"
+                alt="maastricht"
+                width={280}
+                height={36}
+                className="opacity-100"
+              />
+              <Image
+                src="/passau3.svg"
+                alt="passau"
+                width={240}
+                height={36}
+                className="opacity-100"
+              />
+              <Image
+                src="/uci3.svg"
+                alt="uci"
+                width={64}
+                height={36}
+                className="opacity-100"
+              />
+            </div>
+
+            <style jsx>{`
+              .animate-marquee {
+                display: inline-flex;
+                animation: scroll-left 25s linear infinite;
               }
-              100% {
-                transform: translateX(-50%);
+
+              @keyframes scroll-left {
+                0% {
+                  transform: translateX(0);
+                }
+                100% {
+                  transform: translateX(-50%);
+                }
               }
-            }
-          `}</style>
+            `}</style>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
