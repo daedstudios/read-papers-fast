@@ -319,6 +319,31 @@ function PaperContent() {
         </ScrollArea>
 
         <ScrollArea className="w-full border-t p-[1rem] h-full">
+          <div className="flex flex-row justify-between">
+            {(() => {
+              const allText =
+                paperSummary?.grobidContent
+                  .flatMap((section) => section.para.map((p) => p.text))
+                  .join(" ") || "";
+
+              const wordCount = allText.split(/\s+/).filter(Boolean).length;
+              const readingTime = Math.ceil(wordCount / 175);
+
+              return (
+                <p className="text-[1rem] text-muted-foreground mb-2">
+                  Estimated reading time: {readingTime} min
+                </p>
+              );
+            })()}
+            {paperSummary?.grobidAbstract.publishedDate && (
+              <span className="text-muted-foreground text-[1rem]">
+                {" "}
+                {new Date(
+                  paperSummary.grobidAbstract.publishedDate
+                ).toLocaleDateString()}
+              </span>
+            )}
+          </div>
           {paperSummary?.grobidAbstract && (
             <div className="mb-10">
               <h1 className="text-4xl font-medium mb-4">
@@ -327,18 +352,7 @@ function PaperContent() {
 
               {paperSummary.grobidAbstract.authors.length > 0 && (
                 <div className="mb-4">
-                  <p className="text-muted-foreground italic">
-                    {paperSummary.grobidAbstract.authors.join(", ")}
-                    {paperSummary.grobidAbstract.publishedDate && (
-                      <span>
-                        {" "}
-                        ·{" "}
-                        {new Date(
-                          paperSummary.grobidAbstract.publishedDate
-                        ).toLocaleDateString()}
-                      </span>
-                    )}
-                  </p>
+                  <p className="text-muted-foreground text-[1rem]"></p>
                 </div>
               )}
               <div className="border-b border-border mb-8 pb-2"></div>
@@ -431,6 +445,28 @@ function PaperContent() {
               </CardContent>
             </Card>
           </ScrollArea>
+          <ScrollArea className=" relative hidden lg:block overflow-hidden ">
+            <Card className="">
+              <CardHeader className="z-5 text-[1rem] font-medium">
+                Authors
+              </CardHeader>
+              <CardContent className="flex flex-col ">
+                {paperSummary?.grobidAbstract?.authors?.map((author, index) => (
+                  <a
+                    key={index}
+                    href={`https://www.google.com/search?q=${encodeURIComponent(
+                      author
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[1rem] text-foreground py-1 bg-background/70 backdrop-blur-sm rounded-md inline-block hover:underline"
+                  >
+                    {author}
+                  </a>
+                ))}
+              </CardContent>
+            </Card>
+          </ScrollArea>
           <ScrollArea
             className=" hidden  w-[22rem] max-h-[22rem] absolute top-0 left-0 lg:block  "
             ref={keyWordRef}
@@ -440,35 +476,6 @@ function PaperContent() {
                 Keywords
               </CardHeader>
               <CardContent className="flex flex-col z-10 space-y-2"></CardContent>
-            </Card>
-          </ScrollArea>
-          <ScrollArea className=" relative hidden lg:block overflow-hidden ">
-            <Card className="">
-              {/* <Image
-                src="/LANDING-2.png"
-                alt="Background"
-                fill
-                priority
-                className="object-cover rounded-[1rem]"
-              /> */}
-              <CardHeader className="z-5 text-[1rem] font-medium">
-                Authors
-              </CardHeader>
-              <CardContent className="flex flex-col z-10 space-y-2">
-                {paperSummary?.grobidAbstract?.authors?.map((author, index) => (
-                  <a
-                    key={index}
-                    href={`https://www.google.com/search?q=${encodeURIComponent(
-                      author
-                    )}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[1rem] text-foreground bg-background/70 backdrop-blur-sm px-3 py-1 rounded-md inline-block hover:underline"
-                  >
-                    {author}
-                  </a>
-                ))}
-              </CardContent>
             </Card>
           </ScrollArea>
         </div>
