@@ -45,7 +45,7 @@ const Waitlist = () => {
         className="object-cover z-[-1]"
       />
 
-      <div className="flex flex-col items-center justify-center h-full mx-auto max-w-[90%] md:max-w-[42rem] pt-[3rem]">
+      <div className="flex flex-col items-center justify-center h-full mx-auto max-w-[90%] md:max-w-[42rem] pt-[8rem] md:pt-[3rem]">
         <div className="bg-background/10 backdrop-blur-lg shadow-xl py-2 px-4 border border-muted rounded-[2rem]">
           coming soon
         </div>
