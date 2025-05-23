@@ -38,22 +38,12 @@ const Waitlist = () => {
   return (
     <div className="relative w-screen h-screen overflow-hidden items-center">
       <Image
-        src="/landing-2.png"
+        src="/LANDING-2.png"
         alt="Background"
         fill
         priority
         className="object-cover z-[-1]"
       />
-      {/* <video
-        autoPlay
-        muted
-        loop
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover z-[-1]"
-      >
-        <source src="/landing-video.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video> */}
 
       <div className="flex flex-col items-center justify-center h-full mx-auto max-w-[90%] md:max-w-[42rem] pt-[3rem]">
         <div className="bg-background/10 backdrop-blur-lg shadow-xl py-2 px-4 border border-muted rounded-[2rem]">
