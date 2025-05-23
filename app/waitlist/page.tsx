@@ -36,7 +36,7 @@ const Waitlist = () => {
   };
 
   return (
-    <div className="relative w-screen h-full overflow-hidden items-center">
+    <div className="relative w-screen h-full md:h-screen overflow-hidden items-center">
       <Image
         src="/LANDING-2.png"
         alt="Background"
