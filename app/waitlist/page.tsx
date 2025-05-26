@@ -23,13 +23,18 @@ const Waitlist = () => {
     setSubmitted(false);
 
     try {
-      await new Promise((res) => setTimeout(res, 1500));
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
 
-      // Normally you'd send to your backend here
-      // await fetch("/api/waitlist", { method: "POST", body: JSON.stringify({ email }) });
+      if (!res.ok) throw new Error("Request failed");
 
       setSubmitted(true);
       setEmail("");
+    } catch (err) {
+      console.error("Error submitting:", err);
     } finally {
       setLoading(false);
     }
@@ -56,12 +61,15 @@ const Waitlist = () => {
           Upload academic papers, get references and definitions – understand
           more in less time.
         </p>
-        {submitted && (
-          <p className="mt-3 text-foreground text-[3rem] z-10">
+        {/* {submitted && (
+          <p className="mt-3 text-foreground text-[1rem] z-10">
             Thanks! You’re on the list 🚀
           </p>
-        )}
-        <form className="flex w-full flex-col sm:flex-row gap-2 border p-[1rem] bg-background/10 backdrop-blur-lg shadow shadow-foreground/30 border-muted rounded-[2rem] ">
+        )} */}
+        <form
+          onSubmit={handleSubmit}
+          className="flex w-full flex-col sm:flex-row gap-2 border p-[1rem] bg-background/10 backdrop-blur-lg shadow shadow-foreground/30 border-muted rounded-[2rem] "
+        >
           <Input
             type="email"
             placeholder="Your Email"
