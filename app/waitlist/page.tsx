@@ -4,7 +4,7 @@ import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useAppContext } from "@/components/AppContext";
 import Image from "next/image";
-import { Plus, Video } from "lucide-react";
+import { ArrowUp, ArrowUpRight, Plus, Video } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { initiateRequests } from "@/utilities/PromptChain";
@@ -55,12 +55,6 @@ const Waitlist = () => {
         <p className="text-[1.25rem] text-center pt-[1rem] pb-[2rem]">
           Upload academic papers, get references and definitions – understand
           more in less time.
-          <Link
-            href="/paperG?id=f153dc68-ce57-421e-a1ae-9ce346daf722"
-            className="px-1 font-medium underline"
-          >
-            See example
-          </Link>
         </p>
         {submitted && (
           <p className="mt-3 text-foreground text-[3rem] z-10">
@@ -85,6 +79,13 @@ const Waitlist = () => {
             {submitted ? <CheckCircle2 className="w-4 h-4" /> : "join waitlist"}
           </Button>
         </form>
+        <Link
+          href="/paperG?id=f153dc68-ce57-421e-a1ae-9ce346daf722"
+          className="px-1 text-[1.25rem] pt-[1rem] font-medium underline flex flex-row gap-2 items-center"
+        >
+          See example
+          <ArrowUpRight />
+        </Link>
         <div className="flex w-full z-4 flex-col text-foreground opacity-60 items-center pt-[6rem] text-[1rem]">
           trusted by students of
           <div className="relative md:w-[42rem] overflow-hidden py-[3rem]">
