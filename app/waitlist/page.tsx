@@ -4,7 +4,7 @@ import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useAppContext } from "@/components/AppContext";
 import Image from "next/image";
-import { Plus, Video } from "lucide-react";
+import { ArrowUp, ArrowUpRight, Plus, Video } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { initiateRequests } from "@/utilities/PromptChain";
@@ -47,7 +47,7 @@ const Waitlist = () => {
 
       <div className="flex flex-col items-center justify-center h-full mx-auto max-w-[90%] md:max-w-[42rem] pt-[8rem] md:pt-[3rem]">
         <div className="bg-background/10 backdrop-blur-lg shadow-xl py-2 px-4 border border-muted rounded-[2rem]">
-          coming soon
+          v0.1 coming soon
         </div>
         <div className="text-[3rem] md:text-[4rem] text-center font-medium pt-[1rem]">
           Read Papers 10x Faster
@@ -79,6 +79,13 @@ const Waitlist = () => {
             {submitted ? <CheckCircle2 className="w-4 h-4" /> : "join waitlist"}
           </Button>
         </form>
+        <Link
+          href="/paperG?id=f153dc68-ce57-421e-a1ae-9ce346daf722"
+          className="px-1 text-[1.25rem] pt-[1rem] font-medium underline flex flex-row gap-2 items-center"
+        >
+          See example
+          <ArrowUpRight />
+        </Link>
         <div className="flex w-full z-4 flex-col text-foreground opacity-60 items-center pt-[6rem] text-[1rem]">
           trusted by students of
           <div className="relative md:w-[42rem] overflow-hidden py-[3rem]">
