@@ -47,7 +47,7 @@ const Waitlist = () => {
 
       <div className="flex flex-col items-center justify-center h-full mx-auto max-w-[90%] md:max-w-[42rem] pt-[8rem] md:pt-[3rem]">
         <div className="bg-background/10 backdrop-blur-lg shadow-xl py-2 px-4 border border-muted rounded-[2rem]">
-          coming soon
+          v0.1 coming soon
         </div>
         <div className="text-[3rem] md:text-[4rem] text-center font-medium pt-[1rem]">
           Read Papers 10x Faster
@@ -55,6 +55,12 @@ const Waitlist = () => {
         <p className="text-[1.25rem] text-center pt-[1rem] pb-[2rem]">
           Upload academic papers, get references and definitions – understand
           more in less time.
+          <Link
+            href="/paperG?id=f153dc68-ce57-421e-a1ae-9ce346daf722"
+            className="px-1 font-medium underline"
+          >
+            See example
+          </Link>
         </p>
         {submitted && (
           <p className="mt-3 text-foreground text-[3rem] z-10">
