@@ -67,8 +67,8 @@ const Page = () => {
         <div className="fixed  bg-black/20 blur-lg z-[-1]" />
 
         <div className="flex flex-col justify-center max-h-screen md:pt-[14rem] pt-[12rem] mx-auto md:w-[42rem] px-[1rem] md:px-0">
-          <h1 className=" text-center text-[2.25rem] font-medium my-[2rem] text-foreground">
-            Read research papers 10x faster
+          <h1 className=" text-center text-[3rem] font-medium my-[2rem] text-foreground">
+            Read Papers 10x Faster
           </h1>
           {error && (
             <p
