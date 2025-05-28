@@ -22,6 +22,8 @@ import { Drawer } from "vaul";
 import { DrawerHeader } from "@/components/ui/drawer";
 import { Card, CardContent } from "@/components/ui/card";
 import { CardHeader } from "@/components/ui/card";
+import { keywordData } from "@/data/keywords";
+import KeywordAccordion from "@/components/keywordsAccordion";
 
 gsap.registerPlugin(useGSAP);
 
@@ -432,8 +434,9 @@ function PaperContent() {
             </div>
           )}
         </ScrollArea>
-        <div className="flex flex-col  h-full border-t lg:p-[1rem] gap-[1rem] lg:border-l">
-          <ScrollArea className="hidden  w-[22rem] lg:block relative overflow-hidden ">
+        <div className="flex flex-col h-full border-t lg:p-[1rem] gap-[1rem] lg:border-l">
+          <KeywordAccordion keywordData={keywordData} />
+          <ScrollArea className="hidden max-h-[14rem] w-[22rem] lg:block relative overflow-hidden ">
             <Card className="">
               <CardHeader className="z-5 text-[1rem] font-medium">
                 Paper Summary
@@ -442,10 +445,11 @@ function PaperContent() {
                 <p className="text-[1rem] text-muted-foreground bg-background/70 backdrop-blur-sm  rounded-md inline-block">
                   {paperSummary?.grobidAbstract.summary}
                 </p>
+                <div className="pointer-events-none absolute bottom-0 left-0 h-18 w-full bg-gradient-to-t from-white to-transparent" />
               </CardContent>
             </Card>
           </ScrollArea>
-          <ScrollArea className=" relative hidden lg:block overflow-hidden ">
+          <ScrollArea className=" relative hidden  lg:block overflow-hidden ">
             <Card className="">
               <CardHeader className="z-5 text-[1rem] font-medium">
                 Authors
@@ -464,18 +468,8 @@ function PaperContent() {
                     {author}
                   </a>
                 ))}
+                <div className="pointer-events-none absolute bottom-0 left-0 h-18 w-full bg-gradient-to-t from-white to-transparent" />
               </CardContent>
-            </Card>
-          </ScrollArea>
-          <ScrollArea
-            className=" hidden  w-[22rem] max-h-[22rem] absolute top-0 left-0 lg:block  "
-            ref={keyWordRef}
-          >
-            <Card className="">
-              <CardHeader className="z-5 text-[1rem] font-medium">
-                Keywords
-              </CardHeader>
-              <CardContent className="flex flex-col z-10 space-y-2"></CardContent>
             </Card>
           </ScrollArea>
         </div>
