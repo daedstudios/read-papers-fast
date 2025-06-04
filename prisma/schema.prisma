@@ -38,10 +38,11 @@ model PaperSummary {
   authors       String[]
   publishedDate String?
   summary       String?
-  acronyms      Acronym[]
+  // acronyms      Acronym[]
   PaperFigures  PaperFigures[]
   sections      Section[]
   surveys       Survey[]
+  paperSummaryID String?   @db.Uuid
 }
 
 model Section {
@@ -74,7 +75,6 @@ model Acronym {
   paperSummaryId String
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
-  paperSummary   PaperSummary @relation(fields: [paperSummaryId], references: [id], onDelete: Cascade)
 }
 
 model PaperContentGrobid {
@@ -110,3 +110,13 @@ model PaperFigures {
   image_url            String?
   PaperSummary         PaperSummary? @relation(fields: [paper_summary_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
+
+model PaperMainStructure {
+  id             String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  created_at     DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime? @default(now()) @db.Timestamptz(6)
+  pdf_file_path String?
+  xml_file_path String?
+  status         String?
+}
+

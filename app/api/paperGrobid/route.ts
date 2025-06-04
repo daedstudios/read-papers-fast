@@ -23,15 +23,21 @@ export async function GET(request: Request) {
       },
     });
 
-     const grobidAbstract = await prisma.paperSummary.findUnique({
+     const grobidAbstract = await prisma.paperSummary.findFirst({
        where: {
-         id: id,
+         paperSummaryID: id,
        },
      });
 
      const grobidFigures = await prisma.paperFigures.findMany({
        where: {
          paper_summary_id: id,
+       },
+     });
+
+     const geminiKeywords = await prisma.acronym.findMany({
+       where: {
+         paperSummaryId: id,
        },
      });
 
@@ -47,6 +53,7 @@ export async function GET(request: Request) {
          grobidContent,
          grobidAbstract,
          grobidFigures,
+         geminiKeywords,
        },
        { status: 200 }
      );

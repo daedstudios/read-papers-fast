@@ -16,25 +16,14 @@ type PaperInfoType = {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { documentUrl, fileData, fileName } = body;
+    const { id } = body;
 
-    const { userId } = await auth();
-
-    console.log("User ID:", userId);
-
-    let pdfSource;
-    let pdfFileName = null;
-
-    if (fileData) {
-      pdfSource = Buffer.from(fileData, "base64");
-      pdfFileName = fileName || "uploaded-document.pdf";
-    } else if (documentUrl) {
-      pdfSource = documentUrl;
-    } else {
-      throw new Error(
-        "No PDF source provided. Please provide either a URL or upload a file."
-      );
-    }
+    const paperMainStructure = await prisma.paperMainStructure.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    const pdfSource = paperMainStructure?.pdf_file_path || "";
 
     console.log("Extracting basic paper information...");
 
@@ -48,7 +37,7 @@ export async function POST(req: Request) {
 
     // Extract paper info using generateObject
     const paperInfoResult = await generateObject({
-      model: google("gemini-1.5-flash-latest", {
+      model: google("gemini-2.0-flash-001", {
         structuredOutputs: false,
       }),
       schema: PaperInfoSchema,
@@ -85,9 +74,8 @@ export async function POST(req: Request) {
         title: paperInfo.title,
         authors: paperInfo.authors || [],
         publishedDate: paperInfo.publishedDate || null,
-        fileName: pdfFileName,
-        url: documentUrl || null,
         summary: paperInfo.abstract || null,
+        paperSummaryID: id,
       },
     });
 
