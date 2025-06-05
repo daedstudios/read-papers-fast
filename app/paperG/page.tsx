@@ -18,11 +18,17 @@ import { Button } from "@/components/ui/button";
 import { set } from "zod";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
-import { Drawer } from "vaul";
+import {
+  Drawer,
+  DrawerTrigger,
+  DrawerOverlay,
+  DrawerContent,
+} from "@/components/ui/drawer";
 import { DrawerHeader } from "@/components/ui/drawer";
 import { Card, CardContent } from "@/components/ui/card";
 import { CardHeader } from "@/components/ui/card";
 import KeywordAccordion from "@/components/KeywordsAccordion";
+import PhoneDrawer from "@/components/PhoneDrawer";
 
 gsap.registerPlugin(useGSAP);
 
@@ -222,65 +228,8 @@ function PaperContent() {
 
   return (
     <>
-      <Drawer.Root open={open} onOpenChange={setOpen}>
-        <Drawer.Trigger asChild>
-          <div className="fixed bottom-0 h-[4.5rem] left-0 w-full z-50 flex bg-transparent items-center justify-center md:hidden px-[1rem]">
-            <Button className="text-foreground  w-full h-[3rem] rounded-[2rem] backdrop-blur-lg text-[1rem] hover:shadow-md cursor-pointer">
-              <Image
-                src="/LANDING-2.png"
-                alt="Background"
-                fill
-                priority
-                className="object-cover fixed top-0  z-[-1] full rounded-[2rem]"
-              />
-              Table of contents
-            </Button>
-          </div>
-        </Drawer.Trigger>
+      {paperSummary && <PhoneDrawer paperSummary={paperSummary} />}
 
-        <Drawer.Overlay className="fixed inset-0 bg-black/40 z-40" />
-
-        <Drawer.Content className="fixed rounded-[1rem] bottom-0 left-0 w-full h-[70%] bg-background z-50 p-4 overflow-auto">
-          <div className="fixed inset-0 z-20 bg-background block md:hidden">
-            <ScrollArea className="h-full w-full p-4 " ref={menuRef}>
-              <div className="bg-background w-full h-full">
-                <SidebarHeader className="relative text-[1.5rem] z-100 text-foreground font-medium pb-4">
-                  Table of contents
-                </SidebarHeader>
-
-                <div className="relative z-10">
-                  {paperSummary?.grobidContent?.map((section) => (
-                    <SidebarMenuItem
-                      key={section.id}
-                      className="list-none appearance-none p-[0.5rem] "
-                    >
-                      <SidebarMenuButton asChild>
-                        <a
-                          href={`#${section.id}`}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            document
-                              .getElementById(section.id)
-                              ?.scrollIntoView({
-                                behavior: "smooth",
-                                block: "start",
-                              });
-                            setOpen(false);
-                          }}
-                        >
-                          <span className="text-[1rem] truncate text-ellipsis break-words block">
-                            {section.head_n} {section.head}
-                          </span>
-                        </a>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </div>
-              </div>
-            </ScrollArea>
-          </div>
-        </Drawer.Content>
-      </Drawer.Root>
       <div className="flex flex-row justify-between w-full h-[92vh] mt-[8vh]">
         <ScrollArea
           className="md:w-[22rem] border-r hidden border-t md:block p-[1rem] md:h-full"
