@@ -22,6 +22,7 @@ import { Drawer } from "vaul";
 import { DrawerHeader } from "@/components/ui/drawer";
 import { Card, CardContent } from "@/components/ui/card";
 import { CardHeader } from "@/components/ui/card";
+import KeywordAccordion from "@/components/KeywordsAccordion";
 
 gsap.registerPlugin(useGSAP);
 
@@ -32,6 +33,13 @@ interface Section {
   order: number;
   paperSummaryId: string;
 }
+
+type Keyword = {
+  id: string;
+  keyword: string;
+  value: string;
+  explanation: string;
+};
 
 interface Acronyms {
   keyword: string;
@@ -91,6 +99,7 @@ interface GrobidContentResponse {
   grobidContent: GrobidSection[];
   grobidFigures: GrobidFigure[];
   grobidAbstract: GrobidAbstract;
+  geminiKeywords: Keyword[];
 }
 
 interface ImageUrl {
@@ -235,13 +244,6 @@ function PaperContent() {
           <div className="fixed inset-0 z-20 bg-background block md:hidden">
             <ScrollArea className="h-full w-full p-4 " ref={menuRef}>
               <div className="bg-background w-full h-full">
-                {/* <Image
-                  src="/LANDING-2.png"
-                  alt="Background"
-                  fill
-                  priority
-                  className="object-cover fixed top-0 rounded-[1rem] full"
-                /> */}
                 <SidebarHeader className="relative text-[1.5rem] z-100 text-foreground font-medium pb-4">
                   Table of contents
                 </SidebarHeader>
@@ -433,6 +435,9 @@ function PaperContent() {
           )}
         </ScrollArea>
         <div className="flex flex-col  h-full border-t lg:p-[1rem] gap-[1rem] lg:border-l">
+          {paperSummary?.geminiKeywords && (
+            <KeywordAccordion keyword={paperSummary.geminiKeywords} />
+          )}
           <ScrollArea className="hidden  w-[22rem] lg:block relative overflow-hidden ">
             <Card className="">
               <CardHeader className="z-5 text-[1rem] font-medium">
@@ -465,17 +470,6 @@ function PaperContent() {
                   </a>
                 ))}
               </CardContent>
-            </Card>
-          </ScrollArea>
-          <ScrollArea
-            className=" hidden  w-[22rem] max-h-[22rem] absolute top-0 left-0 lg:block  "
-            ref={keyWordRef}
-          >
-            <Card className="">
-              <CardHeader className="z-5 text-[1rem] font-medium">
-                Keywords
-              </CardHeader>
-              <CardContent className="flex flex-col z-10 space-y-2"></CardContent>
             </Card>
           </ScrollArea>
         </div>
