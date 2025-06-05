@@ -26,7 +26,7 @@ export default function PhoneDrawer({ paperSummary }: PhoneDrawerProps) {
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
         <div className="fixed bottom-0 items-start h-[4.5rem] left-0 w-full z-50 flex bg-transparent  justify-start md:hidden px-[1rem]">
-          <Button className="flex flex-row justify-between hover:bg-muted text-foreground bg-background w-auto h-[3rem] border rounded-[2rem] text-[1rem] cursor-pointer">
+          <Button className="flex flex-row justify-between hover:bg-muted text-foreground bg-background w-auto h-auto border rounded-[2rem] text-[1rem] cursor-pointer">
             Table of Content
             <ChevronUp />
           </Button>

@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/SingletonPrismaClient";
 
-
 type AcronymType = {
   keyword: string;
   value: string;
@@ -47,15 +46,18 @@ export async function POST(req: Request) {
         content: [
           {
             type: "text",
-            text: `You are an AI document parser specialized in academic papers. Extract ALL acronyms and shortforms from this research paper. Return ONLY a JSON object with the following structure:
-              {
-                "items": [
-                  {"keyword": "acronym", "value": "verbatim full form", "explination": "short explanation"},
-                  {"keyword": "another acronym", "value": "its full form", "explination": "explanation"}
-                ]
-              }
-              
-              Ensure that the "keyword" contains only the acronym, the "value" contains its exact full form as defined in the paper, and the "explination" provides a detailed description of what the acronym represents in the paper's context.`,
+            text: `You are an AI document parser specialized in academic papers. Extract all **difficult or technical terms** from this research paper — including acronyms, abbreviations, jargon, or complex concepts. Return ONLY a JSON object with the following format:
+
+{
+  "items": [
+    { "keyword": "term", "value": "verbatim full form", "explanation": "concise explanation" },
+    { "keyword": "another term", "value": "its full form", "explanation": "definition or meaning" }
+  ]
+}
+
+- The "keyword" should be the short term or jargon used in the paper.
+- The "value" is its exact expanded form as written in the paper.
+- The "explanation" should describe its meaning in simple, accessible language for someone new to the topic.`,
           },
           {
             type: "file",

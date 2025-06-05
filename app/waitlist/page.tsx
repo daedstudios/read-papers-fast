@@ -23,13 +23,25 @@ const Waitlist = () => {
     setSubmitted(false);
 
     try {
-      await new Promise((res) => setTimeout(res, 1500));
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
 
-      // Normally you'd send to your backend here
-      // await fetch("/api/waitlist", { method: "POST", body: JSON.stringify({ email }) });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Something went wrong");
+      }
 
       setSubmitted(true);
       setEmail("");
+    } catch (err) {
+      console.error("Waitlist signup error:", err);
+      // Optionally show an error message
     } finally {
       setLoading(false);
     }
@@ -56,12 +68,11 @@ const Waitlist = () => {
           Upload academic papers, get references and definitions – understand
           more in less time.
         </p>
-        {submitted && (
-          <p className="mt-3 text-foreground text-[3rem] z-10">
-            Thanks! You’re on the list 🚀
-          </p>
-        )}
-        <form className="flex w-full flex-col sm:flex-row gap-2 border p-[1rem] bg-background/10 backdrop-blur-lg shadow shadow-foreground/30 border-muted rounded-[2rem] ">
+
+        <form
+          onSubmit={handleSubmit}
+          className="flex w-full flex-col sm:flex-row gap-2 border p-[1rem] bg-background/10 backdrop-blur-lg shadow shadow-foreground/30 border-muted rounded-[2rem] "
+        >
           <Input
             type="email"
             placeholder="Your Email"
@@ -70,6 +81,7 @@ const Waitlist = () => {
             onChange={(e) => setEmail(e.target.value)}
             className="flex h-[2.25rem] rounded-[2rem] bg-white/80 backdrop-blur-md text-black"
           />
+
           <Button
             type="submit"
             disabled={loading || submitted || !email}
@@ -79,6 +91,7 @@ const Waitlist = () => {
             {submitted ? <CheckCircle2 className="w-4 h-4" /> : "join waitlist"}
           </Button>
         </form>
+
         <Link
           href="/paperG?id=f153dc68-ce57-421e-a1ae-9ce346daf722"
           className="px-1 text-[1.25rem] pt-[1rem] font-medium underline flex flex-row gap-2 items-center"
@@ -86,6 +99,7 @@ const Waitlist = () => {
           See example
           <ArrowUpRight />
         </Link>
+
         <div className="flex w-full z-4 flex-col text-foreground opacity-60 items-center pt-[6rem] text-[1rem]">
           trusted by students of
           <div className="relative md:w-[42rem] overflow-hidden py-[3rem]">

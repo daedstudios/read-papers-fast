@@ -29,6 +29,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CardHeader } from "@/components/ui/card";
 import KeywordAccordion from "@/components/KeywordsAccordion";
 import PhoneDrawer from "@/components/PhoneDrawer";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 gsap.registerPlugin(useGSAP);
 
@@ -136,6 +137,8 @@ function PaperContent() {
   const [open, setOpen] = useState(false);
 
   const [imageUrls, setImageUrls] = useState<ImageUrl[] | []>([]);
+  const [summaryOpen, setSummaryOpen] = useState(false);
+  const [authorsOpen, setAuthorsOpen] = useState(false);
 
   useEffect(() => {
     if (paperSummary) {
@@ -383,28 +386,41 @@ function PaperContent() {
             </div>
           )}
         </ScrollArea>
-        <div className="flex flex-col  h-full border-t lg:p-[1rem] gap-[1rem] lg:border-l">
-          {paperSummary?.geminiKeywords && (
-            <KeywordAccordion keyword={paperSummary.geminiKeywords} />
-          )}
-          <ScrollArea className="hidden  w-[22rem] lg:block relative overflow-hidden ">
-            <Card className="">
-              <CardHeader className="z-5 text-[1rem] font-medium">
-                Paper Summary
-              </CardHeader>
-              <CardContent className="flex flex-col z-10 ">
-                <p className="text-[1rem] text-muted-foreground bg-background/70 backdrop-blur-sm  rounded-md inline-block">
-                  {paperSummary?.grobidAbstract.summary}
-                </p>
+        <ScrollArea className="flex flex-col h-full border-t lg:p-[1rem] gap-[1rem] lg:border-l">
+          <Card className=" w-[22rem] hidden lg:block shadow-none">
+            <CardHeader
+              className="z-5 text-[1rem] font-medium flex justify-between items-center cursor-pointer"
+              onClick={() => setSummaryOpen((prev) => !prev)}
+            >
+              <span>Paper Summary</span>
+              {summaryOpen ? (
+                <ChevronUp className="w-4 h-4" />
+              ) : (
+                <ChevronDown className="w-4 h-4" />
+              )}
+            </CardHeader>
+
+            {summaryOpen && (
+              <CardContent className="text-[1rem] pt-[1rem] text-muted-foreground ">
+                {paperSummary?.grobidAbstract.summary}
               </CardContent>
-            </Card>
-          </ScrollArea>
-          <ScrollArea className=" relative hidden lg:block overflow-hidden ">
-            <Card className="">
-              <CardHeader className="z-5 text-[1rem] font-medium">
-                Authors
-              </CardHeader>
-              <CardContent className="flex flex-col ">
+            )}
+          </Card>
+
+          <Card className="my-[1rem] w-[22rem] hidden lg:block shadow-none">
+            <CardHeader
+              className="z-5 text-[1rem] font-medium flex justify-between items-center cursor-pointer"
+              onClick={() => setAuthorsOpen((prev) => !prev)}
+            >
+              <span>Authors</span>
+              {authorsOpen ? (
+                <ChevronUp className="w-4 h-4" />
+              ) : (
+                <ChevronDown className="w-4 h-4" />
+              )}
+            </CardHeader>
+            {authorsOpen && (
+              <CardContent className="flex flex-col pt-[1rem]">
                 {paperSummary?.grobidAbstract?.authors?.map((author, index) => (
                   <a
                     key={index}
@@ -419,9 +435,12 @@ function PaperContent() {
                   </a>
                 ))}
               </CardContent>
-            </Card>
-          </ScrollArea>
-        </div>
+            )}
+          </Card>
+          {paperSummary?.geminiKeywords && (
+            <KeywordAccordion keyword={paperSummary.geminiKeywords} />
+          )}
+        </ScrollArea>
       </div>
     </>
   );

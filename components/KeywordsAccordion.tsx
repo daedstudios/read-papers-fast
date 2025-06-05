@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { Card, CardHeader, CardContent } from "./ui/card";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
 
 type Keyword = {
   id: string;
@@ -23,13 +24,13 @@ const KeywordAccordion = ({ keyword }: KeywordAccordionProps) => {
   if (!keyword) return null;
 
   return (
-    <div className="hidden w-[22rem] lg:block">
-      <Card className="shadow-none">
-        <CardHeader className="z-5 text-[1.25rem] font-medium">
+    <ScrollArea className="hidden w-[22rem] lg:block overflow-hidden ">
+      <Card className="overflow-y-auto  shadow-none">
+        <CardHeader className="z-5 text-[1rem] font-medium">
           Keywords
         </CardHeader>
 
-        <CardContent className="flex flex-col z-10 space-y-2">
+        <CardContent className="flex flex-col  z-10 space-y-2">
           {keyword.map((kw: any, idx: any) => (
             <div
               key={kw.id}
@@ -37,7 +38,7 @@ const KeywordAccordion = ({ keyword }: KeywordAccordionProps) => {
               onClick={() => toggleIndex(idx)}
             >
               <div className="flex justify-between items-center">
-                <span className="font-semibold">{kw.keyword}</span>
+                <span className="font-medium text-[1rem]">{kw.keyword}</span>
                 {openIndex === idx ? (
                   <ChevronUp className="w-4 h-4" />
                 ) : (
@@ -54,7 +55,7 @@ const KeywordAccordion = ({ keyword }: KeywordAccordionProps) => {
           ))}
         </CardContent>
       </Card>
-    </div>
+    </ScrollArea>
   );
 };
 
