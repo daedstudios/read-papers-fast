@@ -4,7 +4,7 @@ import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useAppContext } from "@/components/AppContext";
 import Image from "next/image";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { initiateRequests } from "@/utilities/PromptChain";
@@ -148,7 +148,11 @@ const Page = () => {
                   disabled={isLoading || (!documentUrl && !uploadedFile)}
                   className=" text-background bg-foreground h-[2.25rem] rounded-[3rem] w-full md:w-[6rem] disabled:bg-foreground hover:disabled:bg-muted hover:cursor-pointer "
                 >
-                  {isLoading ? "Uploading..." : "upload"}
+                  {isLoading ? (
+                    <Loader2 className="animate-spin w-4 h-4" />
+                  ) : (
+                    "upload"
+                  )}
                 </Button>
               </div>
               <p className="w-full mx-auto text-center text-foreground px-1">

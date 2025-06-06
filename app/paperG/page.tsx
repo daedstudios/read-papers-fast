@@ -29,7 +29,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CardHeader } from "@/components/ui/card";
 import KeywordAccordion from "@/components/KeywordsAccordion";
 import PhoneDrawer from "@/components/PhoneDrawer";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 
 gsap.registerPlugin(useGSAP);
 
@@ -56,7 +56,8 @@ interface Acronyms {
 interface GrobidParagraph {
   order_index: number;
   text: string;
-  refs?: Record<string, unknown>; // optional if not always present
+  refs?: Record<string, unknown>;
+  simplifiedText?: string;
 }
 
 interface GrobidSection {
@@ -69,6 +70,7 @@ interface GrobidSection {
   paper_id: string;
   para: GrobidParagraph[];
   summary: string;
+  simplifiedText?: string; // Add simplifiedText to the interface
 }
 
 interface GrobidFigure {
@@ -139,6 +141,10 @@ function PaperContent() {
   const [imageUrls, setImageUrls] = useState<ImageUrl[] | []>([]);
   const [summaryOpen, setSummaryOpen] = useState(false);
   const [authorsOpen, setAuthorsOpen] = useState(false);
+  const [loadingPara, setLoadingPara] = useState<string | null>(null);
+  const [showSimplified, setShowSimplified] = useState<Record<string, boolean>>(
+    {}
+  );
 
   useEffect(() => {
     if (paperSummary) {
@@ -193,6 +199,22 @@ function PaperContent() {
       });
     }
   }, [paperSummary]);
+
+  function highlightKeywords(text: string, keywords: Keyword[]): string {
+    if (!keywords || keywords.length === 0) return text;
+
+    const sortedKeywords = [...keywords].sort(
+      (a, b) => b.keyword.length - a.keyword.length
+    );
+
+    let highlighted = text;
+    for (const kw of sortedKeywords) {
+      const pattern = new RegExp(`\\b(${kw.keyword})\\b`, "gi");
+      highlighted = highlighted.replace(pattern, `<mark>$1</mark>`);
+    }
+
+    return highlighted;
+  }
 
   useEffect(() => {
     console.log("imageUrls", imageUrls);
@@ -325,36 +347,99 @@ function PaperContent() {
               {/* Paragraphs */}
               {section.para.map((para, index) => (
                 <div key={index} className="mb-6">
-                  <p className="text-foreground leading-[200%] break-words text-[1rem] mb-2">
-                    {para.text}
-                  </p>
+                  <div className="mb-6">
+                    {/* Original text */}
+                    <div className="mb-4 flex flex-col items-end gap-2">
+                      <Button
+                        size="sm"
+                        className=" cursor-pointer"
+                        disabled={loadingPara === `${section.id}-${para.text}`}
+                        onClick={async () => {
+                          setLoadingPara(`${section.id}-${para.text}`);
+                          const res = await fetch("/api/simplifiedText", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              paragraphText: para.text,
+                              paragraphId: section.id,
+                            }),
+                          });
+                          const { simplified } = await res.json();
+                          setPaperSummary((prev) => {
+                            if (!prev) return prev;
+                            return {
+                              ...prev,
+                              grobidContent: prev.grobidContent.map((s) =>
+                                s.id === section.id
+                                  ? {
+                                      ...s,
+                                      para: s.para.map((p) =>
+                                        p.text === para.text
+                                          ? { ...p, simplifiedText: simplified }
+                                          : p
+                                      ),
+                                    }
+                                  : s
+                              ),
+                            };
+                          });
+                          setShowSimplified((prev) => ({
+                            ...prev,
+                            [`${section.id}-${para.text}`]: true,
+                          }));
+                          setLoadingPara(null);
+                        }}
+                      >
+                        {loadingPara === `${section.id}-${para.text}` ? (
+                          <Loader2 className="animate-spin w-4 h-4" />
+                        ) : (
+                          "Read Fast"
+                        )}
+                      </Button>
+                    </div>
+                    <p
+                      className="text-foreground leading-[200%] break-words text-[1rem] mb-2"
+                      dangerouslySetInnerHTML={{
+                        __html: highlightKeywords(
+                          para.text,
+                          paperSummary.geminiKeywords
+                        ),
+                      }}
+                    />
+                  </div>
 
-                  {para.refs && Object.keys(para.refs).length > 0 && (
-                    <ul className="pl-4 list-disc text-muted-foreground text-sm">
-                      {(() => {
-                        const refItems = [];
-                        for (const [refKey, refValue] of Object.entries(
-                          para.refs
-                        )) {
-                          if ((refValue as any).type === "figure") {
-                            console.log(
-                              `"Figure:", ${refKey}, ${(refValue as any).id})`
-                            );
-                          }
-                          refItems.push(
-                            <li key={refKey}>
-                              {refKey}
-                              {(refValue as any).type}
-                            </li>
-                          );
-                          // You can add if-else conditions here
-                        }
-                        return refItems;
-                      })()}
-                    </ul>
-                  )}
+                  {/* Simplified text */}
+                  {para.simplifiedText &&
+                    showSimplified[`${section.id}-${para.text}`] && (
+                      <div className="bg-muted/30 p-4 rounded-lg">
+                        <h3 className="text-sm font-medium text-muted-foreground mb-2">
+                          Simplified Version
+                        </h3>
+                        <p
+                          className="text-foreground leading-[200%] break-words text-[1rem]"
+                          dangerouslySetInnerHTML={{
+                            __html: highlightKeywords(
+                              para.simplifiedText,
+                              paperSummary.geminiKeywords
+                            ),
+                          }}
+                        />
+                      </div>
+                    )}
                 </div>
               ))}
+
+              {/* Simplified section text */}
+              {section.simplifiedText && showSimplified[section.id] && (
+                <div className="bg-muted/30 p-4 rounded-lg mt-4">
+                  <h3 className="text-sm font-medium text-muted-foreground mb-2">
+                    Simplified Section
+                  </h3>
+                  <p className="text-foreground leading-[200%] break-words text-[1rem]">
+                    {section.simplifiedText}
+                  </p>
+                </div>
+              )}
             </div>
           ))}
           {imageUrls.length > 0 && (
