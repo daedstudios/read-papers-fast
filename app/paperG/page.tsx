@@ -145,6 +145,9 @@ function PaperContent() {
   const [showSimplified, setShowSimplified] = useState<Record<string, boolean>>(
     {}
   );
+  const [showParaSimplified, setShowParaSimplified] = useState<
+    Record<string, boolean>
+  >({});
 
   useEffect(() => {
     if (paperSummary) {
@@ -382,36 +385,40 @@ function PaperContent() {
               {section.para.map((para, index) => (
                 <div key={index} className="mb-6">
                   <div className="mb-6">
-                    {/* Original text */}
                     <div className="mb-4 flex flex-col items-end gap-2">
                       <Button
                         size="sm"
                         className=" cursor-pointer"
                         disabled={loadingPara === `${section.id}-${para.text}`}
-                        onClick={() => handleReadFast(section.id, para.text)}
+                        onClick={async () => {
+                          if (para.simplifiedText) {
+                            setShowParaSimplified((prev) => ({
+                              ...prev,
+                              [`${section.id}-${para.text}`]:
+                                !prev[`${section.id}-${para.text}`],
+                            }));
+                          } else {
+                            await handleReadFast(section.id, para.text);
+                            setShowParaSimplified((prev) => ({
+                              ...prev,
+                              [`${section.id}-${para.text}`]: true,
+                            }));
+                          }
+                        }}
                       >
                         {loadingPara === `${section.id}-${para.text}` ? (
                           <Loader2 className="animate-spin w-4 h-4" />
+                        ) : para.simplifiedText &&
+                          showParaSimplified[`${section.id}-${para.text}`] ? (
+                          "Show Original"
                         ) : (
                           "Read Fast"
                         )}
                       </Button>
                     </div>
-                    <p
-                      className="text-foreground leading-[200%] break-words text-[1rem] mb-2"
-                      dangerouslySetInnerHTML={{
-                        __html: highlightKeywords(
-                          para.text,
-                          paperSummary.geminiKeywords
-                        ),
-                      }}
-                    />
-                  </div>
-
-                  {/* Simplified text */}
-                  {para.simplifiedText &&
-                    showSimplified[`${section.id}-${para.text}`] && (
-                      <div className="bg-muted/30 p-4 rounded-lg">
+                    {para.simplifiedText &&
+                    showParaSimplified[`${section.id}-${para.text}`] ? (
+                      <div className="bg-muted/60 p-4 rounded-lg">
                         <h3 className="text-sm font-medium text-muted-foreground mb-2">
                           Simplified Version
                         </h3>
@@ -425,7 +432,18 @@ function PaperContent() {
                           }}
                         />
                       </div>
+                    ) : (
+                      <p
+                        className="text-foreground leading-[200%] break-words text-[1rem] mb-2"
+                        dangerouslySetInnerHTML={{
+                          __html: highlightKeywords(
+                            para.text,
+                            paperSummary.geminiKeywords
+                          ),
+                        }}
+                      />
                     )}
+                  </div>
                 </div>
               ))}
 
