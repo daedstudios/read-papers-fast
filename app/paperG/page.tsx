@@ -30,6 +30,12 @@ import { CardHeader } from "@/components/ui/card";
 import KeywordAccordion from "@/components/KeywordsAccordion";
 import PhoneDrawer from "@/components/PhoneDrawer";
 import { ChevronDown, ChevronUp, Loader2 } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import React from "react";
 
 gsap.registerPlugin(useGSAP);
 
@@ -203,20 +209,77 @@ function PaperContent() {
     }
   }, [paperSummary]);
 
-  function highlightKeywords(text: string, keywords: Keyword[]): string {
+  function renderWithGlossary(text: string, keywords: Keyword[]) {
     if (!keywords || keywords.length === 0) return text;
 
     const sortedKeywords = [...keywords].sort(
       (a, b) => b.keyword.length - a.keyword.length
     );
 
-    let highlighted = text;
-    for (const kw of sortedKeywords) {
-      const pattern = new RegExp(`\\b(${kw.keyword})\\b`, "gi");
-      highlighted = highlighted.replace(pattern, `<mark>$1</mark>`);
+    const pattern = new RegExp(
+      `\\b(${sortedKeywords.map((kw) => kw.keyword).join("|")})\\b`,
+      "gi"
+    );
+
+    const parts = [];
+    let lastIndex = 0;
+    let match;
+    let idx = 0;
+
+    while ((match = pattern.exec(text)) !== null) {
+      const before = text.slice(lastIndex, match.index);
+      if (before) parts.push(before);
+
+      const keyword = match[0];
+      const kwObj = sortedKeywords.find(
+        (kw) => kw.keyword.toLowerCase() === keyword.toLowerCase()
+      );
+
+      if (kwObj) {
+        const KeywordPopover = () => {
+          const [open, setOpen] = React.useState(false);
+
+          return (
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <span
+                  className="relative text-foreground p-1 font-medium rounded-sm border-muted-foreground/30 border transition duration-200 cursor-pointer hover:bg-muted-foreground/30"
+                  onMouseEnter={() => setOpen(true)}
+                  onMouseLeave={() => setOpen(false)}
+                >
+                  {keyword}
+                </span>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-64 bg-background border border-border rounded-[1rem] shadow-lg p-[1rem] text-[1rem]"
+                onMouseEnter={() => setOpen(true)}
+                onMouseLeave={() => setOpen(false)}
+              >
+                <span className="block text-[1rem] text-primary font-bold mb-1">
+                  {kwObj.keyword}
+                </span>
+                <span className="block text-[1rem] text-muted-foreground">
+                  {kwObj.explanation}
+                </span>
+              </PopoverContent>
+            </Popover>
+          );
+        };
+
+        parts.push(<KeywordPopover key={idx} />);
+      } else {
+        parts.push(keyword);
+      }
+
+      lastIndex = pattern.lastIndex;
+      idx++;
     }
 
-    return highlighted;
+    if (lastIndex < text.length) {
+      parts.push(text.slice(lastIndex));
+    }
+
+    return parts;
   }
 
   useEffect(() => {
@@ -363,11 +426,6 @@ function PaperContent() {
                 {paperSummary.grobidAbstract.title}
               </h1>
 
-              {paperSummary.grobidAbstract.authors.length > 0 && (
-                <div className="mb-4">
-                  <p className="text-muted-foreground text-[1rem]"></p>
-                </div>
-              )}
               <div className="border-b border-border mb-8 pb-2"></div>
             </div>
           )}
@@ -418,30 +476,22 @@ function PaperContent() {
                     </div>
                     {para.simplifiedText &&
                     showParaSimplified[`${section.id}-${para.text}`] ? (
-                      <div className="bg-muted/60 p-4 rounded-lg">
+                      <div className="bg-muted/60 p-4 rounded-lg leading-[200%]">
                         <h3 className="text-sm font-medium text-muted-foreground mb-2">
                           Simplified Version
                         </h3>
-                        <p
-                          className="text-foreground leading-[200%] break-words text-[1rem]"
-                          dangerouslySetInnerHTML={{
-                            __html: highlightKeywords(
-                              para.simplifiedText,
-                              paperSummary.geminiKeywords
-                            ),
-                          }}
-                        />
+                        {renderWithGlossary(
+                          para.simplifiedText,
+                          paperSummary.geminiKeywords
+                        )}
                       </div>
                     ) : (
-                      <p
-                        className="text-foreground leading-[200%] break-words text-[1rem] mb-2"
-                        dangerouslySetInnerHTML={{
-                          __html: highlightKeywords(
-                            para.text,
-                            paperSummary.geminiKeywords
-                          ),
-                        }}
-                      />
+                      <p className="text-foreground leading-[200%] break-words text-[1rem] mb-2">
+                        {renderWithGlossary(
+                          para.text,
+                          paperSummary.geminiKeywords
+                        )}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -449,7 +499,7 @@ function PaperContent() {
 
               {/* Simplified section text */}
               {section.simplifiedText && showSimplified[section.id] && (
-                <div className="bg-muted/30 p-4 rounded-lg mt-4">
+                <div className="bg-muted/30 p-4 rounded-lg mt-4 leading-[200%]">
                   <h3 className="text-sm font-medium text-muted-foreground mb-2">
                     Simplified Section
                   </h3>
