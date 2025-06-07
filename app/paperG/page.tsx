@@ -251,6 +251,40 @@ function PaperContent() {
     fetchPaperSummary();
   }, [id]);
 
+  const handleReadFast = async (sectionId: string, paraText: string) => {
+    setLoadingPara(`${sectionId}-${paraText}`);
+    const res = await fetch("/api/simplifiedText", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        paragraphText: paraText,
+        paragraphId: sectionId,
+      }),
+    });
+    const { simplified } = await res.json();
+    setPaperSummary((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        grobidContent: prev.grobidContent.map((s) =>
+          s.id === sectionId
+            ? {
+                ...s,
+                para: s.para.map((p) =>
+                  p.text === paraText ? { ...p, simplifiedText: simplified } : p
+                ),
+              }
+            : s
+        ),
+      };
+    });
+    setShowSimplified((prev) => ({
+      ...prev,
+      [`${sectionId}-${paraText}`]: true,
+    }));
+    setLoadingPara(null);
+  };
+
   return (
     <>
       {paperSummary && <PhoneDrawer paperSummary={paperSummary} />}
@@ -354,41 +388,7 @@ function PaperContent() {
                         size="sm"
                         className=" cursor-pointer"
                         disabled={loadingPara === `${section.id}-${para.text}`}
-                        onClick={async () => {
-                          setLoadingPara(`${section.id}-${para.text}`);
-                          const res = await fetch("/api/simplifiedText", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                              paragraphText: para.text,
-                              paragraphId: section.id,
-                            }),
-                          });
-                          const { simplified } = await res.json();
-                          setPaperSummary((prev) => {
-                            if (!prev) return prev;
-                            return {
-                              ...prev,
-                              grobidContent: prev.grobidContent.map((s) =>
-                                s.id === section.id
-                                  ? {
-                                      ...s,
-                                      para: s.para.map((p) =>
-                                        p.text === para.text
-                                          ? { ...p, simplifiedText: simplified }
-                                          : p
-                                      ),
-                                    }
-                                  : s
-                              ),
-                            };
-                          });
-                          setShowSimplified((prev) => ({
-                            ...prev,
-                            [`${section.id}-${para.text}`]: true,
-                          }));
-                          setLoadingPara(null);
-                        }}
+                        onClick={() => handleReadFast(section.id, para.text)}
                       >
                         {loadingPara === `${section.id}-${para.text}` ? (
                           <Loader2 className="animate-spin w-4 h-4" />
