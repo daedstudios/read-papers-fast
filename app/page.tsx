@@ -4,7 +4,7 @@ import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useAppContext } from "@/components/AppContext";
 import Image from "next/image";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { initiateRequests } from "@/utilities/PromptChain";
@@ -30,25 +30,54 @@ const Page = () => {
       }
     }
   };
-
-  const handleVertexCall = async () => {
+  const handleFileUpload = async () => {
     setIsLoading(true);
     setError(null);
 
-    // Start both requests in parallel before navigation using the utility function
-    const requestsPromise = initiateRequests(documentUrl || null, uploadedFile);
-
-    // Navigate to the results page
-    router.push("/survey");
-
-    // The requests will continue in the background
     try {
-      const combinedData = await requestsPromise;
-      setResult(combinedData);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "An unknown error occurred"
-      );
+      if (uploadedFile) {
+        // Handle file upload
+        const formData = new FormData();
+        formData.append("file", uploadedFile);
+
+        const response = await fetch("/api/upload_id", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await response.json();
+
+        const response2 = await fetch("/api/base", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ id: data?.id }),
+        });
+
+        const response3 = await fetch("/api/vertexKeyWords", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ id: data.id }),
+        });
+
+        const pythonResponse = await fetch(
+          `https://python-grobid-347071481430.europe-west10.run.app/process/${data.id}`,
+          { method: "GET" }
+        );
+
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to upload file");
+        }
+
+        router.push(`/paperG?id=${data.id}`);
+
+        console.log("File uploaded successfully:", data);
+      }
+    } catch (error: any) {
+      console.error("Upload error:", error);
+      setError(error.message || "Error uploading file");
     } finally {
       setIsLoading(false);
     }
@@ -115,17 +144,21 @@ const Page = () => {
                 </div>
                 <Button
                   type="button"
-                  onClick={handleVertexCall}
+                  onClick={handleFileUpload}
                   disabled={isLoading || (!documentUrl && !uploadedFile)}
                   className=" text-background bg-foreground h-[2.25rem] rounded-[3rem] w-full md:w-[6rem] disabled:bg-foreground hover:disabled:bg-muted hover:cursor-pointer "
                 >
-                  {isLoading ? "Uploading..." : "upload"}
+                  {isLoading ? (
+                    <Loader2 className="animate-spin w-4 h-4" />
+                  ) : (
+                    "upload"
+                  )}
                 </Button>
               </div>
               <p className="w-full mx-auto text-center text-foreground px-1">
                 Paste a link or upload a PDF directly.
                 <Link
-                  href="/paperG?id=f153dc68-ce57-421e-a1ae-9ce346daf722"
+                  href="/paperG?id=8915e476-ea87-4540-b7bb-ac766e61a0fe"
                   className="px-1 font-medium underline"
                 >
                   See example
