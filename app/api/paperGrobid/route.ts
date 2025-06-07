@@ -18,45 +18,53 @@ export async function GET(request: Request) {
       where: {
         paperSummaryID: id,
       },
+      select: {
+        id: true,
+        head: true,
+        head_n: true,
+        para: true,
+        order_index: true,
+        simplifiedText: true,
+      },
       orderBy: {
         order_index: "asc",
       },
     });
 
-     const grobidAbstract = await prisma.paperSummary.findFirst({
-       where: {
-         paperSummaryID: id,
-       },
-     });
+    const grobidAbstract = await prisma.paperSummary.findFirst({
+      where: {
+        paperSummaryID: id,
+      },
+    });
 
-     const grobidFigures = await prisma.paperFigures.findMany({
-       where: {
-         paper_summary_id: id,
-       },
-     });
+    const grobidFigures = await prisma.paperFigures.findMany({
+      where: {
+        paper_summary_id: id,
+      },
+    });
 
-     const geminiKeywords = await prisma.acronym.findMany({
-       where: {
-         paperSummaryId: id,
-       },
-     });
+    const geminiKeywords = await prisma.acronym.findMany({
+      where: {
+        paperSummaryId: id,
+      },
+    });
 
-     if (grobidContent.length === 0) {
-       return NextResponse.json(
-         { error: "No Grobid content found for this paper ID" },
-         { status: 404 }
-       );
-     }
+    if (grobidContent.length === 0) {
+      return NextResponse.json(
+        { error: "No Grobid content found for this paper ID" },
+        { status: 404 }
+      );
+    }
 
-     return NextResponse.json(
-       {
-         grobidContent,
-         grobidAbstract,
-         grobidFigures,
-         geminiKeywords,
-       },
-       { status: 200 }
-     );
+    return NextResponse.json(
+      {
+        grobidContent,
+        grobidAbstract,
+        grobidFigures,
+        geminiKeywords,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error fetching paper data:", error);
     return NextResponse.json(
