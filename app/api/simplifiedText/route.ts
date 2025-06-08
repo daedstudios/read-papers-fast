@@ -11,11 +11,10 @@ const SimplifiedSchema = z.object({
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { paragraphText, paragraphId } = body;
 
-    if (!paragraphText || !paragraphId) {
+    if (!body.sectionText || !body.sectionId) {
       return NextResponse.json(
-        { error: "Missing text or paragraph ID" },
+        { error: "Missing sectionText or sectionId" },
         { status: 400 }
       );
     }
@@ -31,7 +30,7 @@ export async function POST(req: Request) {
           content: [
             {
               type: "text",
-              text: `You are an AI document simplifier specialized in academic papers. Simplify the following paragraph for better understanding, while keeping technical accuracy:\n\n${paragraphText}`,
+              text: `You are an AI document simplifier specialized in academic papers. Simplify the following section for better understanding, while keeping technical accuracy:\n\n${body.sectionText}`,
             },
           ],
         },
@@ -40,9 +39,8 @@ export async function POST(req: Request) {
 
     const simplified = result.object.simplified;
 
-    // Update only the section-level simplifiedText field
     await prisma.paperContentGrobid.update({
-      where: { id: paragraphId },
+      where: { id: body.sectionId },
       data: { simplifiedText: simplified },
     });
 

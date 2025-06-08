@@ -431,82 +431,84 @@ function PaperContent() {
           )}
           {paperSummary?.grobidContent.map((section) => (
             <div key={section.id} className="mb-[3rem]">
-              {/* Section heading */}
-              <h2
-                id={section.id}
-                className="text-[1.5rem] font-medium mb-2 text-foreground break-words"
-              >
-                {section.head_n} {section.head}
-              </h2>
-
-              {/* Paragraphs */}
-              {section.para.map((para, index) => (
-                <div key={index} className="mb-6">
-                  <div className="mb-6">
-                    <div className="mb-4 flex flex-col items-end gap-2">
-                      <Button
-                        size="sm"
-                        className=" cursor-pointer"
-                        disabled={loadingPara === `${section.id}-${para.text}`}
-                        onClick={async () => {
-                          if (para.simplifiedText) {
-                            setShowParaSimplified((prev) => ({
-                              ...prev,
-                              [`${section.id}-${para.text}`]:
-                                !prev[`${section.id}-${para.text}`],
-                            }));
-                          } else {
-                            await handleReadFast(section.id, para.text);
-                            setShowParaSimplified((prev) => ({
-                              ...prev,
-                              [`${section.id}-${para.text}`]: true,
-                            }));
-                          }
-                        }}
-                      >
-                        {loadingPara === `${section.id}-${para.text}` ? (
-                          <Loader2 className="animate-spin w-4 h-4" />
-                        ) : para.simplifiedText &&
-                          showParaSimplified[`${section.id}-${para.text}`] ? (
-                          "Show Original"
-                        ) : (
-                          "Read Fast"
-                        )}
-                      </Button>
-                    </div>
-                    {para.simplifiedText &&
-                    showParaSimplified[`${section.id}-${para.text}`] ? (
-                      <div className="bg-muted/60 p-4 rounded-lg leading-[200%]">
-                        <h3 className="text-sm font-medium text-muted-foreground mb-2">
-                          Simplified Version
-                        </h3>
-                        {renderWithGlossary(
-                          para.simplifiedText,
-                          paperSummary.geminiKeywords
-                        )}
-                      </div>
-                    ) : (
-                      <p className="text-foreground leading-[200%] break-words text-[1rem] mb-2">
-                        {renderWithGlossary(
-                          para.text,
-                          paperSummary.geminiKeywords
-                        )}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              ))}
-
-              {/* Simplified section text */}
-              {section.simplifiedText && showSimplified[section.id] && (
-                <div className="bg-muted/30 p-4 rounded-lg mt-4 leading-[200%]">
+              {/* Section heading with toggle button */}
+              <div className="flex items-center justify-between mb-2">
+                <h2
+                  id={section.id}
+                  className="text-[1.5rem] font-medium text-foreground break-words"
+                >
+                  {section.head_n} {section.head}
+                </h2>
+                <Button
+                  size="sm"
+                  className="cursor-pointer"
+                  disabled={loadingPara === section.id}
+                  onClick={async () => {
+                    if (!section.simplifiedText) {
+                      setLoadingPara(section.id);
+                      const sectionText = section.para
+                        .map((p) => p.text)
+                        .join(" ");
+                      // Call the API to simplify the section
+                      const res = await fetch("/api/simplifiedText", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          sectionText,
+                          sectionId: section.id,
+                        }),
+                      });
+                      const { simplified } = await res.json();
+                      setPaperSummary((prev) => {
+                        if (!prev) return prev;
+                        return {
+                          ...prev,
+                          grobidContent: prev.grobidContent.map((s) =>
+                            s.id === section.id
+                              ? { ...s, simplifiedText: simplified }
+                              : s
+                          ),
+                        };
+                      });
+                      setLoadingPara(null);
+                    }
+                    setShowSimplified((prev) => ({
+                      ...prev,
+                      [section.id]: !prev[section.id],
+                    }));
+                  }}
+                >
+                  {loadingPara === section.id ? (
+                    <Loader2 className="animate-spin w-4 h-4" />
+                  ) : section.simplifiedText && showSimplified[section.id] ? (
+                    "Show Original"
+                  ) : (
+                    "Read Fast"
+                  )}
+                </Button>
+              </div>
+              {/* Section content */}
+              {section.simplifiedText && showSimplified[section.id] ? (
+                <div className="bg-muted/60 p-4 rounded-lg leading-[200%]">
                   <h3 className="text-sm font-medium text-muted-foreground mb-2">
-                    Simplified Section
+                    Simplified Version
                   </h3>
-                  <p className="text-foreground leading-[200%] break-words text-[1rem]">
-                    {section.simplifiedText}
-                  </p>
+                  {renderWithGlossary(
+                    section.simplifiedText,
+                    paperSummary.geminiKeywords
+                  )}
                 </div>
+              ) : (
+                section.para.map((para, index) => (
+                  <div key={index} className="mb-6">
+                    <p className="text-foreground leading-[200%] break-words text-[1rem] mb-2">
+                      {renderWithGlossary(
+                        para.text,
+                        paperSummary.geminiKeywords
+                      )}
+                    </p>
+                  </div>
+                ))
               )}
             </div>
           ))}
