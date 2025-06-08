@@ -158,7 +158,7 @@ const Page = () => {
               <p className="w-full mx-auto text-center text-foreground px-1">
                 Paste a link or upload a PDF directly.
                 <Link
-                  href="/paperG?id=83c1028f-8982-4f0d-a2fb-e5d71c1d7c91"
+                  href="/paperG?id=8915e476-ea87-4540-b7bb-ac766e61a0fe"
                   className="px-1 font-medium underline"
                 >
                   See example

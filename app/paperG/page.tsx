@@ -381,12 +381,7 @@ function PaperContent() {
 
   return (
     <>
-      {paperSummary && (
-        <PhoneDrawer
-          paperSummary={paperSummary}
-          activeSectionId={activeSectionId ?? undefined}
-        />
-      )}
+      {paperSummary && <PhoneDrawer paperSummary={paperSummary} />}
 
       <div className="flex flex-row justify-between w-full h-[92vh] mt-[8vh]">
         <ScrollArea
@@ -422,7 +417,7 @@ function PaperContent() {
                           });
                         }}
                       >
-                        <span className="text-[1rem] block text-wrap w-[16rem]">
+                        <span className="text-[1rem]  block text-wrap">
                           {section.head_n} {section.head}
                         </span>
                       </a>
@@ -632,9 +627,9 @@ function PaperContent() {
               </CardContent>
             )}
           </Card>
-          {/* {paperSummary?.geminiKeywords && (
+          {paperSummary?.geminiKeywords && (
             <KeywordAccordion keyword={paperSummary.geminiKeywords} />
-          )} */}
+          )}
         </ScrollArea>
       </div>
     </>
