@@ -57,7 +57,7 @@ export async function POST(req: Request) {
 
 - The "keyword" should be the short term or jargon used in the paper.
 - The "value" is its exact expanded form as written in the paper.
-- The "explanation" should describe its meaning in simple, accessible language for someone new to the topic.`,
+- The "explanation" should describe its meaning using simple, everyday language. Use a short real-world analogy or example if it helps understanding. Assume the reader has no background in the topic.`,
           },
           {
             type: "file",
