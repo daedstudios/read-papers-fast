@@ -154,6 +154,7 @@ function PaperContent() {
   const [showParaSimplified, setShowParaSimplified] = useState<
     Record<string, boolean>
   >({});
+  const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
 
   useEffect(() => {
     if (paperSummary) {
@@ -351,6 +352,33 @@ function PaperContent() {
     setLoadingPara(null);
   };
 
+  // Scrollspy effect
+  useEffect(() => {
+    if (!paperSummary?.grobidContent) return;
+    const sectionIds = paperSummary.grobidContent.map((s) => s.id);
+    const sectionElements = sectionIds
+      .map((id) => document.getElementById(id))
+      .filter(Boolean);
+
+    if (sectionElements.length === 0) return;
+
+    const observer = new window.IntersectionObserver(
+      (entries) => {
+        // Find the entry that is most in view
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible.length > 0) {
+          setActiveSectionId(visible[0].target.id);
+        }
+      },
+      { rootMargin: "-30% 0px -60% 0px", threshold: [0, 0.25, 0.5, 0.75, 1] }
+    );
+
+    sectionElements.forEach((el) => observer.observe(el!));
+    return () => observer.disconnect();
+  }, [paperSummary]);
+
   return (
     <>
       {paperSummary && <PhoneDrawer paperSummary={paperSummary} />}
@@ -364,13 +392,20 @@ function PaperContent() {
             className="relative w-[20rem] h-full"
             collapsible="offcanvas"
           >
-            <SidebarMenu className="bg-background h-full">
+            <SidebarMenu className="bg-background h-full text-muted-foreground">
               <div className="relative z-10">
                 {paperSummary?.grobidContent?.map((section) => (
-                  <SidebarMenuItem key={section.id}>
+                  <SidebarMenuItem
+                    key={section.id}
+                    className={
+                      activeSectionId === section.id
+                        ? "text-foreground pl-2 transition-all duration-200"
+                        : ""
+                    }
+                  >
                     <SidebarMenuButton
                       asChild
-                      className="hover:bg-[url('/LANDING-2.png')] bg-cover active:bg-[url('/LANDING-2.png')] data-[active=true]:text-background"
+                      className="hover:bg-transparent hover:ml-2 hover:transition-all hover:duration-100 active:bg-transparent data-[active=true]:text-foreground"
                     >
                       <a
                         href={`#${section.id}`}
@@ -382,7 +417,7 @@ function PaperContent() {
                           });
                         }}
                       >
-                        <span className="text-[1rem] truncate text-ellipsis break-words block ">
+                        <span className="text-[1rem]  block text-wrap">
                           {section.head_n} {section.head}
                         </span>
                       </a>
