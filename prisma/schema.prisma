@@ -45,7 +45,6 @@ model PaperSummary {
   publishedDate String?
   summary       String?
   // acronyms      Acronym[]
-  PaperFigures  PaperFigures[]
   sections      Section[]
   surveys       Survey[]
   paperSummaryID String?   @db.Uuid
@@ -100,8 +99,8 @@ model PaperContentGrobid {
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model PaperFigures {
   id                   String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  paper_summary_id     String?
-  figure_type          String
+  paper_summary_id     String?       @db.Uuid
+  figure_type          String?
   figure_id            String?
   label                String?
   head                 String?
@@ -115,7 +114,7 @@ model PaperFigures {
   created_at           DateTime?     @default(now()) @db.Timestamptz(6)
   updated_at           DateTime?     @default(now()) @db.Timestamptz(6)
   image_url            String?
-  PaperSummary         PaperSummary? @relation(fields: [paper_summary_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  
 }
 
 model PaperMainStructure {

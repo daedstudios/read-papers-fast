@@ -82,7 +82,7 @@ export default function LoadingSurvey() {
       router.push(`/paper?id=${result.paperSummary.id}`);
     }
   };
-  const [countdown, setCountdown] = useState(120);
+  const [countdown, setCountdown] = useState(40);
 
   useEffect(() => {
     if (!result?.success && countdown > 0) {
@@ -95,19 +95,11 @@ export default function LoadingSurvey() {
     <div>
       <SurveyProgressBar step={step} total={totalSteps} />
       <div className="flex flex-col items-center justify-center h-screen max-h-screen gap-[2rem] px-[1rem]">
-        <Image
-          src="/LANDING-2.png"
-          alt="Background"
-          fill
-          priority
-          className="object-cover fixed  h-full w-full z-[-2] "
-        />
-        <div className="fixed  bg-black/20 blur-lg z-[-1]" />
         {step === 1 && (
           <>
-            <Card className="w-full max-w-[32rem] max-h-screen  bg-background/10 shadow-lg border border-muted backdrop-blur-lg rounded-[2rem]">
+            <Card className="w-full max-w-[32rem] border shadow-none rounded-[1.5rem] bg-background">
               <CardHeader>
-                <CardTitle className="text-[2.25rem] font-medium text-foreground">
+                <CardTitle className="text-[1.5rem] font-medium text-foreground">
                   Transcribing{dots}
                 </CardTitle>
               </CardHeader>
@@ -115,7 +107,7 @@ export default function LoadingSurvey() {
               <CardContent className="flex flex-col gap-4">
                 <label
                   htmlFor="reasonInput"
-                  className="text-[1rem] font-medium text-foreground"
+                  className="text-[1rem]  text-foreground"
                 >
                   Why are you here?
                 </label>
@@ -126,7 +118,7 @@ export default function LoadingSurvey() {
                   onChange={(e) =>
                     setSurveyData({ ...surveyData, reason: e.target.value })
                   }
-                  className="min-h-[4rem] placeholder:text-muted-foreground  resize-none border border-muted-foreground"
+                  className="min-h-[4rem] placeholder:text-muted-foreground  resize-none border border-muted"
                 />
                 <div className="flex justify-end">
                   <Button
@@ -143,15 +135,15 @@ export default function LoadingSurvey() {
 
         {step === 2 && (
           <>
-            <Card className="w-full max-w-[32rem] bg-background/10 shadow-lg border border-muted backdrop-blur-lg rounded-[2rem]">
+            <Card className="w-full max-w-[32rem] border shadow-none rounded-[1.5rem] bg-background">
               <CardHeader>
-                <CardTitle className="text-[2.25rem] font-medium">
+                <CardTitle className="text-[1.5rem] font-medium">
                   Almost there{dots}
                 </CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col gap-6">
                 <div>
-                  <p className="font-medium text-[1rem] mb-4">
+                  <p className="text-[1rem] mb-4">
                     How confident are you reading research papers?
                   </p>
                   <RadioGroup
@@ -189,9 +181,9 @@ export default function LoadingSurvey() {
 
         {step === 3 && (
           <>
-            <Card className="w-full max-w-[32rem] bg-background/10 shadow-lg border border-muted backdrop-blur-lg rounded-[2rem]">
+            <Card className="w-full max-w-[32rem] border shadow-none rounded-[1.5rem] bg-background">
               <CardHeader>
-                <CardTitle className="text-[2.25rem] font-medium text-foreground">
+                <CardTitle className="text-[1.5rem] font-medium text-foreground">
                   Finishing{dots}
                 </CardTitle>
               </CardHeader>
@@ -199,7 +191,7 @@ export default function LoadingSurvey() {
               <CardContent className="flex flex-col gap-4">
                 <label
                   htmlFor="reasonInput"
-                  className="text-[1rem] font-medium text-foreground"
+                  className="text-[1rem]  text-foreground"
                 >
                   What field are you studying?
                 </label>
@@ -210,7 +202,7 @@ export default function LoadingSurvey() {
                   onChange={(e) =>
                     setSurveyData({ ...surveyData, reason: e.target.value })
                   }
-                  className="min-h-[4rem] placeholder:text-muted-foreground  resize-none border border-muted-foreground"
+                  className="min-h-[4rem] placeholder:text-muted-foreground  resize-none border border-muted"
                 />
                 <div className="flex justify-end">
                   <Button
@@ -226,14 +218,14 @@ export default function LoadingSurvey() {
         )}
 
         {step === 4 && (
-          <Card className="w-full max-w-[32rem] bg-background/10 shadow-lg border border-muted backdrop-blur-lg rounded-[2rem]">
+          <Card className="w-full max-w-[32rem] border shadow-none rounded-[1.5rem] bg-background">
             <CardHeader>
-              <CardTitle className="text-[2.25rem] font-medium text-foreground">
+              <CardTitle className="text-[1.5rem] font-medium text-foreground">
                 {result?.success ? "Paper Ready" : "Thanks for submitting!"}
               </CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
-              <p className="text-[1rem] font-medium text-foreground">
+              <p className="text-[1rem] text-muted-foreground">
                 {result?.success
                   ? "Thank you for your patience, you can now view your paper."
                   : `Your research paper will be ready soon. Estimated time: ${countdown}s...`}
