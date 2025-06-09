@@ -156,59 +156,6 @@ function PaperContent() {
   >({});
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (paperSummary) {
-      const figuresWithImages = paperSummary.grobidFigures
-        .filter((figure) => figure.figure_type === "figure" && figure.image_url)
-        .map((figure) => {
-          // Parse the JSON string into an array of image objects
-          const imageData = figure.image_url
-            ? JSON.parse(figure.image_url)
-            : [];
-
-          return {
-            label: figure.label,
-            // Extract the actual image URLs from the parsed data
-            imageUrls: imageData.map((img: any) => ({
-              url: img.image_url,
-              width: img.width,
-              height: img.height,
-              pageNumber: img.page_number,
-              ext: img.image_ext,
-            })),
-            figure_id: figure.figure_id,
-            description: figure.description,
-          };
-        });
-
-      console.log("Figures with images:", figuresWithImages);
-
-      // Now you can access values directly, for example:
-      figuresWithImages.forEach((figure, index) => {
-        if (figure.imageUrls.length > 0) {
-          console.log(`Figure ${index} has URL:`, figure.imageUrls);
-          for (const image of figure.imageUrls) {
-            console.log(
-              `Image URL: ${image.url}, Width: ${image.width}, Height: ${image.height}`
-            );
-            setImageUrls((prev) => [
-              ...prev,
-              {
-                url: image.url,
-                width: image.width,
-                height: image.height,
-                pageNumber: image.pageNumber,
-                ext: image.ext,
-                label: figure.label,
-                figure_id: figure.figure_id,
-                description: figure.description,
-              },
-            ]);
-          }
-        }
-      });
-    }
-  }, [paperSummary]);
 
   function renderWithGlossary(text: string, keywords: Keyword[]) {
     if (!keywords || keywords.length === 0) return text;
@@ -547,18 +494,18 @@ function PaperContent() {
               )}
             </div>
           ))}
-          {imageUrls.length > 0 && (
+          {(paperSummary?.grobidFigures?.length ?? 0) > 0 && (
             <div className="my-8">
               <h3 className="text-xl font-semibold mb-4">Figures</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {imageUrls.map((image, index) => (
+                {paperSummary?.grobidFigures.map((image, index) => (
                   <div
                     key={index}
                     className="border rounded-lg p-4 flex flex-col"
                   >
                     <div className="relative w-full h-60">
                       <Image
-                        src={image.url}
+                        src={image.image_url}
                         alt={image.label || `Figure ${index + 1}`}
                         fill
                         className="object-contain"
@@ -568,6 +515,11 @@ function PaperContent() {
                     {image.description && (
                       <p className="mt-2 text-center text-sm text-muted-foreground">
                         {image.description}
+                      </p>
+                    )}
+                    {image.head && (
+                      <p className="mt-2 text-center text-sm text-muted-foreground">
+                        {image.head}
                       </p>
                     )}
                   </div>

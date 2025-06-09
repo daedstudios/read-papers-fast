@@ -66,6 +66,10 @@ const Page = () => {
           `https://python-grobid-347071481430.europe-west10.run.app/process/${data.id}`,
           { method: "GET" }
         );
+        const pythonResponseimage = await fetch(
+          `https://python-grobid-347071481430.europe-west10.run.app/images/${data.id}`,
+          { method: "GET" }
+        );
 
         if (!response.ok) {
           throw new Error(data.error || "Failed to upload file");
