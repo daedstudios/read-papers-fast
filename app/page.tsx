@@ -95,7 +95,7 @@ const Page = () => {
         /> */}
         <div className="fixed  bg-black/20 blur-lg z-[-1]" />
 
-        <div className="flex flex-col justify-center max-h-screen md:pt-[14rem] pt-[12rem] mx-auto md:w-[42rem] px-[1rem] md:px-0">
+        <div className="flex flex-col justify-center max-h-screen scroll-none pt-[14rem] mx-auto md:w-[42rem] px-[1rem] md:px-0">
           <h1 className=" text-center text-[2rem]  my-[2rem] text-foreground">
             What paper do you want to read?
           </h1>
@@ -184,7 +184,7 @@ const Page = () => {
           )}
         </div>
 
-        <div className="flex w-full z-4 flex-col text-foreground items-center pt-[6rem] text-[1rem]">
+        <div className="md:flex hidden w-full z-4 flex-col text-foreground items-center pt-[6rem] text-[1rem]">
           trusted by students of
           <div className="relative md:w-[42rem] overflow-hidden py-[3rem]">
             <div className="flex gap-[8rem] opacity-60 animate-marquee whitespace-nowrap">
