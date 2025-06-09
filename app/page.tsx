@@ -4,7 +4,7 @@ import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useAppContext } from "@/components/AppContext";
 import Image from "next/image";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { initiateRequests } from "@/utilities/PromptChain";
@@ -86,18 +86,18 @@ const Page = () => {
   return (
     <>
       <div className="relative w-screen h-full md:h-screen overflow-hidden items-center">
-        <Image
+        {/* <Image
           src="/LANDING-2.png"
           alt="Background"
           fill
           priority
-          className="object-cover  z-[-2] "
-        />
+          className="object-cover  z-[-2] blur-lg"
+        /> */}
         <div className="fixed  bg-black/20 blur-lg z-[-1]" />
 
         <div className="flex flex-col justify-center max-h-screen md:pt-[14rem] pt-[12rem] mx-auto md:w-[42rem] px-[1rem] md:px-0">
-          <h1 className=" text-center text-[2.25rem] font-medium my-[2rem] text-foreground">
-            Read research papers 10x faster
+          <h1 className=" text-center text-[2rem]  my-[2rem] text-foreground">
+            What paper do you want to read?
           </h1>
           {error && (
             <p
@@ -110,7 +110,7 @@ const Page = () => {
           )}
           <form
             id="uploadForm"
-            className="flex flex-col md:flex-row justify-end gap-2 border border-muted backdrop-blur-lg p-[1rem]  rounded-[2rem] bg-background/10 shadow shadow-foreground/30"
+            className="flex flex-col md:flex-row justify-end gap-2 border p-[1rem] shadow-sm rounded-[2rem] bg-transparent "
           >
             <div className="flex flex-col w-full gap-[1rem] items-center">
               <div className="flex md:flex-row flex-col gap-2 w-full">
@@ -124,7 +124,7 @@ const Page = () => {
                       if (fileInputRef.current) fileInputRef.current.value = "";
                     }}
                     placeholder="https://example.com/document.pdf"
-                    className="h-[2.25rem] px-[1rem]  rounded-[3rem] border-muted/30 bg-background"
+                    className="h-[2.25rem] px-[1rem]  rounded-[3rem] border-muted-foreground/30 shadow-none bg-background"
                   />
 
                   <Input
@@ -137,7 +137,7 @@ const Page = () => {
                   />
                   <label
                     htmlFor="file-upload"
-                    className="flex items-center hover:bg-muted justify-center w-[2.25rem] h-[2.25rem] min-w-[2.25rem] min-h-[2.25rem] border border-muted bg-background rounded-[3rem] hover:cursor-pointer"
+                    className="flex items-center hover:bg-muted justify-center w-[2.25rem] h-[2.25rem] min-w-[2.25rem] min-h-[2.25rem] border border-muted-foreground/30 bg-background rounded-[3rem] hover:cursor-pointer"
                   >
                     <Plus size={24} className="text-foreground" />
                   </label>
@@ -166,17 +166,28 @@ const Page = () => {
               </p>
             </div>
           </form>
-
-          <div className="bg-background rounded-[2rem] py-[0.25rem] my-[1rem] mx-auto px-4 text-foreground border">
-            {" "}
-            {uploadedFile?.name}{" "}
-          </div>
+          {uploadedFile && (
+            <div className="bg-background rounded-[2rem] py-[0.25rem] my-[1rem] mx-auto px-4 text-foreground hover:bg-muted border flex items-center gap-2">
+              <span>{uploadedFile.name}</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setUploadedFile(null);
+                  if (fileInputRef.current) fileInputRef.current.value = "";
+                }}
+                className="ml-2 text-lg font-bold text-muted-foreground cursor-pointer hover:text-foreground focus:outline-none"
+                aria-label="Remove uploaded file"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
 
-        <div className="flex w-full z-4 flex-col text-foreground opacity-60 items-center pt-[6rem] text-[1rem]">
+        <div className="flex w-full z-4 flex-col text-foreground items-center pt-[6rem] text-[1rem]">
           trusted by students of
           <div className="relative md:w-[42rem] overflow-hidden py-[3rem]">
-            <div className="flex gap-[8rem] animate-marquee whitespace-nowrap">
+            <div className="flex gap-[8rem] opacity-60 animate-marquee whitespace-nowrap">
               <Image
                 src="/maastricht3.svg"
                 alt="maastricht"
