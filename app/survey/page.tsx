@@ -17,8 +17,15 @@ import Link from "next/link";
 
 export default function LoadingSurvey() {
   const [dots, setDots] = useState("");
-  const { isLoading, error, result, setIsLoading, setError, setResult } =
-    useAppContext();
+  const {
+    isLoading,
+    error,
+    result,
+    setIsLoading,
+    setError,
+    setResult,
+    progressMessage,
+  } = useAppContext();
 
   const router = useRouter();
 
@@ -100,7 +107,9 @@ export default function LoadingSurvey() {
             <Card className="w-full max-w-[32rem] border shadow-none rounded-[1.5rem] bg-background">
               <CardHeader>
                 <CardTitle className="text-[1.5rem] font-medium text-foreground">
-                  Transcribing{dots}
+                  {progressMessage
+                    ? `${progressMessage.replace(/\.*$/, "")}${dots}`
+                    : null}
                 </CardTitle>
               </CardHeader>
 
@@ -138,7 +147,9 @@ export default function LoadingSurvey() {
             <Card className="w-full max-w-[32rem] border shadow-none rounded-[1.5rem] bg-background">
               <CardHeader>
                 <CardTitle className="text-[1.5rem] font-medium">
-                  Almost there{dots}
+                  {progressMessage
+                    ? `${progressMessage.replace(/\.*$/, "")}${dots}`
+                    : null}
                 </CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col gap-6">
@@ -184,7 +195,9 @@ export default function LoadingSurvey() {
             <Card className="w-full max-w-[32rem] border shadow-none rounded-[1.5rem] bg-background">
               <CardHeader>
                 <CardTitle className="text-[1.5rem] font-medium text-foreground">
-                  Finishing{dots}
+                  {progressMessage
+                    ? `${progressMessage.replace(/\.*$/, "")}${dots}`
+                    : null}
                 </CardTitle>
               </CardHeader>
 
@@ -221,7 +234,9 @@ export default function LoadingSurvey() {
           <Card className="w-full max-w-[32rem] border shadow-none rounded-[1.5rem] bg-background">
             <CardHeader>
               <CardTitle className="text-[1.5rem] font-medium text-foreground">
-                {result?.success ? "Paper Ready" : "Thanks for submitting!"}
+                {progressMessage
+                  ? `${progressMessage.replace(/\.*$/, "")}${dots}`
+                  : null}
               </CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">

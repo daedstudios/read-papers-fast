@@ -10,6 +10,8 @@ interface AppContextState {
   setIsLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   setResult: (result: any) => void;
+  progressMessage: string;
+  setProgressMessage: (msg: string) => void;
 }
 
 const AppContext = createContext<AppContextState | undefined>(undefined);
@@ -18,6 +20,7 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
+  const [progressMessage, setProgressMessage] = useState("");
 
   return (
     <AppContext.Provider
@@ -28,6 +31,8 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
         setIsLoading,
         setError,
         setResult,
+        progressMessage,
+        setProgressMessage,
       }}
     >
       {children}
