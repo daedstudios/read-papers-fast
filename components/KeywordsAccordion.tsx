@@ -46,9 +46,9 @@ const KeywordAccordion = ({ keyword }: KeywordAccordionProps) => {
                 )}
               </div>
 
-              {openIndex === idx && (
+              {/* {openIndex === idx && (
                 <p className="text-[1rem] mt-1 text">{kw.value}</p>
-              )}
+              )} */}
               {openIndex === idx && (
                 <p className="text-[0.8rem] mt-1 text-muted-foreground">
                   {kw.explanation}
