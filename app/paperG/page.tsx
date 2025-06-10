@@ -156,18 +156,19 @@ function PaperContent() {
   >({});
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
 
+  function renderWithGlossaryAndLinks(text: string, keywords: Keyword[]) {
+    if (!keywords || keywords.length === 0) return linkFiguresAndTables(text);
 
-  function renderWithGlossary(text: string, keywords: Keyword[]) {
-    if (!keywords || keywords.length === 0) return text;
-
+    // Sort keywords by length (desc) to avoid partial matches
     const sortedKeywords = [...keywords].sort(
       (a, b) => b.keyword.length - a.keyword.length
     );
 
-    const pattern = new RegExp(
-      `\\b(${sortedKeywords.map((kw) => kw.keyword).join("|")})\\b`,
-      "gi"
-    );
+    // Build a regex for all keywords and Figure/Table
+    const keywordPattern = sortedKeywords
+      .map((kw) => kw.keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+      .join("|");
+    const pattern = new RegExp(`(Figure|Table|${keywordPattern})`, "gi");
 
     const parts = [];
     let lastIndex = 0;
@@ -178,31 +179,35 @@ function PaperContent() {
       const before = text.slice(lastIndex, match.index);
       if (before) parts.push(before);
 
-      const keyword = match[0];
-      const kwObj = sortedKeywords.find(
-        (kw) => kw.keyword.toLowerCase() === keyword.toLowerCase()
-      );
-
-      if (kwObj) {
-        const KeywordPopover = () => {
-          const [open, setOpen] = React.useState(false);
-
-          return (
-            <Popover open={open} onOpenChange={setOpen}>
+      const matched = match[0];
+      if (matched === "Figure" || matched === "Table") {
+        parts.push(
+          <span
+            key={`figtable-${idx}`}
+            className="text-blue-600 underline cursor-pointer"
+            onClick={() => {
+              document
+                .getElementById("figures-section")
+                ?.scrollIntoView({ behavior: "smooth" });
+            }}
+          >
+            {matched}
+          </span>
+        );
+      } else {
+        // Find the keyword object (case-insensitive)
+        const kwObj = sortedKeywords.find(
+          (kw) => kw.keyword.toLowerCase() === matched.toLowerCase()
+        );
+        if (kwObj) {
+          parts.push(
+            <Popover key={`kw-${idx}`}>
               <PopoverTrigger asChild>
-                <span
-                  className="relative text-foreground p-1 font-medium rounded-sm border-muted-foreground/30 border transition duration-200 cursor-pointer hover:bg-muted-foreground/30"
-                  onMouseEnter={() => setOpen(true)}
-                  onMouseLeave={() => setOpen(false)}
-                >
-                  {keyword}
+                <span className="relative text-foreground p-1 font-medium rounded-sm border-muted-foreground/30 border transition duration-200 cursor-pointer hover:bg-muted-foreground/30">
+                  {matched}
                 </span>
               </PopoverTrigger>
-              <PopoverContent
-                className="w-64 bg-background border border-border rounded-[1rem] shadow-lg p-[1rem] text-[1rem]"
-                onMouseEnter={() => setOpen(true)}
-                onMouseLeave={() => setOpen(false)}
-              >
+              <PopoverContent className="w-64 bg-background border border-border rounded-[1rem] shadow-lg p-[1rem] text-[1rem]">
                 <span className="block text-[1rem] text-primary font-bold mb-1">
                   {kwObj.keyword}
                 </span>
@@ -212,21 +217,16 @@ function PaperContent() {
               </PopoverContent>
             </Popover>
           );
-        };
-
-        parts.push(<KeywordPopover key={idx} />);
-      } else {
-        parts.push(keyword);
+        } else {
+          parts.push(matched);
+        }
       }
-
       lastIndex = pattern.lastIndex;
       idx++;
     }
-
     if (lastIndex < text.length) {
       parts.push(text.slice(lastIndex));
     }
-
     return parts;
   }
 
@@ -325,6 +325,27 @@ function PaperContent() {
     sectionElements.forEach((el) => observer.observe(el!));
     return () => observer.disconnect();
   }, [paperSummary]);
+
+  function linkFiguresAndTables(text: string) {
+    return text.split(/(Figure|Table)/g).map((part, i) => {
+      if (part === "Figure" || part === "Table") {
+        return (
+          <span
+            key={i}
+            className="text-blue-600 underline cursor-pointer"
+            onClick={() => {
+              document
+                .getElementById("figures-section")
+                ?.scrollIntoView({ behavior: "smooth" });
+            }}
+          >
+            {part}
+          </span>
+        );
+      }
+      return part;
+    });
+  }
 
   return (
     <>
@@ -475,7 +496,7 @@ function PaperContent() {
                   <h3 className="text-sm font-medium text-muted-foreground mb-2">
                     Simplified Version
                   </h3>
-                  {renderWithGlossary(
+                  {renderWithGlossaryAndLinks(
                     section.simplifiedText,
                     paperSummary.geminiKeywords
                   )}
@@ -484,7 +505,7 @@ function PaperContent() {
                 section.para.map((para, index) => (
                   <div key={index} className="mb-6">
                     <p className="text-foreground leading-[200%] break-words text-[1rem] mb-2">
-                      {renderWithGlossary(
+                      {renderWithGlossaryAndLinks(
                         para.text,
                         paperSummary.geminiKeywords
                       )}
@@ -495,8 +516,8 @@ function PaperContent() {
             </div>
           ))}
           {(paperSummary?.grobidFigures?.length ?? 0) > 0 && (
-            <div className="my-8">
-              <h3 className="text-xl font-semibold mb-4">Figures</h3>
+            <div id="figures-section" className="my-8">
+              <h3 className="text-[1.5rem] font-medium mb-4">Figures</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {paperSummary?.grobidFigures.map((image, index) => (
                   <div
