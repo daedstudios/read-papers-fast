@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { initiateRequests } from "@/utilities/PromptChain";
 import Link from "next/link";
+import { set } from "zod";
 
 const Page = () => {
   const { isLoading, error, result, setIsLoading, setError, setResult } =
@@ -34,6 +35,8 @@ const Page = () => {
     setIsLoading(true);
     setError(null);
 
+    router.push("/survey");
+
     try {
       if (uploadedFile) {
         // Handle file upload
@@ -46,6 +49,20 @@ const Page = () => {
         });
         const data = await response.json();
 
+        console.log("Response from /api/upload_id:", data);
+
+        setResult({
+          id: data.id,
+          message: "File uploaded successfully",
+          success: false,
+        });
+
+        // Update message for base API call
+        setResult((prev: any) => ({
+          id: prev.id,
+          success: false,
+          message: "Processing paper structure...",
+        }));
         const response2 = await fetch("/api/base", {
           method: "POST",
           headers: {
@@ -54,6 +71,12 @@ const Page = () => {
           body: JSON.stringify({ id: data?.id }),
         });
 
+        // Update message for keywords extraction
+        setResult((prev: any) => ({
+          id: prev.id,
+          success: false,
+          message: "Extracting keywords...",
+        }));
         const response3 = await fetch("/api/vertexKeyWords", {
           method: "POST",
           headers: {
@@ -62,10 +85,25 @@ const Page = () => {
           body: JSON.stringify({ id: data.id }),
         });
 
+        // Update message for Grobid processing
+        setResult((prev: any) => ({
+          id: prev.id,
+          success: false,
+          message: "Processing document content...",
+        }));
         const pythonResponse = await fetch(
           `https://python-grobid-347071481430.europe-west10.run.app/process/${data.id}`,
           { method: "GET" }
         );
+
+        console.log("Python response:", pythonResponse);
+
+        // Update message for image processing
+        setResult((prev: any) => ({
+          id: prev.id,
+          success: false,
+          message: "Processing images...",
+        }));
         const pythonResponseimage = await fetch(
           `https://python-grobid-347071481430.europe-west10.run.app/images/${data.id}`,
           { method: "GET" }
@@ -75,8 +113,12 @@ const Page = () => {
           throw new Error(data.error || "Failed to upload file");
         }
 
-        router.push(`/paperG?id=${data.id}`);
-
+        // Final success message with success field set to true
+        setResult((prev: any) => ({
+          id: prev.id,
+          message: "Analysis complete!",
+          success: true,
+        }));
         console.log("File uploaded successfully:", data);
       }
     } catch (error: any) {

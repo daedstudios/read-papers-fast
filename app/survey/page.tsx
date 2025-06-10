@@ -48,7 +48,7 @@ export default function LoadingSurvey() {
 
   const handleSubmit = async () => {
     // Only proceed if we have result data with paperSummaryId
-    if (!result?.paperSummary?.id) {
+    if (!result?.id) {
       setError("No paper data available");
       return;
     }
@@ -62,7 +62,7 @@ export default function LoadingSurvey() {
         },
         body: JSON.stringify({
           ...surveyData,
-          paperSummaryId: result.paperSummary.id,
+          paperSummaryId: result.id,
         }),
       });
 
@@ -79,7 +79,7 @@ export default function LoadingSurvey() {
       // Don't block navigation on survey submission error
     } finally {
       // Always navigate to the paper page if we have an ID
-      router.push(`/paper?id=${result.paperSummary.id}`);
+      router.push(`/paperG?id=${result.id}`);
     }
   };
   const [countdown, setCountdown] = useState(40);
@@ -234,7 +234,7 @@ export default function LoadingSurvey() {
               <div className="flex justify-end w-full">
                 <Button
                   onClick={handleSubmit}
-                  disabled={isLoading || !result?.paperSummary?.id}
+                  disabled={isLoading || !result?.id}
                   className="rounded-[2rem] cursor-pointer w-full md:w-auto"
                 >
                   {result?.success ? "Open Paper" : "See paper"}
