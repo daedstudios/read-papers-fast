@@ -49,29 +49,29 @@ const Waitlist = () => {
 
   return (
     <div className="relative w-screen h-full md:h-screen overflow-hidden items-center">
-      <Image
+      {/* <Image
         src="/LANDING-2.png"
         alt="Background"
         fill
         priority
         className="object-cover z-[-1]"
-      />
+      /> */}
 
-      <div className="flex flex-col items-center justify-center h-full mx-auto max-w-[90%] md:max-w-[42rem] pt-[8rem] md:pt-[3rem]">
-        <div className="bg-background/10 backdrop-blur-lg shadow-xl py-2 px-4 border border-muted rounded-[2rem]">
+      <div className="flex flex-col items-center justify-center h-full mx-auto max-w-[90%] md:max-w-[42rem] pt-[12rem] md:pt-[6rem]">
+        {/* <div className="bg-background/10 backdrop-blur-lg shadow-xl py-2 px-4 border border-muted rounded-[2rem]">
           v0.1 coming soon
-        </div>
-        <div className="text-[3rem] md:text-[4rem] text-center font-medium pt-[1rem]">
+        </div> */}
+        <div className="text-[2.5rem] text-center pt-[1rem]">
           Read Papers 10x Faster
         </div>
-        <p className="text-[1.25rem] text-center pt-[1rem] pb-[2rem]">
+        <p className="text-[1rem] max-w-[32rem] text-muted-foreground text-center pt-[1rem] pb-[2rem]">
           Upload academic papers, get references and definitions – understand
-          more in less time.
+          more in less time. Sign up for early access.
         </p>
 
         <form
           onSubmit={handleSubmit}
-          className="flex w-full flex-col sm:flex-row gap-2 border p-[1rem] bg-background/10 backdrop-blur-lg shadow shadow-foreground/30 border-muted rounded-[2rem] "
+          className="flex w-full flex-col sm:flex-row gap-2 border p-[1rem]  shadow-sm rounded-[2rem] "
         >
           <Input
             type="email"
@@ -79,7 +79,7 @@ const Waitlist = () => {
             value={email}
             disabled={loading || submitted}
             onChange={(e) => setEmail(e.target.value)}
-            className="flex h-[2.25rem] rounded-[2rem] bg-white/80 backdrop-blur-md text-black"
+            className="flex h-[2.25rem] rounded-[2rem] shadow-none text-black"
           />
 
           <Button
@@ -93,11 +93,11 @@ const Waitlist = () => {
         </form>
 
         <Link
-          href="/paperG?id=f153dc68-ce57-421e-a1ae-9ce346daf722"
-          className="px-1 text-[1.25rem] pt-[1rem] font-medium underline flex flex-row gap-2 items-center"
+          href="/paperG?id=8915e476-ea87-4540-b7bb-ac766e61a0fe"
+          className="px-1 text-[1rem] pt-[1rem] font-medium underline flex flex-row gap-1 items-center"
         >
           See example
-          <ArrowUpRight />
+          <ArrowUpRight className="w-5 h-5" />
         </Link>
 
         <div className="flex w-full z-4 flex-col text-foreground opacity-60 items-center pt-[6rem] text-[1rem]">

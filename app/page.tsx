@@ -4,7 +4,7 @@ import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useAppContext } from "@/components/AppContext";
 import Image from "next/image";
-import { Plus, Loader2, X } from "lucide-react";
+import { Plus, Loader2, X, ArrowUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { initiateRequests } from "@/utilities/PromptChain";
@@ -128,7 +128,7 @@ const Page = () => {
                       if (fileInputRef.current) fileInputRef.current.value = "";
                     }}
                     placeholder="https://example.com/document.pdf"
-                    className="h-[2.25rem] px-[1rem]  rounded-[3rem] border-muted-foreground/30 shadow-none bg-background"
+                    className="h-[2.25rem] px-[1rem]  rounded-[3rem] border-muted-foreground/10 shadow-none bg-background placeholder:text-muted-foreground"
                   />
 
                   <Input
@@ -143,27 +143,27 @@ const Page = () => {
                     htmlFor="file-upload"
                     className="flex items-center hover:bg-muted justify-center w-[2.25rem] h-[2.25rem] min-w-[2.25rem] min-h-[2.25rem] border border-muted-foreground/30 bg-background rounded-[3rem] hover:cursor-pointer"
                   >
-                    <Plus size={24} className="text-foreground" />
+                    <Plus size={20} className="text-foreground" />
                   </label>
                 </div>
                 <Button
                   type="button"
                   onClick={handleFileUpload}
                   disabled={isLoading || (!documentUrl && !uploadedFile)}
-                  className=" text-background bg-foreground h-[2.25rem] rounded-[3rem] w-full md:w-[6rem] disabled:bg-foreground hover:disabled:bg-muted hover:cursor-pointer "
+                  className=" text-background bg-foreground h-[2.25rem] rounded-[3rem] w-full md:w-[2.25rem] disabled:bg-foreground hover:disabled:bg-muted hover:cursor-pointer "
                 >
                   {isLoading ? (
                     <Loader2 className="animate-spin w-4 h-4" />
                   ) : (
-                    "upload"
+                    <ArrowUp className="w-6 h-6" />
                   )}
                 </Button>
               </div>
-              <p className="w-full mx-auto text-center text-foreground px-1">
+              <p className="w-full mx-auto text-center text-muted-foreground px-1">
                 Paste a link or upload a PDF directly.
                 <Link
                   href="/paperG?id=8915e476-ea87-4540-b7bb-ac766e61a0fe"
-                  className="px-1 font-medium underline"
+                  className="px-1 font-medium underline text-foreground"
                 >
                   See example
                 </Link>
