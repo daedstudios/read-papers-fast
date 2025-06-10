@@ -12,8 +12,15 @@ import Link from "next/link";
 import { set } from "zod";
 
 const Page = () => {
-  const { isLoading, error, result, setIsLoading, setError, setResult } =
-    useAppContext();
+  const {
+    isLoading,
+    error,
+    result,
+    setIsLoading,
+    setError,
+    setResult,
+    setProgressMessage,
+  } = useAppContext();
   const [documentUrl, setDocumentUrl] = useState<string>("");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -43,6 +50,7 @@ const Page = () => {
         const formData = new FormData();
         formData.append("file", uploadedFile);
 
+        setProgressMessage("Uploading file...");
         const response = await fetch("/api/upload_id", {
           method: "POST",
           body: formData,
@@ -50,6 +58,9 @@ const Page = () => {
         const data = await response.json();
 
         console.log("Response from /api/upload_id:", data);
+        setProgressMessage(
+          "File uploaded successfully. Processing paper structure..."
+        );
 
         setResult({
           id: data.id,
@@ -63,6 +74,7 @@ const Page = () => {
           success: false,
           message: "Processing paper structure...",
         }));
+        setProgressMessage("Processing paper structure...");
         const response2 = await fetch("/api/base", {
           method: "POST",
           headers: {
@@ -77,6 +89,7 @@ const Page = () => {
           success: false,
           message: "Extracting keywords...",
         }));
+        setProgressMessage("Extracting keywords...");
         const response3 = await fetch("/api/vertexKeyWords", {
           method: "POST",
           headers: {
@@ -91,13 +104,14 @@ const Page = () => {
           success: false,
           message: "Processing document content...",
         }));
+        setProgressMessage("Processing document content...");
         const pythonResponse = await fetch(
           `https://python-grobid-347071481430.europe-west10.run.app/process/${data.id}`,
           { method: "GET" }
         );
 
         console.log("Python response:", pythonResponse);
-
+        setProgressMessage("Processing images...");
         // Update message for image processing
         setResult((prev: any) => ({
           id: prev.id,
@@ -119,11 +133,13 @@ const Page = () => {
           message: "Analysis complete!",
           success: true,
         }));
+        setProgressMessage("Analysis complete!");
         console.log("File uploaded successfully:", data);
       }
     } catch (error: any) {
       console.error("Upload error:", error);
       setError(error.message || "Error uploading file");
+      setProgressMessage("Error uploading file");
     } finally {
       setIsLoading(false);
     }
@@ -132,13 +148,6 @@ const Page = () => {
   return (
     <>
       <div className="relative w-screen h-full md:h-screen overflow-hidden items-center">
-        {/* <Image
-          src="/LANDING-2.png"
-          alt="Background"
-          fill
-          priority
-          className="object-cover  z-[-2] blur-lg"
-        /> */}
         <div className="fixed  bg-black/20 blur-lg z-[-1]" />
 
         <div className="flex flex-col justify-center max-h-screen scroll-none pt-[14rem] mx-auto md:w-[42rem] px-[1rem] md:px-0">

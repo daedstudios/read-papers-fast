@@ -78,7 +78,8 @@ export async function POST(req: Request) {
   const acronymData = acronyms.map((acronym) => ({
     keyword: acronym.keyword,
     value: acronym.value,
-    explanation: acronym.explination,
+    explanation:
+      typeof acronym.explination === "string" ? acronym.explination : "",
     paperSummaryId: id,
   }));
 
