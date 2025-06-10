@@ -14,6 +14,7 @@ import { RadioGroup } from "@/components/ui/radio-group";
 import { RadioGroupItem } from "@/components/ui/radio-group";
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 export default function LoadingSurvey() {
   const [dots, setDots] = useState("");
@@ -42,10 +43,12 @@ export default function LoadingSurvey() {
     reason: "",
     confidence: "",
     field: "",
+    foundOut: "",
+    avgReadTime: "",
   });
-  const steps = [1, 2, 3, 4];
+  const steps = [1, 2, 3, 4, 5, 6, 7];
 
-  const totalSteps = 4;
+  const totalSteps = 7;
 
   const nextStep = () => setStep((prev) => prev + 1);
 
@@ -100,9 +103,31 @@ export default function LoadingSurvey() {
 
   return (
     <div>
-      <SurveyProgressBar step={step} total={totalSteps} />
+      <SurveyProgressBar loading={isLoading} />
       <div className="flex flex-col items-center justify-center h-screen max-h-screen gap-[2rem] px-[1rem]">
         {step === 1 && (
+          <div className="flex flex-col items-center justify-center gap-[1rem]">
+            <p className="text-[1.5rem] max-w-[24rem] text-center font-medium text-foreground/70 pb-[1rem]">
+              {progressMessage
+                ? `${progressMessage.replace(/\.*$/, "")}${dots}`
+                : null}
+            </p>
+            <h1 className="text-[2.25rem] max-w-[24rem] text-center font-medium text-foreground">
+              While we wait, help us make this 10x better
+            </h1>
+            <p className="text-[1rem] max-w-[24rem] text-center font-medium text-foreground/70 pb-[1rem]">
+              Only takes as 2 min, we promise!
+            </p>
+
+            <Button
+              onClick={nextStep}
+              className="rounded-[2rem] w-[2rem] h-[2rem] cursor-pointer "
+            >
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
+        {step === 2 && (
           <>
             <Card className="w-full max-w-[32rem] border shadow-none rounded-[1.5rem] bg-background">
               <CardHeader>
@@ -116,13 +141,13 @@ export default function LoadingSurvey() {
               <CardContent className="flex flex-col gap-4">
                 <label
                   htmlFor="reasonInput"
-                  className="text-[1rem]  text-foreground"
+                  className="text-[1rem] font-medium text-foreground"
                 >
-                  Why are you here?
+                  What is challenging about reading research papers?
                 </label>
                 <Textarea
                   id="reasonInput"
-                  placeholder="e.g. preparing for exams"
+                  placeholder="e.g. the language, the structure, the content, etc."
                   value={surveyData.reason}
                   onChange={(e) =>
                     setSurveyData({ ...surveyData, reason: e.target.value })
@@ -141,8 +166,7 @@ export default function LoadingSurvey() {
             </Card>
           </>
         )}
-
-        {step === 2 && (
+        {step === 3 && (
           <>
             <Card className="w-full max-w-[32rem] border shadow-none rounded-[1.5rem] bg-background">
               <CardHeader>
@@ -154,27 +178,29 @@ export default function LoadingSurvey() {
               </CardHeader>
               <CardContent className="flex flex-col gap-6">
                 <div>
-                  <p className="text-[1rem] mb-4">
-                    How confident are you reading research papers?
+                  <p className="text-[1rem] mb-4 font-medium text-foreground">
+                    How well do you understand the paper you uploaded?
                   </p>
                   <RadioGroup
                     value={surveyData.confidence}
                     onValueChange={(value) =>
                       setSurveyData({ ...surveyData, confidence: value })
                     }
-                    className="flex flex-row gap-6 mb-4"
+                    className="flex flex-col gap-2 mb-4"
                   >
-                    {["not at all", "somewhat", "very"].map((option) => (
-                      <div key={option} className="flex items-center gap-3">
-                        <RadioGroupItem value={option} id={option} />
-                        <label
-                          htmlFor={option}
-                          className="text-[1rem] cursor-pointer"
-                        >
-                          {option}
-                        </label>
-                      </div>
-                    ))}
+                    {["not at all", "somewhat", "very", "completely"].map(
+                      (option) => (
+                        <div key={option} className="flex items-center gap-3">
+                          <RadioGroupItem value={option} id={option} />
+                          <label
+                            htmlFor={option}
+                            className="text-[1rem] text-muted-foreground cursor-pointer"
+                          >
+                            {option}
+                          </label>
+                        </div>
+                      )
+                    )}
                   </RadioGroup>
                   <div className="flex justify-end">
                     <Button
@@ -189,8 +215,7 @@ export default function LoadingSurvey() {
             </Card>
           </>
         )}
-
-        {step === 3 && (
+        {step === 4 && (
           <>
             <Card className="w-full max-w-[32rem] border shadow-none rounded-[1.5rem] bg-background">
               <CardHeader>
@@ -204,18 +229,68 @@ export default function LoadingSurvey() {
               <CardContent className="flex flex-col gap-4">
                 <label
                   htmlFor="reasonInput"
-                  className="text-[1rem]  text-foreground"
+                  className="text-[1rem] font-medium text-foreground"
                 >
                   What field are you studying?
                 </label>
-                <Textarea
-                  id="reasonInput"
-                  placeholder="e.g. economics"
-                  value={surveyData.reason}
-                  onChange={(e) =>
-                    setSurveyData({ ...surveyData, reason: e.target.value })
+                <RadioGroup
+                  value={surveyData.confidence}
+                  onValueChange={(value) =>
+                    setSurveyData({ ...surveyData, confidence: value })
                   }
-                  className="min-h-[4rem] placeholder:text-muted-foreground  resize-none border border-muted"
+                  className="flex flex-col gap-2 mb-4"
+                >
+                  {[
+                    "science (physics, chemistry, biology, etc.)",
+                    "business (economics, finance, etc.)",
+                    "social sciences (psychology, sociology, etc.)",
+                    "law",
+                  ].map((option) => (
+                    <div key={option} className="flex items-center gap-3">
+                      <RadioGroupItem value={option} id={option} />
+                      <label
+                        htmlFor={option}
+                        className="text-[1rem] text-muted-foreground cursor-pointer"
+                      >
+                        {option}
+                      </label>
+                    </div>
+                  ))}
+                </RadioGroup>
+                <div className="flex justify-end">
+                  <Button
+                    onClick={nextStep}
+                    className="rounded-[2rem] cursor-pointer w-full md:w-auto"
+                  >
+                    Next
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </>
+        )}
+        {step === 5 && (
+          <>
+            <Card className="w-full max-w-[32rem] border shadow-none rounded-[1.5rem] bg-background">
+              <CardHeader>
+                <CardTitle className="text-[1.5rem] font-medium text-foreground">
+                  {progressMessage
+                    ? `${progressMessage.replace(/\.*$/, "")}${dots}`
+                    : null}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-4">
+                <p className="text-[1rem] font-medium text-foreground">
+                  How did you find out about ReadPapersFast?
+                </p>
+                <Textarea
+                  id="foundOutInput"
+                  placeholder="e.g. Twitter, Google, a friend, etc."
+                  value={surveyData.foundOut}
+                  onChange={(e) =>
+                    setSurveyData({ ...surveyData, foundOut: e.target.value })
+                  }
+                  className="min-h-[3rem] placeholder:text-muted-foreground resize-none border border-muted"
                 />
                 <div className="flex justify-end">
                   <Button
@@ -229,8 +304,58 @@ export default function LoadingSurvey() {
             </Card>
           </>
         )}
+        {step === 6 && (
+          <>
+            <Card className="w-full max-w-[32rem] border shadow-none rounded-[1.5rem] bg-background">
+              <CardHeader>
+                <CardTitle className="text-[1.5rem] font-medium text-foreground">
+                  {progressMessage
+                    ? `${progressMessage.replace(/\.*$/, "")}${dots}`
+                    : null}
+                </CardTitle>
+              </CardHeader>
 
-        {step === 4 && (
+              <CardContent className="flex flex-col gap-4">
+                <p className="text-[1rem] font-medium text-foreground">
+                  How long on average do you spend reading a paper?
+                </p>
+                <RadioGroup
+                  value={surveyData.avgReadTime}
+                  onValueChange={(value) =>
+                    setSurveyData({ ...surveyData, avgReadTime: value })
+                  }
+                  className="flex flex-col gap-2 mb-4"
+                >
+                  {[
+                    "Less than 30 minutes",
+                    "30-60 minutes",
+                    "1-2 hours",
+                    "More than 2 hours",
+                  ].map((option) => (
+                    <div key={option} className="flex items-center gap-3">
+                      <RadioGroupItem value={option} id={option} />
+                      <label
+                        htmlFor={option}
+                        className="text-[1rem] text-muted-foreground cursor-pointer"
+                      >
+                        {option}
+                      </label>
+                    </div>
+                  ))}
+                </RadioGroup>
+                <div className="flex justify-end">
+                  <Button
+                    onClick={nextStep}
+                    className="rounded-[2rem] cursor-pointer w-full md:w-auto"
+                  >
+                    Next
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </>
+        )}
+        {step === 7 && (
           <Card className="w-full max-w-[32rem] border shadow-none rounded-[1.5rem] bg-background">
             <CardHeader>
               <CardTitle className="text-[1.5rem] font-medium text-foreground">
@@ -243,7 +368,7 @@ export default function LoadingSurvey() {
               <p className="text-[1rem] text-muted-foreground">
                 {result?.success
                   ? "Thank you for your patience, you can now view your paper."
-                  : `Your research paper will be ready soon. Estimated time: ${countdown}s...`}
+                  : `Thank you for being here, your research paper will be ready soon.`}
               </p>
 
               <div className="flex justify-end w-full">
@@ -263,7 +388,7 @@ export default function LoadingSurvey() {
             <span
               key={s}
               className={`h-2 w-2 rounded-full transition-all duration-300 ${
-                step === s ? "bg-black scale-110" : "bg-white opacity-60"
+                step === s ? "bg-foreground scale-110" : "bg-muted"
               }`}
             />
           ))}
