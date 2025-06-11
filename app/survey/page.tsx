@@ -15,6 +15,7 @@ import { RadioGroupItem } from "@/components/ui/radio-group";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import posthog from "posthog-js";
 
 export default function LoadingSurvey() {
   const [dots, setDots] = useState("");
@@ -50,7 +51,21 @@ export default function LoadingSurvey() {
 
   const totalSteps = 6;
 
-  const nextStep = () => setStep((prev) => prev + 1);
+  const nextStep = () => {
+    // If this is the last question step, send to PostHog
+    if (step === 5) {
+      posthog.identify(result.id);
+      posthog.capture("survey_submitted", {
+        paperId: result.id,
+        why_reading_papers: surveyData.reason,
+        challenge_reading_papers: surveyData.confidence,
+        field_of_study: surveyData.field,
+        how_found_out: surveyData.foundOut,
+        // ...other fields
+      });
+    }
+    setStep((prev) => prev + 1);
+  };
 
   useEffect(() => {
     console.log("result:", result);
@@ -62,6 +77,17 @@ export default function LoadingSurvey() {
       setError("No paper data available");
       return;
     }
+
+    // Identify the user/session with the PaperId for this survey
+
+    // Send survey data to PostHog
+    posthog.capture("survey_submitted", {
+      paperId: result.id,
+      why_reading_papers: surveyData.reason,
+      challenge_reading_papers: surveyData.confidence,
+      field_of_study: surveyData.field,
+      how_found_out: surveyData.foundOut,
+    });
 
     try {
       // Attempt to save survey data but don't block navigation on failure

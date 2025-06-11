@@ -7,7 +7,7 @@ import { prisma } from "@/lib/SingletonPrismaClient";
 type AcronymType = {
   keyword: string;
   value: string;
-  explination: string;
+  explanation: string;
 };
 
 export async function POST(req: Request) {
@@ -29,12 +29,11 @@ export async function POST(req: Request) {
       z.object({
         keyword: z.string(),
         value: z.string(),
-        explination: z.string(),
+        explanation: z.string(),
       })
     ),
   });
 
-  // Extract acronyms and full forms using generateObject
   const result = await generateObject({
     model: google("gemini-2.0-flash-001", {
       structuredOutputs: false,
@@ -46,18 +45,25 @@ export async function POST(req: Request) {
         content: [
           {
             type: "text",
-            text: `You are an AI document parser specialized in academic papers. Extract all **difficult or technical terms** from this research paper — including acronyms, abbreviations, jargon, or complex concepts. Return ONLY a JSON object with the following format:
+            text: `You are an AI assistant trained to extract terms, jargon, and acronyms from academic or scientific text.
 
-{
+Your task:
+	•	Identify and list all relevant keywords, acronyms, and jargon in the provided text and make sure to include all the terms which are hard to understand for the reader.
+	•	For each item, provide:
+	•	"keyword": The term exactly as written in the text
+	•	"value": The full form or meaning of the term (if applicable)
+	•	"explanation": A simple explanation in layman's terms based on the provided text, including a brief real-life example
+
+IMPORTANT:
+	•	If a field is unknown or not applicable, return it as an empty string ("")
+	•	Output valid JSON only — no comments, notes, or extra text
+	•	Match this format exactly:
+  {
   "items": [
-    { "keyword": "term", "value": "verbatim full form", "explanation": "concise explanation" },
-    { "keyword": "another term", "value": "its full form", "explanation": "definition or meaning" }
+    { "keyword": "AI", "value": "Artificial Intelligence", "explanation": "A computer system that can do things like learn, reason, or make decisions. For example, AI helps voice assistants like Siri understand speech." },
+    { "keyword": "XYZ", "value": "", "explanation": "" }
   ]
-}
-
-- The "keyword" should be the short term or jargon used in the paper.
-- The "value" is its exact expanded form as written in the paper.
-- The "explanation" should describe its meaning using simple, everyday language. Use a short real-world analogy or example if it helps understanding. Assume the reader has no background in the topic.`,
+}`,
           },
           {
             type: "file",
@@ -72,14 +78,13 @@ export async function POST(req: Request) {
 
   console.log("Acronyms extracted successfully");
 
-  // Get the parsed acronyms from the result, accessing items array
   const acronyms: AcronymType[] = result.object.items;
 
   const acronymData = acronyms.map((acronym) => ({
-    keyword: acronym.keyword,
-    value: acronym.value,
+    keyword: typeof acronym.keyword === "string" ? acronym.keyword : "",
+    value: typeof acronym.value === "string" ? acronym.value : "",
     explanation:
-      typeof acronym.explination === "string" ? acronym.explination : "",
+      typeof acronym.explanation === "string" ? acronym.explanation : "",
     paperSummaryId: id,
   }));
 
