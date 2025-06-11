@@ -46,9 +46,9 @@ export default function LoadingSurvey() {
     foundOut: "",
     avgReadTime: "",
   });
-  const steps = [1, 2, 3, 4, 5, 6, 7];
+  const steps = [1, 2, 3, 4, 5, 6];
 
-  const totalSteps = 7;
+  const totalSteps = 6;
 
   const nextStep = () => setStep((prev) => prev + 1);
 
@@ -179,7 +179,7 @@ export default function LoadingSurvey() {
               <CardContent className="flex flex-col gap-6">
                 <div>
                   <p className="text-[1rem] mb-4 font-medium text-foreground">
-                    How well do you understand the paper you uploaded?
+                    Why are you reading research papers?
                   </p>
                   <RadioGroup
                     value={surveyData.confidence}
@@ -188,7 +188,7 @@ export default function LoadingSurvey() {
                     }
                     className="flex flex-col gap-2 mb-4"
                   >
-                    {["not at all", "somewhat", "very", "completely"].map(
+                    {["studies", "work", "curiosity", "research", "other"].map(
                       (option) => (
                         <div key={option} className="flex items-center gap-3">
                           <RadioGroupItem value={option} id={option} />
@@ -305,57 +305,6 @@ export default function LoadingSurvey() {
           </>
         )}
         {step === 6 && (
-          <>
-            <Card className="w-full max-w-[32rem] border shadow-none rounded-[1.5rem] bg-background">
-              <CardHeader>
-                <CardTitle className="text-[1.5rem] font-medium text-foreground">
-                  {progressMessage
-                    ? `${progressMessage.replace(/\.*$/, "")}${dots}`
-                    : null}
-                </CardTitle>
-              </CardHeader>
-
-              <CardContent className="flex flex-col gap-4">
-                <p className="text-[1rem] font-medium text-foreground">
-                  How long on average do you spend reading a paper?
-                </p>
-                <RadioGroup
-                  value={surveyData.avgReadTime}
-                  onValueChange={(value) =>
-                    setSurveyData({ ...surveyData, avgReadTime: value })
-                  }
-                  className="flex flex-col gap-2 mb-4"
-                >
-                  {[
-                    "Less than 30 minutes",
-                    "30-60 minutes",
-                    "1-2 hours",
-                    "More than 2 hours",
-                  ].map((option) => (
-                    <div key={option} className="flex items-center gap-3">
-                      <RadioGroupItem value={option} id={option} />
-                      <label
-                        htmlFor={option}
-                        className="text-[1rem] text-muted-foreground cursor-pointer"
-                      >
-                        {option}
-                      </label>
-                    </div>
-                  ))}
-                </RadioGroup>
-                <div className="flex justify-end">
-                  <Button
-                    onClick={nextStep}
-                    className="rounded-[2rem] cursor-pointer w-full md:w-auto"
-                  >
-                    Next
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </>
-        )}
-        {step === 7 && (
           <Card className="w-full max-w-[32rem] border shadow-none rounded-[1.5rem] bg-background">
             <CardHeader>
               <CardTitle className="text-[1.5rem] font-medium text-foreground">
