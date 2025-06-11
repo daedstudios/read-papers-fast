@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { initiateRequests } from "@/utilities/PromptChain";
 import Link from "next/link";
 import { set } from "zod";
+import posthog from "posthog-js";
 
 const Page = () => {
   const {
@@ -56,6 +57,14 @@ const Page = () => {
           body: formData,
         });
         const data = await response.json();
+
+        // Track PDF upload event with PostHog
+        posthog.capture("pdf_uploaded", {
+          file_name: uploadedFile.name,
+          // file_size: uploadedFile.size,
+          // file_type: uploadedFile.type,
+          paper_id: data.id,
+        });
 
         console.log("Response from /api/upload_id:", data);
         setProgressMessage(
