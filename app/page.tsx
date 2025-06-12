@@ -61,77 +61,73 @@ const Page = () => {
         // Track PDF upload event with PostHog
         posthog.capture("pdf_uploaded", {
           file_name: uploadedFile.name,
-          // file_size: uploadedFile.size,
-          // file_type: uploadedFile.type,
           paper_id: data.id,
         });
 
         console.log("Response from /api/upload_id:", data);
-        setProgressMessage(
-          "File uploaded successfully. Processing paper structure..."
-        );
+        setProgressMessage("Processing document...");
 
         setResult({
           id: data.id,
-          message: "File uploaded successfully",
+          message: "File uploaded successfully. Processing document...",
           success: false,
         });
 
-        // Update message for base API call
-        setResult((prev: any) => ({
-          id: prev.id,
-          success: false,
-          message: "Processing paper structure...",
-        }));
-        setProgressMessage("Processing paper structure...");
-        const response2 = await fetch("/api/base", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ id: data?.id }),
+        // Run all processing tasks in parallel
+        setProgressMessage("Processing document in parallel...");
+
+        // Define all the fetch operations
+        const processingTasks = [
+          // Base API call
+          fetch("/api/base", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: data.id }),
+          }).then((res) => ({ type: "base", response: res })),
+
+          // Keywords extraction
+          fetch("/api/vertexKeyWords", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: data.id }),
+          }).then((res) => ({ type: "keywords", response: res })),
+
+          // Grobid document processing
+          fetch(
+            `https://python-grobid-347071481430.europe-west10.run.app/process/${data.id}`,
+            {
+              method: "GET",
+            }
+          ).then((res) => ({ type: "grobid", response: res })),
+
+          // Image processing
+          fetch(
+            `https://python-grobid-347071481430.europe-west10.run.app/images/${data.id}`,
+            {
+              method: "GET",
+            }
+          ).then((res) => ({ type: "images", response: res })),
+        ];
+
+        // Execute all tasks in parallel and wait for all to complete
+        const results = await Promise.allSettled(processingTasks);
+
+        // Log results
+        results.forEach((result) => {
+          if (result.status === "fulfilled") {
+            console.log(
+              `${result.value.type} processing completed:`,
+              result.value.response
+            );
+          } else {
+            console.error(
+              `${result.reason.type || "Unknown"} processing failed:`,
+              result.reason
+            );
+          }
         });
 
-        // Update message for keywords extraction
-        setResult((prev: any) => ({
-          id: prev.id,
-          success: false,
-          message: "Extracting keywords...",
-        }));
-        setProgressMessage("Extracting keywords...");
-        const response3 = await fetch("/api/vertexKeyWords", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ id: data.id }),
-        });
-
-        // Update message for Grobid processing
-        setResult((prev: any) => ({
-          id: prev.id,
-          success: false,
-          message: "Processing document content...",
-        }));
-        setProgressMessage("Processing document content...");
-        const pythonResponse = await fetch(
-          `https://python-grobid-347071481430.europe-west10.run.app/process/${data.id}`,
-          { method: "GET" }
-        );
-
-        console.log("Python response:", pythonResponse);
-        setProgressMessage("Processing images...");
-        // Update message for image processing
-        setResult((prev: any) => ({
-          id: prev.id,
-          success: false,
-          message: "Processing images...",
-        }));
-        const pythonResponseimage = await fetch(
-          `https://python-grobid-347071481430.europe-west10.run.app/images/${data.id}`,
-          { method: "GET" }
-        );
-
+        // Check if the initial upload was successful
         if (!response.ok) {
           throw new Error(data.error || "Failed to upload file");
         }
@@ -142,13 +138,25 @@ const Page = () => {
           message: "Analysis complete!",
           success: true,
         }));
+
+        // Track successful analysis completion
+        posthog.capture("paper_analysis_completed", {
+          paper_id: data.id,
+          success: true,
+        });
+
         setProgressMessage("Analysis complete!");
-        console.log("File uploaded successfully:", data);
+        console.log("Document processing completed:", data);
       }
     } catch (error: any) {
       console.error("Upload error:", error);
       setError(error.message || "Error uploading file");
       setProgressMessage("Error uploading file");
+
+      // Track error with PostHog
+      posthog.capture("paper_processing_error", {
+        error_message: error.message || "Unknown error",
+      });
     } finally {
       setIsLoading(false);
     }
