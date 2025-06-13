@@ -107,9 +107,7 @@ const Page = () => {
               method: "GET",
             }
           ).then((res) => ({ type: "images", response: res })),
-        ];
-
-        // Execute all tasks in parallel and wait for all to complete
+        ]; // Execute all tasks in parallel and wait for all to complete
         const results = await Promise.allSettled(processingTasks);
 
         // Log results
@@ -125,7 +123,14 @@ const Page = () => {
               result.reason
             );
           }
+        }); // After parallel processing, call vertexHtml endpoint to simplify text
+        setProgressMessage("Simplifying academic text for easier reading...");
+        const simplifyResponse = await fetch("/api/vertexHtml", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: data.id }),
         });
+        console.log("Text simplification response:", simplifyResponse);
 
         // Check if the initial upload was successful
         if (!response.ok) {
