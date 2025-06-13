@@ -25,6 +25,7 @@ export async function GET(request: Request) {
         para: true,
         order_index: true,
         simplifiedText: true,
+        simplifiedHead: true,
       },
       orderBy: {
         order_index: "asc",
