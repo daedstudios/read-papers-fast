@@ -39,7 +39,7 @@ export const POST = async (req: Request) => {
               text: `“You’re an expert research assistant. Given the abstract and introduction of the uploaded academic paper, provide a clear and concise Relevance Summary to help the reader decide whether this paper is useful for their topic.
 
 Include:
-	•	What this paper is about (in simple language)
+	•	What this paper is about (in simple language, so a 10 year old can understand)
 	•	The main problem it addresses
 	•	The field and subfield it fits into (e.g., machine learning → NLP → Transformers)
 	•	What kind of person should read this paper (e.g., ‘useful for someone working on neural translation models’ or ‘not relevant if you’re focused on hardware optimization’)
