@@ -165,8 +165,6 @@ const Page = () => {
   return (
     <>
       <div className="relative w-screen h-full md:h-screen overflow-hidden items-center">
-        <div className="fixed  bg-black/20 blur-lg z-[-1]" />
-
         <div className="flex flex-col justify-center max-h-screen scroll-none pt-[14rem] mx-auto md:w-[42rem] px-[1rem] md:px-0">
           <h1 className=" text-center text-[2rem]  my-[2rem] text-foreground">
             What paper do you want to read?
@@ -182,7 +180,7 @@ const Page = () => {
           )}
           <form
             id="uploadForm"
-            className="flex flex-col md:flex-row justify-end gap-2 border p-[1rem] shadow-sm rounded-[2rem] bg-transparent "
+            className="flex flex-col md:flex-row justify-end z-30 gap-2 border p-[1rem] shadow-sm rounded-[2rem] bg-background "
           >
             <div className="flex flex-col w-full gap-[1rem] items-center">
               <div className="flex md:flex-row flex-col gap-2 w-full">

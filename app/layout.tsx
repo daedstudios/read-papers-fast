@@ -48,13 +48,13 @@ export default function RootLayout({
             />
           </head>
           <body className="antialiased">
-            <header className="flex flex-row absolute p-[1rem] w-screen justify-between bg-transparent">
+            <header className="flex z-10 flex-row absolute p-[1rem] w-screen justify-between bg-transparent">
               <Link href="/" passHref>
                 <button className="text-[1.25rem] pt-1 cursor-pointer text-foreground font-medium">
                   ReadPapersFast
                 </button>
               </Link>
-              <div className="flex flex-row gap-2">
+              <div className="flex flex-row gap-2 ">
                 <SignedOut>
                   <SignInButton>
                     <Button className="bg-background/30 w-auto p-4 text-foreground cursor-pointer rounded-[3rem] border border-muted/30 hover:bg-background/10 hover:text-background">

@@ -30,10 +30,11 @@ export async function POST(req: Request) {
           content: [
             {
               type: "text",
-              text: `You are an AI document simplifier specialized in academic papers. Simplify the following section for better understanding, while keeping technical accuracy:\n\n${body.sectionText}
+              text: `You are an AI document simplifier specialized in academic papers. Simplify the following section for better understanding:\n\n${body.sectionText}
               Important:
               - Retain all technical terms — they must stay in the output.
               - Retain references to Firgures or Tables.
+              - 
                `,
             },
           ],
