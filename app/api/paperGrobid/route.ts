@@ -65,6 +65,15 @@ export async function GET(request: Request) {
       },
     });
 
+    const paperNotes = await prisma.paperNotes.findMany({
+      where: {
+        paper_summary_id: id,
+      },
+      orderBy: {
+        created_at: "asc",
+      },
+    });
+
     if (grobidContent.length === 0) {
       return NextResponse.json(
         { error: "No Grobid content found for this paper ID" },
@@ -86,6 +95,7 @@ export async function GET(request: Request) {
         grobidFigures,
         geminiKeywords,
         references,
+        paperNotes,
       },
       { status: 200 }
     );
