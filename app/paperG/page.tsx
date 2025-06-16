@@ -414,11 +414,11 @@ function PaperContent() {
                 </p>
               );
             })()}
-            {paperSummary?.grobidAbstract.publishedDate && (
+            {paperSummary?.grobidAbstract?.publishedDate && (
               <span className="text-muted-foreground text-[1rem]">
                 {" "}
                 {new Date(
-                  paperSummary.grobidAbstract.publishedDate
+                  paperSummary.grobidAbstract?.publishedDate
                 ).toLocaleDateString()}
               </span>
             )}
