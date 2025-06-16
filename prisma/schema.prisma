@@ -35,18 +35,19 @@ model Post {
 }
 
 model PaperSummary {
-  id             String    @id @default(dbgenerated("uuid_generate_v4()"))
-  title          String
-  fileName       String?
-  url            String?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  authors        String[]
-  publishedDate  String?
-  summary        String?
-  paperSummaryID String?   @db.Uuid
-  sections       Section[]
-  surveys        Survey[]
+  id               String    @id @default(dbgenerated("uuid_generate_v4()"))
+  title            String
+  fileName         String?
+  url              String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  authors          String[]
+  publishedDate    String?
+  summary          String?
+  paperSummaryID   String?   @db.Uuid
+  relevanceSummary String?
+  sections         Section[]
+  surveys          Survey[]
 }
 
 model Section {
@@ -178,4 +179,24 @@ model PaperNotes {
 
   @@index([paper_summary_id], map: "idx_paper_notes_paper_summary_id")
   @@index([xml_id], map: "idx_paper_notes_xml_id")
+}
+
+model GrobidFigureData {
+  id               String    @id @db.Uuid
+  xml_id           String?
+  figure_number    String?
+  label            String?
+  title            String?
+  description      String?
+  graphic_coords   String?
+  graphic_type     String?
+  has_graphic      Boolean?  @default(false)
+  order_index      Int?
+  html_content     String?
+  created_at       DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime? @default(now()) @db.Timestamptz(6)
+  paper_summary_id String?   @db.Uuid
+
+  @@index([paper_summary_id], map: "idx_grobid_figure_data_paper_summary_id")
+  @@index([xml_id], map: "idx_grobid_figure_data_xml_id")
 }
