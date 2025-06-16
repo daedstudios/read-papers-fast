@@ -93,6 +93,7 @@ model PaperContentGrobid {
   paperSummaryID String?   @db.Uuid
   simplifiedText String?
   simplifiedHead String?
+  geminiOrder    String?
 
   @@index([order_index], map: "idx_paper_content_order_index")
 }

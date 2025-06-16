@@ -127,6 +127,28 @@ const Page = () => {
           }
         });
 
+        // Content ordering API call
+        try {
+          const contentOrderResponse = await fetch("/api/content-order", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: data.id }),
+          });
+
+          if (!contentOrderResponse.ok) {
+            console.error(
+              "Content ordering failed:",
+              await contentOrderResponse.text()
+            );
+          } else {
+            const contentOrderData = await contentOrderResponse.json();
+            console.log("Content ordering completed:", contentOrderData);
+          }
+        } catch (contentOrderError) {
+          console.error("Content ordering error:", contentOrderError);
+          // Continue processing even if content ordering fails
+        }
+
         // Check if the initial upload was successful
         if (!response.ok) {
           throw new Error(data.error || "Failed to upload file");
