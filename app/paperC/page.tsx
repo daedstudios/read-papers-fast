@@ -78,6 +78,7 @@ interface GrobidSection {
   para: GrobidParagraph[];
   summary: string;
   simplifiedText?: string; // Add simplifiedText to the interface
+  geminiOrder: string | null; // Added to match Section interface
 }
 
 interface GrobidFigure {
@@ -366,7 +367,7 @@ function PaperContent() {
         <ScrollArea className="hidden  md:flex h-full w-full max-w-[22rem] border-t lg:p-[1rem] md:border-r ">
           <SidebarNav
             sections={paperSummary?.grobidContent || []}
-            activeSectionId={activeSectionId}
+            activeSectionId={activeSectionId || undefined}
             onSectionClick={() => {}}
           />
         </ScrollArea>
