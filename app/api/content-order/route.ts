@@ -71,19 +71,23 @@ export async function POST(req: Request) {
       gemini_index: z.string().optional(), // Changed to string for "1.1.2" format
     }); // Extract paper info using generateObject
     let orderInfo: orderInfoSchema[] = [];
-    try {
-      const paperInfoResult = await generateObject({
-        model: google("gemini-2.0-flash-001", {
-          structuredOutputs: false,
-        }),
-        schema: z.array(OrderInfoSchema), // Changed to expect an array
-        messages: [
-          {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: `You are an AI document parser. Your task is to generate a clean, hierarchical section index called "gemini_index" for each heading block in an academic PDF.
+    let retryCount = 0;
+    const maxRetries = 3;
+
+    while (retryCount < maxRetries) {
+      try {
+        const paperInfoResult = await generateObject({
+          model: google("gemini-2.0-flash-001", {
+            structuredOutputs: false,
+          }),
+          schema: z.array(OrderInfoSchema), // Changed to expect an array
+          messages: [
+            {
+              role: "user",
+              content: [
+                {
+                  type: "text",
+                  text: `You are an AI document parser. Your task is to generate a clean, hierarchical section index called "gemini_index" for each heading block in an academic PDF.
 
               Input data includes:
               - The original PDF (for layout/context)
@@ -98,7 +102,8 @@ export async function POST(req: Request) {
               - Do not use Roman numerals, alphabetic labels (A, B, a), or appendix labels (like A.1)
               - Normalize all styles (e.g., "I.", "II.", "A.1.1") into pure numeric forms based on logical structure
               - Use order_index to help infer nesting and sequencing when heading structure is ambiguous
-                          
+              - There should be no null values in gemini_index.    
+                                      
               Examples of desired output:
               [
                 { "id": "abc123", "head": "I. Introduction", "head_n": null, "order_index": 0, "gemini_index": "1" },
@@ -119,56 +124,53 @@ export async function POST(req: Request) {
               - "gemini_index" (a normalized numeric section index)
                           
               Ensure consistency, logical hierarchy, and numbering clarity across all entries.`,
-              },
-              {
-                type: "file",
-                data: pdfSource,
-                mimeType: "application/pdf",
-              },
-            ],
-          },
-        ],
-        maxTokens: 8000, // Adjust as needed for larger documents
-      });
+                },
+                {
+                  type: "file",
+                  data: pdfSource,
+                  mimeType: "application/pdf",
+                },
+              ],
+            },
+          ],
+          maxTokens: 12000, // Adjust as needed for larger documents
+        });
 
-      // Get the parsed paper info from the result and ensure it's an array
-      orderInfo = Array.isArray(paperInfoResult.object)
-        ? paperInfoResult.object
-        : [paperInfoResult.object];
-    } catch (error) {
-      console.error("Error generating gemini indices:", error);
+        // Get the parsed paper info from the result and ensure it's an array
+        orderInfo = Array.isArray(paperInfoResult.object)
+          ? paperInfoResult.object
+          : [paperInfoResult.object];
 
-      // If we can extract the text from the error, try to parse it manually
-      if (error instanceof Error && "text" in error) {
-        try {
-          const textContent = (error as any).text;
-          if (typeof textContent === "string") {
-            const parsedJson = JSON.parse(textContent);
-            if (Array.isArray(parsedJson)) {
-              // Keep null values as they are - our schema now supports them
-              orderInfo = parsedJson.map((item) => ({
-                ...item,
-                // Ensure gemini_index is present, even if empty
-                gemini_index: item.gemini_index || "",
-              }));
-              console.log(
-                "Recovered order info from error response:",
-                orderInfo.length
-              );
-            }
-          }
-        } catch (parseError) {
-          console.error("Failed to parse fallback text content:", parseError);
+        console.log("Generated gemini indices:", orderInfo);
+
+        // Check if any gemini_index is null or undefined
+        const hasNullIndices = orderInfo.some((item) => !item.gemini_index);
+        if (hasNullIndices) {
+          console.log(
+            `Attempt ${retryCount + 1}: Found null gemini indices, retrying...`
+          );
+          retryCount++;
+        } else {
+          // All indices are valid, break the retry loop
+          break;
         }
-      }
+      } catch (error) {
+        console.error(`Attempt ${retryCount + 1} failed:`, error);
+        retryCount++;
 
-      // If we still don't have order info, throw the original error
-      if (orderInfo.length === 0) {
-        throw error;
+        // If this was the last retry, throw the error
+        if (retryCount >= maxRetries) {
+          throw error;
+        }
       }
     }
 
-    console.log("Generated gemini indices:", orderInfo);
+    if (orderInfo.length === 0) {
+      return NextResponse.json(
+        { error: "Failed to generate gemini indices after multiple attempts" },
+        { status: 500 }
+      );
+    }
 
     // Update each content item with its gemini_index
     const updatePromises = orderInfo.map(async (item) => {
@@ -176,7 +178,7 @@ export async function POST(req: Request) {
         return prisma.paperContentGrobid.update({
           where: { id: item.id },
           data: {
-            geminiOrder: item.gemini_index || null, // Handle undefined values gracefully
+            geminiOrder: item.gemini_index, // Handle undefined values gracefully
           },
         });
       }
