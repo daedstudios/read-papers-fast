@@ -48,8 +48,7 @@ export default function SidebarNav({
       block: "start",
     });
   };
-
-  // Group sections hierarchically
+  // Group sections hierarchically based on geminiOrder
   const groupSections = (sections: Section[]) => {
     const hierarchy: Record<
       string,
@@ -65,13 +64,37 @@ export default function SidebarNav({
       }
     > = {};
 
-    sections.forEach((section) => {
-      if (!section.head_n) return;
+    // First, sort sections by their geminiOrder
+    const sortedSections = [...sections].sort((a, b) => {
+      // Handle null geminiOrder values
+      if (!a.geminiOrder) return 1;
+      if (!b.geminiOrder) return -1;
 
-      const parts = section.head_n.split(".");
+      // Convert to numeric parts for proper sorting (e.g., "10.1" should come after "2.3")
+      const aParts = a.geminiOrder.split(".").map(Number);
+      const bParts = b.geminiOrder.split(".").map(Number);
+
+      // Compare first level
+      if (aParts[0] !== bParts[0]) {
+        return aParts[0] - bParts[0];
+      }
+
+      // Compare second level if first is equal
+      if (aParts.length > 1 && bParts.length > 1) {
+        return aParts[1] - bParts[1];
+      }
+
+      // If one has a second level and the other doesn't
+      return aParts.length - bParts.length;
+    });
+
+    sortedSections.forEach((section) => {
+      if (!section.geminiOrder) return; // Skip if no geminiOrder
+
+      const parts = section.geminiOrder.split(".");
 
       if (parts.length === 1) {
-        // Main section
+        // Main section (e.g., "1", "2", "3")
         if (!hierarchy[parts[0]]) {
           hierarchy[parts[0]] = {
             section,
@@ -79,11 +102,15 @@ export default function SidebarNav({
           };
         }
       } else if (parts.length === 2) {
-        // Subsection
+        // Subsection (e.g., "1.1", "2.3")
         const [main, sub] = parts;
         if (!hierarchy[main]) {
+          // Create a placeholder for the main section if it doesn't exist
+          const mainSection = sortedSections.find(
+            (s) => s.geminiOrder === main
+          );
           hierarchy[main] = {
-            section: sections.find((s) => s.head_n === main) || section,
+            section: mainSection || section, // Use the main section if found, otherwise use this one
             subsections: {},
           };
         }
@@ -94,19 +121,33 @@ export default function SidebarNav({
           };
         }
       } else if (parts.length === 3) {
-        // Sub-subsection
-        const [main, sub] = parts;
-        if (!hierarchy[main]?.subsections[sub]) {
-          hierarchy[main] = hierarchy[main] || {
-            section: sections.find((s) => s.head_n === main) || section,
+        // Sub-subsection (e.g., "1.1.1", "2.3.4")
+        const [main, sub, subSub] = parts;
+
+        // Ensure main section exists
+        if (!hierarchy[main]) {
+          const mainSection = sortedSections.find(
+            (s) => s.geminiOrder === main
+          );
+          hierarchy[main] = {
+            section: mainSection || section,
             subsections: {},
           };
+        }
+
+        // Ensure subsection exists
+        const mainSubKey = `${main}.${sub}`;
+        if (!hierarchy[main].subsections[sub]) {
+          const subSection = sortedSections.find(
+            (s) => s.geminiOrder === mainSubKey
+          );
           hierarchy[main].subsections[sub] = {
-            section:
-              sections.find((s) => s.head_n === `${main}.${sub}`) || section,
+            section: subSection || section,
             subsections: [],
           };
         }
+
+        // Add the sub-subsection to its parent
         hierarchy[main].subsections[sub].subsections.push(section);
       }
     });
@@ -162,7 +203,7 @@ export default function SidebarNav({
                                     "text-foreground"
                                 )}
                               >
-                                {mainSection.head_n} {mainSection.head}
+                                {mainSection.geminiOrder} {mainSection.head}
                               </span>
                               <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 group-data-[state=open]/main:rotate-180" />
                             </button>
@@ -214,7 +255,7 @@ export default function SidebarNav({
                                                   "text-foreground"
                                               )}
                                             >
-                                              {subSection.head_n}{" "}
+                                              {subSection.geminiOrder}{" "}
                                               {subSection.head}
                                             </span>
                                             <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 group-data-[state=open]/sub:rotate-180" />
@@ -257,7 +298,6 @@ export default function SidebarNav({
                                                           "text-foreground"
                                                       )}
                                                     >
-                                                      {subSubSection.head_n}{" "}
                                                       {subSubSection.head}
                                                     </span>
                                                   </button>
@@ -295,7 +335,8 @@ export default function SidebarNav({
                                               "text-foreground"
                                           )}
                                         >
-                                          {subSection.head_n} {subSection.head}
+                                          {subSection.geminiOrder}{" "}
+                                          {subSection.head}
                                         </span>
                                       </button>
                                     </SidebarMenuButton>
@@ -329,7 +370,7 @@ export default function SidebarNav({
                                 "text-foreground"
                             )}
                           >
-                            {mainSection.head_n} {mainSection.head}
+                            {mainSection.geminiOrder} {mainSection.head}
                           </span>
                         </button>
                       </SidebarMenuButton>

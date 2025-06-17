@@ -149,6 +149,29 @@ const Page = () => {
           // Continue processing even if content ordering fails
         }
 
+        // Call image-match API
+        try {
+          setProgressMessage("Matching images...");
+          const imageMatchResponse = await fetch("/api/image-matching", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: data.id }),
+          });
+
+          if (!imageMatchResponse.ok) {
+            console.error(
+              "Image matching failed:",
+              await imageMatchResponse.text()
+            );
+          } else {
+            const imageMatchData = await imageMatchResponse.json();
+            console.log("Image matching completed:", imageMatchData);
+          }
+        } catch (imageMatchError) {
+          console.error("Image matching error:", imageMatchError);
+          // Continue processing even if image matching fails
+        }
+
         // Check if the initial upload was successful
         if (!response.ok) {
           throw new Error(data.error || "Failed to upload file");

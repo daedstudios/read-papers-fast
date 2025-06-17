@@ -197,6 +197,7 @@ model GrobidFigureData {
   created_at       DateTime? @default(now()) @db.Timestamptz(6)
   updated_at       DateTime? @default(now()) @db.Timestamptz(6)
   paper_summary_id String?   @db.Uuid
+  image_url        String?
 
   @@index([paper_summary_id], map: "idx_grobid_figure_data_paper_summary_id")
   @@index([xml_id], map: "idx_grobid_figure_data_xml_id")
