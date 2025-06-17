@@ -15,8 +15,9 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Icon, Menu, PanelLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
 
 interface Section {
   id: string;
@@ -116,145 +117,230 @@ export default function SidebarNav({
   const hierarchy = groupSections(sections);
 
   return (
-    <Sidebar className={cn("w-[22rem] ", className)}>
-      <SidebarContent className="bg-background p-[1rem]">
-        <SidebarMenu>
-          {Object.entries(hierarchy).map(
-            ([mainNumber, { section: mainSection, subsections }]) => {
-              const hasSubsections = Object.keys(subsections).length > 0;
+    <Collapsible className="relative border-t border-r overflow-clip">
+      <CollapsibleTrigger asChild>
+        <button className="fixed top-[5rem] cursor-pointer left-[1rem] z-30 bg-black rounded-sm p-2 shadow hover:bg-neutral-800 transition focus:outline-none">
+          <PanelLeft className="h-4 w-4 text-white" />
+        </button>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <Sidebar
+          collapsible="icon"
+          className={cn(
+            "w-[22rem] text-[1rem] border-none p-[1rem]",
+            className
+          )}
+        >
+          <SidebarContent className="bg-background text-[1rem] overflow-hidden">
+            <SidebarMenu>
+              {Object.entries(hierarchy).map(
+                ([mainNumber, { section: mainSection, subsections }]) => {
+                  const hasSubsections = Object.keys(subsections).length > 0;
 
-              return hasSubsections ? (
-                <Collapsible
-                  key={mainNumber}
-                  defaultOpen
-                  className="group/main"
-                >
-                  <SidebarMenuItem>
-                    <CollapsibleTrigger asChild>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={activeSectionId === mainSection.id}
-                      >
-                        <button className="flex items-center justify-between w-full px-6 py-2">
-                          <span className="text-sm font-medium">
-                            {mainSection.head_n} {mainSection.head}
-                          </span>
-                          <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 group-data-[state=open]/main:rotate-180" />
-                        </button>
-                      </SidebarMenuButton>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      <SidebarMenuSub>
-                        {Object.entries(subsections).map(
-                          ([
-                            subNumber,
-                            {
-                              section: subSection,
-                              subsections: subSubsections,
-                            },
-                          ]) => {
-                            const hasSubSubsections = subSubsections.length > 0;
-
-                            return hasSubSubsections ? (
-                              <Collapsible
-                                key={subNumber}
-                                defaultOpen
-                                className="group/sub"
+                  return hasSubsections ? (
+                    <Collapsible
+                      key={mainNumber}
+                      defaultOpen
+                      className="group/main text-[1rem]"
+                    >
+                      <SidebarMenuItem>
+                        <CollapsibleTrigger asChild>
+                          <SidebarMenuButton
+                            asChild
+                            isActive={activeSectionId === mainSection.id}
+                            className={cn(
+                              activeSectionId === mainSection.id &&
+                                "!bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent",
+                              "bg-transparent hover:bg-transparent active:bg-transparent focus:bg-transparent"
+                            )}
+                          >
+                            <button className="flex items-center justify-between w-full hover:bg-transparent active:bg-transparent focus:bg-transparent bg-transparent group">
+                              <span
+                                className={cn(
+                                  "truncate text-[1rem] overflow-hidden whitespace-nowrap w-[calc(100%-2rem)] text-muted-foreground ",
+                                  activeSectionId === mainSection.id &&
+                                    "text-foreground"
+                                )}
                               >
-                                <SidebarMenuSubItem>
-                                  <CollapsibleTrigger asChild>
+                                {mainSection.head_n} {mainSection.head}
+                              </span>
+                              <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 group-data-[state=open]/main:rotate-180" />
+                            </button>
+                          </SidebarMenuButton>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <SidebarMenuSub>
+                            {Object.entries(subsections).map(
+                              ([
+                                subNumber,
+                                {
+                                  section: subSection,
+                                  subsections: subSubsections,
+                                },
+                              ]) => {
+                                const hasSubSubsections =
+                                  subSubsections.length > 0;
+
+                                return hasSubSubsections ? (
+                                  <Collapsible
+                                    key={subNumber}
+                                    defaultOpen
+                                    className="group/sub"
+                                  >
+                                    <SidebarMenuSubItem>
+                                      <CollapsibleTrigger asChild>
+                                        <SidebarMenuButton
+                                          asChild
+                                          isActive={
+                                            activeSectionId === subSection.id
+                                          }
+                                          className={cn(
+                                            activeSectionId === subSection.id &&
+                                              "!bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent",
+                                            "bg-transparent hover:bg-transparent active:bg-transparent focus:bg-transparent"
+                                          )}
+                                        >
+                                          <button
+                                            onClick={() =>
+                                              handleSectionClick(subSection.id)
+                                            }
+                                            className="flex items-center justify-between w-full text-[1rem] pl-[1rem] pr-6 py-2 hover:bg-transparent active:bg-transparent focus:bg-transparent bg-transparent group"
+                                          >
+                                            <span
+                                              className={cn(
+                                                "truncate overflow-hidden whitespace-nowrap w-[calc(100%-2rem)] text-muted-foreground ",
+                                                activeSectionId ===
+                                                  subSection.id &&
+                                                  "text-foreground"
+                                              )}
+                                            >
+                                              {subSection.head_n}{" "}
+                                              {subSection.head}
+                                            </span>
+                                            <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 group-data-[state=open]/sub:rotate-180" />
+                                          </button>
+                                        </SidebarMenuButton>
+                                      </CollapsibleTrigger>
+                                      <CollapsibleContent>
+                                        <SidebarMenuSub>
+                                          {subSubsections.map(
+                                            (subSubSection) => (
+                                              <SidebarMenuSubItem
+                                                key={subSubSection.id}
+                                              >
+                                                <SidebarMenuButton
+                                                  asChild
+                                                  isActive={
+                                                    activeSectionId ===
+                                                    subSubSection.id
+                                                  }
+                                                  className={cn(
+                                                    activeSectionId ===
+                                                      subSubSection.id &&
+                                                      "!bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent",
+                                                    "bg-transparent hover:bg-transparent active:bg-transparent focus:bg-transparent"
+                                                  )}
+                                                >
+                                                  <button
+                                                    onClick={() =>
+                                                      handleSectionClick(
+                                                        subSubSection.id
+                                                      )
+                                                    }
+                                                    className="w-full text-left py-2 pl-[1rem] text-[1rem] text-muted-foreground hover:bg-transparent active:bg-transparent focus:bg-transparent bg-transparent group"
+                                                  >
+                                                    <span
+                                                      className={cn(
+                                                        "truncate overflow-hidden whitespace-nowrap w-full block text-muted-foreground ",
+                                                        activeSectionId ===
+                                                          subSubSection.id &&
+                                                          "text-foreground"
+                                                      )}
+                                                    >
+                                                      {subSubSection.head_n}{" "}
+                                                      {subSubSection.head}
+                                                    </span>
+                                                  </button>
+                                                </SidebarMenuButton>
+                                              </SidebarMenuSubItem>
+                                            )
+                                          )}
+                                        </SidebarMenuSub>
+                                      </CollapsibleContent>
+                                    </SidebarMenuSubItem>
+                                  </Collapsible>
+                                ) : (
+                                  <SidebarMenuSubItem key={subNumber}>
                                     <SidebarMenuButton
                                       asChild
                                       isActive={
                                         activeSectionId === subSection.id
                                       }
+                                      className={cn(
+                                        activeSectionId === subSection.id &&
+                                          "!bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent",
+                                        "bg-transparent hover:bg-transparent active:bg-transparent focus:bg-transparent"
+                                      )}
                                     >
                                       <button
                                         onClick={() =>
                                           handleSectionClick(subSection.id)
                                         }
-                                        className="flex items-center justify-between w-full pl-8 pr-6 py-2"
+                                        className="w-full text-left py-2 pl-[1rem] pr-6 text-[1rem] hover:bg-transparent active:bg-transparent focus:bg-transparent bg-transparent group"
                                       >
-                                        <span className="text-sm">
+                                        <span
+                                          className={cn(
+                                            "truncate overflow-hidden whitespace-nowrap w-full block text-muted-foreground ",
+                                            activeSectionId === subSection.id &&
+                                              "text-foreground"
+                                          )}
+                                        >
                                           {subSection.head_n} {subSection.head}
                                         </span>
-                                        <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 group-data-[state=open]/sub:rotate-180" />
                                       </button>
                                     </SidebarMenuButton>
-                                  </CollapsibleTrigger>
-                                  <CollapsibleContent>
-                                    <SidebarMenuSub>
-                                      {subSubsections.map((subSubSection) => (
-                                        <SidebarMenuSubItem
-                                          key={subSubSection.id}
-                                        >
-                                          <SidebarMenuButton
-                                            asChild
-                                            isActive={
-                                              activeSectionId ===
-                                              subSubSection.id
-                                            }
-                                          >
-                                            <button
-                                              onClick={() =>
-                                                handleSectionClick(
-                                                  subSubSection.id
-                                                )
-                                              }
-                                              className="w-full text-left py-2 pl-10 pr-6 text-sm"
-                                            >
-                                              {subSubSection.head_n}{" "}
-                                              {subSubSection.head}
-                                            </button>
-                                          </SidebarMenuButton>
-                                        </SidebarMenuSubItem>
-                                      ))}
-                                    </SidebarMenuSub>
-                                  </CollapsibleContent>
-                                </SidebarMenuSubItem>
-                              </Collapsible>
-                            ) : (
-                              <SidebarMenuSubItem key={subNumber}>
-                                <SidebarMenuButton
-                                  asChild
-                                  isActive={activeSectionId === subSection.id}
-                                >
-                                  <button
-                                    onClick={() =>
-                                      handleSectionClick(subSection.id)
-                                    }
-                                    className="w-full text-left py-2 pl-8 pr-6 text-sm"
-                                  >
-                                    {subSection.head_n} {subSection.head}
-                                  </button>
-                                </SidebarMenuButton>
-                              </SidebarMenuSubItem>
-                            );
-                          }
+                                  </SidebarMenuSubItem>
+                                );
+                              }
+                            )}
+                          </SidebarMenuSub>
+                        </CollapsibleContent>
+                      </SidebarMenuItem>
+                    </Collapsible>
+                  ) : (
+                    <SidebarMenuItem key={mainNumber}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={activeSectionId === mainSection.id}
+                        className={cn(
+                          activeSectionId === mainSection.id &&
+                            "!bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent",
+                          "bg-transparent hover:bg-transparent active:bg-transparent focus:bg-transparent"
                         )}
-                      </SidebarMenuSub>
-                    </CollapsibleContent>
-                  </SidebarMenuItem>
-                </Collapsible>
-              ) : (
-                <SidebarMenuItem key={mainNumber}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={activeSectionId === mainSection.id}
-                  >
-                    <button
-                      onClick={() => handleSectionClick(mainSection.id)}
-                      className="w-full text-left px-6 py-2 text-sm font-medium"
-                    >
-                      {mainSection.head_n} {mainSection.head}
-                    </button>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              );
-            }
-          )}
-        </SidebarMenu>
-      </SidebarContent>
-    </Sidebar>
+                      >
+                        <button
+                          onClick={() => handleSectionClick(mainSection.id)}
+                          className="w-full text-left py-2 text-[1rem] hover:bg-transparent active:bg-transparent focus:bg-transparent bg-transparent group"
+                        >
+                          <span
+                            className={cn(
+                              "truncate overflow-hidden whitespace-nowrap w-full block text-muted-foreground ",
+                              activeSectionId === mainSection.id &&
+                                "text-foreground"
+                            )}
+                          >
+                            {mainSection.head_n} {mainSection.head}
+                          </span>
+                        </button>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                }
+              )}
+            </SidebarMenu>
+          </SidebarContent>
+        </Sidebar>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }

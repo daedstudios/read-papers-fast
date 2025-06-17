@@ -364,32 +364,16 @@ function PaperContent() {
   return (
     <>
       <div className="flex flex-row  w-full h-[92vh] mt-[8vh]">
-        <ScrollArea className="hidden  md:flex h-full w-full max-w-[22rem] border-t lg:p-[1rem] md:border-r ">
-          <SidebarNav
-            sections={paperSummary?.grobidContent || []}
-            activeSectionId={activeSectionId || undefined}
-            onSectionClick={() => {}}
-          />
-        </ScrollArea>
+        <SidebarNav
+          sections={paperSummary?.grobidContent || []}
+          activeSectionId={activeSectionId || undefined}
+          onSectionClick={() => {}}
+        />
+
         <ScrollArea className="w-full border-t p-[1rem] h-full">
           <div className="flex flex-row justify-between">
-            {(() => {
-              const allText =
-                paperSummary?.grobidContent
-                  .flatMap((section) => section.para.map((p) => p.text))
-                  .join(" ") || "";
-
-              const wordCount = allText.split(/\s+/).filter(Boolean).length;
-              const readingTime = Math.ceil(wordCount / 175);
-
-              return (
-                <p className="text-[1rem] text-muted-foreground mb-2">
-                  Estimated reading time: {readingTime} min
-                </p>
-              );
-            })()}
             {paperSummary?.grobidAbstract.publishedDate && (
-              <span className="text-muted-foreground text-[1rem]">
+              <span className="text-muted-foreground text-[1rem] mt-[1.5rem]">
                 {" "}
                 {new Date(
                   paperSummary.grobidAbstract.publishedDate
@@ -398,7 +382,7 @@ function PaperContent() {
             )}
           </div>
           {paperSummary?.grobidAbstract && (
-            <div className="mb-10">
+            <div className="mb-10 ">
               <h1 className="text-4xl font-medium mb-4">
                 {paperSummary.grobidAbstract.title}
               </h1>
