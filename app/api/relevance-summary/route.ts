@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     }
   } else if (file) {
     // Handle uploaded file
-    arrayBuffer = await(file as Blob).arrayBuffer();
+    arrayBuffer = await (file as Blob).arrayBuffer();
   } else {
     return NextResponse.json(
       { error: "No valid PDF source provided" },
@@ -89,8 +89,9 @@ Respond strictly in the following JSON format:
           ],
         },
       ],
-      maxTokens: 2048,
-    });    console.log("API result:", result.object);
+      maxTokens: 10000,
+    });
+    console.log("API result:", result.object);
     return NextResponse.json({ relevance: result.object });
   } catch (error) {
     console.error("Gemini API error:", error);
