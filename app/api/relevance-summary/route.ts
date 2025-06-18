@@ -65,7 +65,7 @@ In addition to scoring and summarizing the relevance, identify and analyze the m
 
 Respond strictly in the following JSON format:
 {
-  "score": 0.0, // a number from 0 (not relevant) to 1 (highly relevant),
+  "score": 0.01, // a number from 0.01 (not relevant) to 1.00 (highly relevant),
   "summary": "1–2 sentence explanation of the relevance",
   "relevant_sections": [
     {
