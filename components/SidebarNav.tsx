@@ -378,6 +378,83 @@ export default function SidebarNav({
                   );
                 }
               )}
+              <SidebarMenuItem key="figures-section">
+                <SidebarMenuButton
+                  asChild
+                  isActive={activeSectionId === "figures-section"}
+                  className={cn(
+                    activeSectionId === "figures-section" &&
+                      "!bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent",
+                    "bg-transparent hover:bg-transparent active:bg-transparent focus:bg-transparent"
+                  )}
+                >
+                  <button
+                    onClick={() => handleSectionClick("figures-section")}
+                    className="w-full text-left py-2 text-[1rem] hover:bg-transparent active:bg-transparent focus:bg-transparent bg-transparent group"
+                  >
+                    <span
+                      className={cn(
+                        "truncate overflow-hidden whitespace-nowrap w-full block text-muted-foreground",
+                        activeSectionId === "figures-section" &&
+                          "text-foreground"
+                      )}
+                    >
+                      Figures
+                    </span>
+                  </button>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem key="references-section">
+                <SidebarMenuButton
+                  asChild
+                  isActive={activeSectionId === "references-section"}
+                  className={cn(
+                    activeSectionId === "references-section" &&
+                      "!bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent",
+                    "bg-transparent hover:bg-transparent active:bg-transparent focus:bg-transparent"
+                  )}
+                >
+                  <button
+                    onClick={() => handleSectionClick("references-section")}
+                    className="w-full text-left py-2 text-[1rem] hover:bg-transparent active:bg-transparent focus:bg-transparent bg-transparent group"
+                  >
+                    <span
+                      className={cn(
+                        "truncate overflow-hidden whitespace-nowrap w-full block text-muted-foreground",
+                        activeSectionId === "references-section" &&
+                          "text-foreground"
+                      )}
+                    >
+                      References
+                    </span>
+                  </button>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem key="paper-notes">
+                <SidebarMenuButton
+                  asChild
+                  isActive={activeSectionId === "paper-notes"}
+                  className={cn(
+                    activeSectionId === "paper-notes" &&
+                      "!bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent",
+                    "bg-transparent hover:bg-transparent active:bg-transparent focus:bg-transparent"
+                  )}
+                >
+                  <button
+                    onClick={() => handleSectionClick("paper-notes")}
+                    className="w-full text-left py-2 text-[1rem] hover:bg-transparent active:bg-transparent focus:bg-transparent bg-transparent group"
+                  >
+                    <span
+                      className={cn(
+                        "truncate overflow-hidden whitespace-nowrap w-full block text-muted-foreground",
+                        activeSectionId === "paper-notes" && "text-foreground"
+                      )}
+                    >
+                      Paper Notes
+                    </span>
+                  </button>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarContent>
         </Sidebar>
