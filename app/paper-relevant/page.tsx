@@ -54,79 +54,91 @@ const Page = () => {
 
   return (
     <>
-      <div className="relative w-screen h-full md:h-screen items-center">
+      <div className="relative w-screen h-screen overflow-hidden items-center">
         <div className="fixed  bg-black/20 blur-lg z-[-1]" />
 
-        <div className="flex flex-col justify-between h-screen">
-          <div className="flex flex-col mx-auto md:w-[42rem] px-[1rem] md:px-0 pt-[8rem]">
+        <div className="flex flex-col justify-center md:justify-between h-screen mb-[1rem]">
+          <div className="flex flex-col mx-auto w-full md:w-[42rem] pt-[6rem] px-[1rem] md:px-0">
             {relevance && (
-              <div className=" bg-background/80 backdrop-blur-sm">
-                <div className="flex items-center mb-[1rem] justify-center w-fit h-[2.25rem] min-h-[2.25rem] border border-[#BEE2B7] bg-[#BEE2B7]/30 rounded-[3rem] px-4">
-                  <span className="text-muted-foreground">{file?.name}</span>
-                </div>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex flex-col gap-4">
-                    <h2 className="text-[1.5rem] font-medium">
-                      Relevance Analysis
-                    </h2>
+              <ScrollArea className="h-[calc(100vh-16rem)] px-4 scrollbar-none relative">
+                <div className="bg-background/80 backdrop-blur-sm my-[3rem]">
+                  <div className="flex items-center mb-[1rem] justify-center w-fit h-[2.25rem] min-h-[2.25rem] border border-[#BEE2B7] bg-[#BEE2B7]/30 rounded-[3rem] px-4">
+                    <span className="text-muted-foreground">{file?.name}</span>
                   </div>
-
-                  <div className="flex items-center">
-                    <div
-                      className={`h-2.5 w-2.5 rounded-full ${
-                        relevance.score < 0.4 ? "bg-red-500" : "bg-green-500"
-                      } mr-2`}
-                    ></div>
-                    <span className="text-lg font-medium">
-                      {Math.round(relevance.score * 100)}% relevant
-                    </span>
-                  </div>
-                </div>
-                <p className="text-muted-foreground mb-6">
-                  {relevance.summary}
-                </p>
-
-                {relevance.relevant_sections &&
-                  relevance.relevant_sections.length > 0 && (
-                    <div className="space-y-4 mt-10">
-                      <h3 className="text-[1.5rem] font-medium">Snippets</h3>
-                      <div className="space-y-3">
-                        {relevance.relevant_sections.map((section, index) => (
-                          <div
-                            key={index}
-                            className="p-4 bg-background/50 rounded-lg border border-border/50"
-                          >
-                            {section.section_heading && (
-                              <h4 className="text-[1rem] font-medium mb-2 text-muted-foreground">
-                                {section.section_heading}
-                                {section.page && ` (Page ${section.page})`}
-                              </h4>
-                            )}
-                            <p className="text-[1rem]">
-                              {section.text_snippet}
-                            </p>
-                            {!section.section_heading && section.page && (
-                              <p className="text-xs text-muted-foreground mt-2">
-                                Page {section.page}
-                              </p>
-                            )}
-                          </div>
-                        ))}
-                      </div>
+                  <div className="flex items-center justify-between mb-4]]">
+                    <div className="flex flex-col gap-4">
+                      <h2 className="text-[1.5rem] font-medium">
+                        Relevance Analysis
+                      </h2>
                     </div>
-                  )}
-              </div>
+
+                    <div className="flex items-center">
+                      <div
+                        className={`h-2.5 w-2.5 rounded-full ${
+                          relevance.score < 0.4 ? "bg-red-500" : "bg-green-500"
+                        } mr-2`}
+                      ></div>
+                      <span className="text-lg font-medium">
+                        {Math.round(relevance.score * 100)}% relevant
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-muted-foreground mb-6">
+                    {relevance.summary}
+                  </p>
+
+                  {relevance.relevant_sections &&
+                    relevance.relevant_sections.length > 0 && (
+                      <div className="space-y-4 mt-10">
+                        <h3 className="text-[1.5rem] font-medium">Snippets</h3>
+                        <div className="space-y-3">
+                          {relevance.relevant_sections.map((section, index) => (
+                            <div
+                              key={index}
+                              className="p-4 bg-background/50 rounded-lg border border-border/50"
+                            >
+                              {section.section_heading && (
+                                <h4 className="text-[1rem] font-medium mb-2 text-muted-foreground">
+                                  {section.section_heading}
+                                  {section.page && ` (Page ${section.page})`}
+                                </h4>
+                              )}
+                              <p className="text-[1rem]">
+                                {section.text_snippet}
+                              </p>
+                              {!section.section_heading && section.page && (
+                                <p className="text-xs text-muted-foreground mt-2">
+                                  Page {section.page}
+                                </p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                </div>
+                {/* Fade-out gradient overlay at the bottom */}
+                <div
+                  className="pointer-events-none absolute bottom-0 left-0 w-full h-24 z-10"
+                  style={{
+                    background:
+                      "linear-gradient(to top, var(--background, #fff) 40%, transparent)",
+                  }}
+                />
+              </ScrollArea>
             )}
           </div>
 
-          <div className="w-full transition-transform duration-700 ease-in-out">
-            <h1 className="text-center text-[2rem] my-[2rem] text-foreground">
-              Check a paper's relevance in seconds
-            </h1>
+          <div className="w-full transition-transform duration-700 ease-in-out bg-background/80 backdrop-blur-sm pb-1[rem]">
+            {!relevance && (
+              <h1 className="text-center max-w-[95%] mx-auto text-[2rem] mb-[2rem] text-foreground">
+                Check a paper's relevance in seconds
+              </h1>
+            )}
 
             <form
               id="uploadForm"
-              className="flex flex-col justify-end gap-2 border p-[1rem] text-[1rem] rounded-[2rem] bg-transparent mx-auto md:w-[42rem] px-[1rem] md:px-[1rem] mb-8"
+              className="flex flex-col max-w-[95%] justify-end gap-2 border p-[1rem] mb-[1rem] text-[1rem] rounded-[2rem] bg-transparent mx-auto md:w-[42rem] px-[1rem] md:px-[1rem] "
               onSubmit={(e) => {
                 e.preventDefault();
                 handleCheckRelevance();
