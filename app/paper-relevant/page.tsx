@@ -3,7 +3,7 @@
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { Paperclip, Loader2, X, ArrowUp } from "lucide-react";
+import { Paperclip, Loader2, X, ArrowUp, Link as LinkIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -11,6 +11,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 const Page = () => {
   const [file, setFile] = useState<File | null>(null);
   const [topic, setTopic] = useState("");
+  const [pdfUrl, setPdfUrl] = useState("");
+  const [inputMode, setInputMode] = useState<"file" | "url">("file");
   const [relevance, setRelevance] = useState<{
     score: number;
     summary: string;
@@ -24,7 +26,10 @@ const Page = () => {
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
-    if (selected) setFile(selected);
+    if (selected) {
+      setFile(selected);
+      setPdfUrl("");
+    }
   };
 
   const handleRemoveFile = () => setFile(null);
@@ -33,23 +38,57 @@ const Page = () => {
     setTopic(e.target.value);
   };
 
+  const handlePdfUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPdfUrl(e.target.value);
+    if (file) setFile(null);
+  };
+
+  const toggleInputMode = () => {
+    setInputMode(inputMode === "file" ? "url" : "file");
+    if (inputMode === "file") {
+      setFile(null);
+    } else {
+      setPdfUrl("");
+    }
+  };
+
   const handleCheckRelevance = async () => {
-    if (!file || !topic) return;
+    if ((!file && !pdfUrl) || !topic) return;
     setLoading(true);
     setRelevance(null);
+
     const formData = new FormData();
-    formData.append("file", file);
     formData.append("topic", topic);
 
-    const res = await fetch("/api/relevance-summary", {
-      method: "POST",
-      body: formData,
-    });
+    if (file) {
+      formData.append("file", file);
+    } else if (pdfUrl) {
+      formData.append("pdfUrl", pdfUrl);
+    }
 
-    const data = await res.json();
-    console.log("Received relevance data:", data);
-    setRelevance(data.relevance);
-    setLoading(false);
+    try {
+      const res = await fetch("/api/relevance-summary", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error("Error from API:", errorData);
+        alert(`Error: ${errorData.error || "Failed to check relevance"}`);
+        setLoading(false);
+        return;
+      }
+
+      const data = await res.json();
+      console.log("Received relevance data:", data);
+      setRelevance(data.relevance);
+    } catch (error) {
+      console.error("Error checking relevance:", error);
+      alert("Failed to check relevance. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -61,9 +100,16 @@ const Page = () => {
           <div className="flex flex-col mx-auto w-full md:w-[42rem] pt-[6rem] px-[1rem] md:px-0">
             {relevance && (
               <ScrollArea className="h-[calc(100vh-16rem)] px-4 scrollbar-none relative">
+                {" "}
                 <div className="bg-background/80 backdrop-blur-sm my-[3rem]">
                   <div className="flex items-center mb-[1rem] justify-center w-fit h-[2.25rem] min-h-[2.25rem] border border-[#BEE2B7] bg-[#BEE2B7]/30 rounded-[3rem] px-4">
-                    <span className="text-muted-foreground">{file?.name}</span>
+                    <span className="text-muted-foreground">
+                      {file?.name ||
+                        (pdfUrl &&
+                          `PDF URL: ${pdfUrl.substring(0, 40)}${
+                            pdfUrl.length > 40 ? "..." : ""
+                          }`)}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between mb-4]]">
                     <div className="flex flex-col gap-4">
@@ -129,13 +175,12 @@ const Page = () => {
             )}
           </div>
 
-          <div className="w-full transition-transform duration-700 ease-in-out bg-background/80 backdrop-blur-sm pb-1[rem]">
+          <div className="-translate-y-12 w-full transition-transform duration-700 ease-in-out bg-background/80 backdrop-blur-sm pb-1[rem]">
             {!relevance && (
               <h1 className="text-center max-w-[95%] mx-auto text-[2rem] mb-[2rem] text-foreground">
                 Check a paper's relevance in seconds
               </h1>
-            )}
-
+            )}{" "}
             <form
               id="uploadForm"
               className="flex flex-col max-w-[95%] justify-end gap-2 border p-[1rem] mb-[1rem] text-[1rem] rounded-[2rem] bg-transparent mx-auto md:w-[42rem] px-[1rem] md:px-[1rem] "
@@ -154,49 +199,89 @@ const Page = () => {
                       onChange={handleTopicChange}
                     />
 
-                    {!file ? (
-                      <>
-                        <Input
-                          className="hidden"
-                          id="file-upload"
-                          type="file"
-                          accept=".pdf"
-                          onChange={handleFileUpload}
-                        />
-                        <label
-                          htmlFor="file-upload"
-                          className="flex items-center hover:bg-muted justify-center w-[7rem] h-[2.25rem] min-h-[2.25rem] border border-muted-foreground/30 bg-background rounded-[3rem] hover:cursor-pointer"
-                        >
-                          <Paperclip
-                            size={20}
-                            className="text-muted-foreground mr-2"
+                    <div className="flex gap-2 mb-2">
+                      <Button
+                        type="button"
+                        onClick={() => setInputMode("file")}
+                        className={`h-[2.25rem] rounded-[3rem] px-4 ${
+                          inputMode === "file"
+                            ? "bg-foreground text-background"
+                            : "bg-background text-muted-foreground"
+                        }`}
+                      >
+                        <Paperclip size={16} className="mr-1" />
+                        Upload PDF
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={() => setInputMode("url")}
+                        className={`h-[2.25rem] rounded-[3rem] px-4 ${
+                          inputMode === "url"
+                            ? "bg-foreground text-background"
+                            : "bg-background text-muted-foreground"
+                        }`}
+                      >
+                        <LinkIcon size={16} className="mr-1" />
+                        PDF URL
+                      </Button>
+                    </div>
+
+                    {inputMode === "file" ? (
+                      !file ? (
+                        <>
+                          <Input
+                            className="hidden"
+                            id="file-upload"
+                            type="file"
+                            accept=".pdf"
+                            onChange={handleFileUpload}
                           />
-                          <p className="text-muted-foreground">attach</p>
-                        </label>
-                      </>
+                          <label
+                            htmlFor="file-upload"
+                            className="flex items-center hover:bg-muted justify-center w-full h-[2.25rem] min-h-[2.25rem] border border-muted-foreground/30 bg-background rounded-[3rem] hover:cursor-pointer"
+                          >
+                            <Paperclip
+                              size={20}
+                              className="text-muted-foreground mr-2"
+                            />
+                            <p className="text-muted-foreground">
+                              attach PDF file
+                            </p>
+                          </label>
+                        </>
+                      ) : (
+                        <div className="flex items-center justify-center w-full h-[2.25rem] min-h-[2.25rem] border border-[#BEE2B7] bg-[#BEE2B7]/30 rounded-[3rem] px-2">
+                          <span className="truncate text-muted-foreground mr-2">
+                            {file.name}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={handleRemoveFile}
+                            className="hover:bg-muted rounded-full p-1 ml-1"
+                            aria-label="Remove file"
+                          >
+                            <X
+                              size={18}
+                              className="text-muted-foreground cursor-pointer"
+                            />
+                          </button>
+                        </div>
+                      )
                     ) : (
-                      <div className="flex items-center justify-center w-[10rem] h-[2.25rem] min-h-[2.25rem] border border-[#BEE2B7] bg-[#BEE2B7]/30 rounded-[3rem] px-2">
-                        <span className="truncate text-muted-foreground mr-2">
-                          {file.name}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={handleRemoveFile}
-                          className="hover:bg-muted rounded-full p-1 ml-1"
-                          aria-label="Remove file"
-                        >
-                          <X
-                            size={18}
-                            className="text-muted-foreground cursor-pointer"
-                          />
-                        </button>
+                      <div className="flex items-center justify-center w-full">
+                        <Input
+                          placeholder="Enter PDF URL (https://...)"
+                          className="h-[2.25rem] rounded-[3rem] px-[0.5rem] border-muted-foreground/30 shadow-none bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-0"
+                          value={pdfUrl}
+                          onChange={handlePdfUrlChange}
+                        />
                       </div>
                     )}
                   </div>
                   <Button
                     type="submit"
-                    className=" text-background bg-foreground h-[2.25rem] rounded-[3rem] w-full md:w-[2.25rem] disabled:bg-foreground hover:disabled:bg-muted hover:cursor-pointer "
-                    disabled={!file || !topic || loading}
+                    className="text-background bg-foreground h-[2.25rem] rounded-[3rem] w-full md:w-[2.25rem] disabled:bg-foreground hover:disabled:bg-muted hover:cursor-pointer"
+                    disabled={(!file && !pdfUrl) || !topic || loading}
                   >
                     {loading ? (
                       <Loader2 className="w-6 h-6 animate-spin" />
@@ -207,7 +292,6 @@ const Page = () => {
                 </div>
               </div>
             </form>
-
             {!relevance && (
               <div className="md:flex hidden w-full z-4 flex-col text-foreground items-center pb-[6rem] text-[1rem]">
                 trusted by students of
