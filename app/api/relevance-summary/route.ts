@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { generateObject } from "ai";
 import { google } from "@ai-sdk/google";
 import { z } from "zod";
-import pdf from "pdf-parse";
 
 export const runtime = "nodejs";
 
@@ -23,21 +22,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Convert Blob to Buffer
   const arrayBuffer = await (file as Blob).arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
 
-  // Extract text from PDF
-  let pdfText = "";
-  try {
-    const data = await pdf(buffer);
-    pdfText = data.text;
-  } catch (err) {
-    return NextResponse.json({ error: "Failed to parse PDF" }, { status: 500 });
-  }
-
-  // Call Gemini using the same pattern as other routes
-  const prompt = `Given the following topic: "${topic}" and the following paper text, evaluate how relevant the paper is to the topic. Respond with a JSON object with a 'score' (0-1) and a 'summary' (1-2 sentences):\n\n${pdfText}`;
+  // Send the PDF file directly to Gemini
+  const prompt = `Given the following topic: "${topic}", evaluate how relevant the attached PDF paper is to the topic. Respond with a JSON object with a 'score' (0-1) and a 'summary' (1-2 sentences).`;
 
   try {
     const result = await generateObject({
@@ -46,7 +34,10 @@ export async function POST(req: NextRequest) {
       messages: [
         {
           role: "user",
-          content: [{ type: "text", text: prompt }],
+          content: [
+            { type: "text", text: prompt },
+            { type: "file", data: arrayBuffer, mimeType: "application/pdf" },
+          ],
         },
       ],
       maxTokens: 2048,
