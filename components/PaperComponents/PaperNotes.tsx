@@ -35,7 +35,11 @@ const PaperNotes: React.FC<PaperNotesProps> = ({ notes }) => {
       <h3 className="text-xl font-semibold">Notes</h3>
 
       {notes.map((note) => (
-        <div key={note.id} className="border rounded-lg p-4 shadow-sm bg-white">
+        <div
+          key={note.id}
+          className="border rounded-lg p-4 shadow-sm bg-white"
+          id={`foot-#${note.xml_id}`}
+        >
           <div className="flex justify-between mb-2">
             <div className="flex items-center gap-2">
               <span className="font-semibold text-gray-700">

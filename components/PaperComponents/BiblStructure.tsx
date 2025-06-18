@@ -56,7 +56,7 @@ const BiblStructure: React.FC<BiblStructureProps> = ({ entry }) => {
   };
 
   return (
-    <div className="bibl-structure my-4">
+    <div className="bibl-structure my-4" id={`bibr-#${entry.xml_id}`}>
       <div className="authors">
         <strong>Authors:</strong> {formatAuthors(entry.authors)}
       </div>
