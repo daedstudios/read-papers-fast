@@ -300,40 +300,6 @@ function PaperContent() {
     fetchSummary();
   }, [pdfFile]);
 
-  const handleReadFast = async (sectionId: string, paraText: string) => {
-    setLoadingPara(`${sectionId}-${paraText}`);
-    const res = await fetch("/api/simplifiedText", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        paragraphText: paraText,
-        paragraphId: sectionId,
-      }),
-    });
-    const { simplified } = await res.json();
-    setPaperSummary((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        grobidContent: prev.grobidContent.map((s) =>
-          s.id === sectionId
-            ? {
-                ...s,
-                para: s.para.map((p) =>
-                  p.text === paraText ? { ...p, simplifiedText: simplified } : p
-                ),
-              }
-            : s
-        ),
-      };
-    });
-    setShowSimplified((prev) => ({
-      ...prev,
-      [`${sectionId}-${paraText}`]: true,
-    }));
-    setLoadingPara(null);
-  };
-
   // Scrollspy effect
   useEffect(() => {
     if (!paperSummary?.grobidContent) return;
@@ -400,53 +366,6 @@ function PaperContent() {
                 >
                   {section.head_n} {section.head}
                 </h2>
-                <Button
-                  size="sm"
-                  className="cursor-pointer"
-                  disabled={loadingPara === section.id}
-                  onClick={async () => {
-                    if (!section.simplifiedText) {
-                      setLoadingPara(section.id);
-                      const sectionText = section.para
-                        .map((p) => p.text)
-                        .join(" ");
-                      // Call the API to simplify the section
-                      const res = await fetch("/api/simplifiedText", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                          sectionText,
-                          sectionId: section.id,
-                        }),
-                      });
-                      const { simplified } = await res.json();
-                      setPaperSummary((prev) => {
-                        if (!prev) return prev;
-                        return {
-                          ...prev,
-                          grobidContent: prev.grobidContent.map((s) =>
-                            s.id === section.id
-                              ? { ...s, simplifiedText: simplified }
-                              : s
-                          ),
-                        };
-                      });
-                      setLoadingPara(null);
-                    }
-                    setShowSimplified((prev) => ({
-                      ...prev,
-                      [section.id]: !prev[section.id],
-                    }));
-                  }}
-                >
-                  {loadingPara === section.id ? (
-                    <Loader2 className="animate-spin w-4 h-4" />
-                  ) : section.simplifiedText && showSimplified[section.id] ? (
-                    "Show Original"
-                  ) : (
-                    "Read Fast"
-                  )}
-                </Button>
               </div>
               {/* Section content */}
               {section.para.map((para, index) => (
@@ -499,6 +418,7 @@ function PaperContent() {
           <div className="text-[1.5rem] font-medium text-muted-foreground opacity-20 select-none">
             ReadPapersFast
           </div>
+          {/* <ChatPanel /> */}
         </div>
       </div>
     </>
