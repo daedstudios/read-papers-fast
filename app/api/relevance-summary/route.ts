@@ -21,15 +21,43 @@ export async function POST(req: NextRequest) {
   const formData = await req.formData();
   const file = formData.get("file");
   const topic = formData.get("topic");
+  const pdfUrl = formData.get("pdfUrl");
 
-  if (!file || typeof topic !== "string") {
+  if ((!file && !pdfUrl) || typeof topic !== "string") {
     return NextResponse.json(
-      { error: "Missing file or topic" },
+      { error: "Missing file/URL or topic" },
       { status: 400 }
     );
   }
 
-  const arrayBuffer = await (file as Blob).arrayBuffer();
+  let arrayBuffer: ArrayBuffer;
+
+  // Handle PDF from URL if provided
+  if (pdfUrl && typeof pdfUrl === "string") {
+    try {
+      const response = await fetch(pdfUrl);
+      if (!response.ok) {
+        return NextResponse.json(
+          { error: `Failed to fetch PDF from URL: ${response.statusText}` },
+          { status: 400 }
+        );
+      }
+      arrayBuffer = await response.arrayBuffer();
+    } catch (error) {
+      return NextResponse.json(
+        { error: "Invalid URL or could not download PDF" },
+        { status: 400 }
+      );
+    }
+  } else if (file) {
+    // Handle uploaded file
+    arrayBuffer = await(file as Blob).arrayBuffer();
+  } else {
+    return NextResponse.json(
+      { error: "No valid PDF source provided" },
+      { status: 400 }
+    );
+  }
 
   // Send the PDF file directly to Gemini
   const prompt = `Given the following research topic: ”${topic}”, evaluate how relevant the attached PDF paper is to this topic.
@@ -62,11 +90,10 @@ Respond strictly in the following JSON format:
         },
       ],
       maxTokens: 2048,
-    });
-
-    console.log("API result:", result.object);
+    });    console.log("API result:", result.object);
     return NextResponse.json({ relevance: result.object });
   } catch (error) {
+    console.error("Gemini API error:", error);
     return NextResponse.json(
       {
         error: "Gemini API error",
