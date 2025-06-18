@@ -23,6 +23,7 @@ const Page = () => {
     }>;
   } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [retrying, setRetrying] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,51 +57,57 @@ const Page = () => {
   const handleCheckRelevance = async () => {
     if ((!file && !pdfUrl) || !topic) return;
     setLoading(true);
+    setRetrying(false);
     setRelevance(null);
 
     const formData = new FormData();
-    formData.append("topic", topic);
-
     if (file) {
       formData.append("file", file);
     } else if (pdfUrl) {
       formData.append("pdfUrl", pdfUrl);
     }
+    formData.append("topic", topic);
 
-    try {
-      const res = await fetch("/api/relevance-summary", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        console.error("Error from API:", errorData);
-        alert(`Error: ${errorData.error || "Failed to check relevance"}`);
-        setLoading(false);
-        return;
+    let attempt = 0;
+    let success = false;
+    let lastError = null;
+    while (attempt < 2 && !success) {
+      try {
+        const res = await fetch("/api/relevance-summary", {
+          method: "POST",
+          body: formData,
+        });
+        if (!res.ok) {
+          const errorData = await res.json();
+          console.error("Error from API:", errorData);
+          throw new Error(errorData.error || "Failed to check relevance");
+        }
+        const data = await res.json();
+        setRelevance(data.relevance);
+        success = true;
+      } catch (error) {
+        lastError = error;
+        if (attempt === 0) {
+          setRetrying(true);
+          await new Promise((res) => setTimeout(res, 500));
+        }
       }
-
-      const data = await res.json();
-      console.log("Received relevance data:", data);
-      setRelevance(data.relevance);
-    } catch (error) {
-      console.error("Error checking relevance:", error);
-      alert("Failed to check relevance. Please try again.");
-    } finally {
-      setLoading(false);
+      attempt++;
     }
+    if (!success) {
+      alert("Failed to check relevance. Please try again.");
+    }
+    setRetrying(false);
+    setLoading(false);
   };
 
   return (
     <>
       <div className="relative w-screen h-screen overflow-hidden items-center">
-        <div className="fixed  bg-black/20 blur-lg z-[-1]" />
-
         <div className="flex flex-col justify-center md:justify-between h-screen mb-[1rem]">
           <div className="flex flex-col mx-auto w-full md:w-[42rem] pt-[6rem] px-[1rem] md:px-0">
             {relevance && (
-              <ScrollArea className="h-[calc(100vh-16rem)] px-4 scrollbar-none relative">
+              <ScrollArea className="h-[calc(100vh-16rem)] px-2 relative">
                 {" "}
                 <div className="bg-background/80 backdrop-blur-sm mt-[2rem] mb-[6rem]">
                   <div className="flex items-center mb-[1rem] justify-center w-fit h-[2.25rem] min-h-[2.25rem] ">
@@ -112,11 +119,9 @@ const Page = () => {
                           }`)}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between mb-4]]">
+                  <div className="flex flex-wrap items-center gap-4 justify-between mb-4">
                     <div className="flex flex-col gap-4">
-                      <h2 className="text-[1.5rem] font-medium pb-2">
-                        Relevance Analysis
-                      </h2>
+                      <h2 className="text-[1.5rem]">Relevance Analysis</h2>
                     </div>
 
                     <div className="flex items-center">
@@ -126,7 +131,7 @@ const Page = () => {
                         } mr-2`}
                       ></div>
                       <span className="text-lg font-medium">
-                        {Math.round(relevance.score * 100)}% relevant
+                        {(relevance.score * 100).toFixed(1)}% relevant
                       </span>
                     </div>
                   </div>
@@ -137,21 +142,21 @@ const Page = () => {
                   {relevance.relevant_sections &&
                     relevance.relevant_sections.length > 0 && (
                       <div className="space-y-4 mt-10">
-                        <h3 className="text-[1.5rem] font-medium">Snippets</h3>
+                        <h3 className="text-[1.5rem]">Snippets</h3>
                         <div className="space-y-3">
                           {relevance.relevant_sections.map((section, index) => (
                             <div
                               key={index}
-                              className="p-4 bg-background/50 rounded-lg border border-border/50"
+                              className="p-4 bg-background/50 rounded-[1.5rem] border border-border/50"
                             >
                               {section.section_heading && (
-                                <h4 className="text-[1rem] font-medium mb-2 text-muted-foreground">
+                                <h4 className="text-[1rem] font-medium mb-2 text-foreground">
                                   {section.section_heading}
                                   {section.page && ` (Page ${section.page})`}
                                 </h4>
                               )}
-                              <p className="text-[1rem]">
-                                {section.text_snippet}
+                              <p className="text-[1rem] text-muted-foreground">
+                                "...{section.text_snippet}..."
                               </p>
                               {!section.section_heading && section.page && (
                                 <p className="text-xs text-muted-foreground mt-2">
@@ -168,7 +173,7 @@ const Page = () => {
             )}
           </div>
 
-          <div className="-translate-y-12 w-full transition-transform duration-700 ease-in-out bg-background/60 backdrop-blur-sm pb-1[rem]">
+          <div className="-translate-y-20 w-full transition-transform duration-700 ease-in-out bg-background/80 backdrop-blur-sm pb-[1rem]">
             {!relevance && (
               <h1 className="text-center max-w-[90%] mx-auto text-[2rem] mb-[2rem] text-foreground">
                 Check a paper's relevance in seconds
@@ -176,7 +181,7 @@ const Page = () => {
             )}{" "}
             <form
               id="uploadForm"
-              className="flex flex-col max-w-[90%] justify-end gap-2 border p-[1rem] mb-[1rem] text-[1rem] rounded-[2rem] bg-transparent mx-auto md:w-[42rem] px-[1rem] md:px-[1rem] "
+              className="flex flex-col max-w-[90%] justify-end gap-2 border p-[1rem] mb-[1rem] text-[1rem] rounded-[1.5rem] bg-transparent mx-auto md:w-[42rem] px-[1rem] md:px-[1rem] "
               onSubmit={(e) => {
                 e.preventDefault();
                 handleCheckRelevance();
@@ -214,7 +219,7 @@ const Page = () => {
                         className={`h-[2.25rem] rounded-[3rem] px-4 bg-transparent ${
                           inputMode === "url"
                             ? "bg-[#FFBAD8]/20 text-[#FFBAD8] hover:bg-[#FFBAD8]/10 border border-[#FFBAD8] cursor-pointer"
-                            : "bg-background hover:bg-[#FFBAD8]/10 text-[#FFBAD8] border border-[#FFBAD8] cursor-pointer"
+                            : "bg-[#FFBAD8]/20 hover:bg-[#FFBAD8]/10 text-[#FFBAD8] border border-[#FFBAD8] cursor-pointer"
                         }`}
                       >
                         <LinkIcon size={16} className="mr-1" />
@@ -256,7 +261,7 @@ const Page = () => {
                       <div className="flex items-center justify-center w-full">
                         <Input
                           placeholder="https://example.pdf"
-                          className="h-[2.25rem] rounded-[1rem] px-[0.5rem] shadow-none bg-background placeholder:text-muted-foreground focus:outline-none border-none"
+                          className="h-[2.25rem] rounded-[1rem] px-[0.5rem] shadow-none bg-transparent placeholder:text-muted-foreground focus:outline-none border-none"
                           value={pdfUrl}
                           onChange={handlePdfUrlChange}
                         />
@@ -269,7 +274,12 @@ const Page = () => {
                     disabled={(!file && !pdfUrl) || !topic || loading}
                   >
                     {loading ? (
-                      <Loader2 className="w-6 h-6 animate-spin" />
+                      <span className="flex items-center gap-2">
+                        <Loader2 className="w-6 h-6 animate-spin" />
+                        {retrying && (
+                          <span className="text-[1rem]">Retrying...</span>
+                        )}
+                      </span>
                     ) : (
                       <ArrowUp className="w-6 h-6" />
                     )}
@@ -278,7 +288,7 @@ const Page = () => {
               </div>
             </form>
             {!relevance && (
-              <div className="md:flex hidden w-full z-4 flex-col text-foreground items-center pb-[6rem] text-[1rem]">
+              <div className="md:flex hidden w-full z-4 flex-col text-foreground items-center pt-[6rem] text-[1rem]">
                 trusted by students of
                 <div className="relative md:w-[42rem] overflow-hidden py-[3rem]">
                   <div className="flex gap-[8rem] opacity-60 animate-marquee whitespace-nowrap">
