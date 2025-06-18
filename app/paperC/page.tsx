@@ -37,6 +37,11 @@ import {
 } from "@/components/ui/popover";
 import React from "react";
 import SidebarNav from "@/components/SidebarNav";
+import References from "@/components/PaperComponents/References";
+import BiblStructure, {
+  BiblographyEntry,
+} from "@/components/PaperComponents/BiblStructure";
+import PaperNotes, { Note } from "@/components/PaperComponents/PaperNotes";
 
 gsap.registerPlugin(useGSAP);
 
@@ -60,10 +65,17 @@ interface Acronyms {
   value: string;
   explanation: string;
 }
+
+interface Reference {
+  id: string;
+  target: string;
+  text: string;
+  type: string;
+}
 interface GrobidParagraph {
   order_index: number;
   text: string;
-  refs?: Record<string, unknown>;
+  refs?: Record<string, Reference>;
   simplifiedText?: string;
 }
 
@@ -117,6 +129,8 @@ interface GrobidContentResponse {
   grobidFigures: GrobidFigure[];
   grobidAbstract: GrobidAbstract;
   geminiKeywords: Keyword[];
+  references: BiblographyEntry[];
+  paperNotes: Note[];
 }
 
 interface ImageUrl {
@@ -164,80 +178,80 @@ function PaperContent() {
   const [showPaper, setShowPaper] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  function renderWithGlossaryAndLinks(text: string, keywords: Keyword[]) {
-    // Sort keywords by length (desc) to avoid partial matches
-    const sortedKeywords = [...keywords].sort(
-      (a, b) => b.keyword.length - a.keyword.length
-    );
+  // function renderWithGlossaryAndLinks(text: string, keywords: Keyword[]) {
+  //   // Sort keywords by length (desc) to avoid partial matches
+  //   const sortedKeywords = [...keywords].sort(
+  //     (a, b) => b.keyword.length - a.keyword.length
+  //   );
 
-    // Build a regex for all keywords and Figure/Table
-    const keywordPattern = sortedKeywords
-      .map((kw) => kw.keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-      .join("|");
-    const pattern = new RegExp(`(Figure|Table|${keywordPattern})`, "gi");
+  //   // Build a regex for all keywords and Figure/Table
+  //   const keywordPattern = sortedKeywords
+  //     .map((kw) => kw.keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+  //     .join("|");
+  //   const pattern = new RegExp(`(Figure|Table|${keywordPattern})`, "gi");
 
-    const parts = [];
-    let lastIndex = 0;
-    let match;
-    let idx = 0;
+  //   const parts = [];
+  //   let lastIndex = 0;
+  //   let match;
+  //   let idx = 0;
 
-    while ((match = pattern.exec(text)) !== null) {
-      const before = text.slice(lastIndex, match.index);
-      if (before) parts.push(before);
+  //   while ((match = pattern.exec(text)) !== null) {
+  //     const before = text.slice(lastIndex, match.index);
+  //     if (before) parts.push(before);
 
-      const matched = match[0];
-      if (matched === "Figure" || matched === "Table") {
-        parts.push(
-          <span
-            key={`figtable-${idx}`}
-            className="text-blue-600 underline cursor-pointer"
-            onClick={() => {
-              document
-                .getElementById("figures-section")
-                ?.scrollIntoView({ behavior: "smooth" });
-            }}
-          >
-            {matched}
-          </span>
-        );
-      } else {
-        // Find the keyword object (case-insensitive)
-        const kwObj = sortedKeywords.find(
-          (kw) => kw.keyword.toLowerCase() === matched.toLowerCase()
-        );
-        if (kwObj) {
-          parts.push(
-            <Popover key={`kw-${idx}`}>
-              <PopoverTrigger asChild>
-                <span className="relative text-foreground p-1 font-medium rounded-sm border-muted-foreground/30 border transition duration-200 cursor-pointer hover:bg-muted-foreground/30">
-                  {matched}
-                </span>
-              </PopoverTrigger>
-              <PopoverContent className="w-64 bg-background border border-border rounded-[1rem] shadow-lg p-[1rem] text-[1rem]">
-                <span className="block text-[1rem] text-primary font-bold mb-1">
-                  {kwObj.keyword}
-                </span>
-                <span className="block text-[1rem] text-primary font-bold mb-1">
-                  {kwObj.value}
-                </span>
-                <span className="block text-[1rem] text-muted-foreground">
-                  {kwObj.explanation}
-                </span>
-              </PopoverContent>
-            </Popover>
-          );
-        } else {
-          parts.push(matched);
-        }
-      }
-      lastIndex = pattern.lastIndex;
-      idx++;
-    }
-    if (lastIndex < text.length) {
-      parts.push(text.slice(lastIndex));
-    }
-    return parts;
-  }
+  //     const matched = match[0];
+  //     if (matched === "Figure" || matched === "Table") {
+  //       parts.push(
+  //         <span
+  //           key={`figtable-${idx}`}
+  //           className="text-blue-600 underline cursor-pointer"
+  //           onClick={() => {
+  //             document
+  //               .getElementById("figures-section")
+  //               ?.scrollIntoView({ behavior: "smooth" });
+  //           }}
+  //         >
+  //           {matched}
+  //         </span>
+  //       );
+  //     } else {
+  //       // Find the keyword object (case-insensitive)
+  //       const kwObj = sortedKeywords.find(
+  //         (kw) => kw.keyword.toLowerCase() === matched.toLowerCase()
+  //       );
+  //       if (kwObj) {
+  //         parts.push(
+  //           <Popover key={`kw-${idx}`}>
+  //             <PopoverTrigger asChild>
+  //               <span className="relative text-foreground p-1 font-medium rounded-sm border-muted-foreground/30 border transition duration-200 cursor-pointer hover:bg-muted-foreground/30">
+  //                 {matched}
+  //               </span>
+  //             </PopoverTrigger>
+  //             <PopoverContent className="w-64 bg-background border border-border rounded-[1rem] shadow-lg p-[1rem] text-[1rem]">
+  //               <span className="block text-[1rem] text-primary font-bold mb-1">
+  //                 {kwObj.keyword}
+  //               </span>
+  //               <span className="block text-[1rem] text-primary font-bold mb-1">
+  //                 {kwObj.value}
+  //               </span>
+  //               <span className="block text-[1rem] text-muted-foreground">
+  //                 {kwObj.explanation}
+  //               </span>
+  //             </PopoverContent>
+  //           </Popover>
+  //         );
+  //       } else {
+  //         parts.push(matched);
+  //       }
+  //     }
+  //     lastIndex = pattern.lastIndex;
+  //     idx++;
+  //   }
+  //   if (lastIndex < text.length) {
+  //     parts.push(text.slice(lastIndex));
+  //   }
+  //   return parts;
+  // }
 
   useEffect(() => {
     console.log("imageUrls", imageUrls);
@@ -367,15 +381,21 @@ function PaperContent() {
                   {section.head_n} {section.head}
                 </h2>
               </div>
+
               {/* Section content */}
               {section.para.map((para, index) => (
                 <div key={index} className="mb-6">
                   <p className="text-foreground leading-[200%] break-words text-[1rem] mb-2">
-                    {renderWithGlossaryAndLinks(
-                      para.text,
-                      paperSummary.geminiKeywords
-                    )}
+                    {para.text}
                   </p>
+
+                  {para.refs && Object.entries(para.refs).length > 0 && (
+                    <div className="mt-2">
+                      {Object.entries(para.refs).map(([key, ref]) => (
+                        <References key={key} {...ref} />
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -412,6 +432,17 @@ function PaperContent() {
                 ))}
               </div>
             </div>
+          )}
+          {paperSummary?.references && paperSummary.references.length > 0 && (
+            <div className="my-8" id="references-section">
+              <h3 className="text-[1.5rem] font-medium mb-4">References</h3>
+              {paperSummary.references.map((ref, index) => (
+                <BiblStructure key={index} entry={ref} />
+              ))}
+            </div>
+          )}
+          {paperSummary?.paperNotes && paperSummary.paperNotes.length > 0 && (
+            <PaperNotes notes={paperSummary.paperNotes} />
           )}
         </ScrollArea>
         <div className=" hidden lg:flex h-full w-full lg:max-w-[22rem] border-t lg:p-[1rem] lg:border-l items-center justify-center">
