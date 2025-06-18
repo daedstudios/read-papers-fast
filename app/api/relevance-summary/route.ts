@@ -8,6 +8,13 @@ export const runtime = "nodejs";
 const RelevanceSchema = z.object({
   score: z.number().min(0).max(1),
   summary: z.string(),
+  relevant_sections: z.array(
+    z.object({
+      section_heading: z.string().optional(),
+      text_snippet: z.string(),
+      page: z.number().optional(),
+    })
+  ),
 });
 
 export async function POST(req: NextRequest) {
@@ -25,7 +32,21 @@ export async function POST(req: NextRequest) {
   const arrayBuffer = await (file as Blob).arrayBuffer();
 
   // Send the PDF file directly to Gemini
-  const prompt = `Given the following topic: "${topic}", evaluate how relevant the attached PDF paper is to the topic. Respond with a JSON object with a 'score' (0-1) and a 'summary' (1-2 sentences).`;
+  const prompt = `Given the following research topic: ”${topic}”, evaluate how relevant the attached PDF paper is to this topic.
+In addition to scoring and summarizing the relevance, identify and analyze the most relevant sections or paragraphs within the paper that support your evaluation only if it is relevant to the topic.
+
+Respond strictly in the following JSON format:
+{
+  "score": 0.0, // a number from 0 (not relevant) to 1 (highly relevant),
+  "summary": "1–2 sentence explanation of the relevance",
+  "relevant_sections": [
+    {
+      "section_heading": "optional heading if available",
+      "text_snippet": "relevant paragraph or snippet",
+      "page": 3 // if page info is known
+    }
+  ]
+}`;
 
   try {
     const result = await generateObject({
@@ -43,6 +64,7 @@ export async function POST(req: NextRequest) {
       maxTokens: 2048,
     });
 
+    console.log("API result:", result.object);
     return NextResponse.json({ relevance: result.object });
   } catch (error) {
     return NextResponse.json(

@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Paperclip, Loader2, X, ArrowUp } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Page = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -13,6 +14,11 @@ const Page = () => {
   const [relevance, setRelevance] = useState<{
     score: number;
     summary: string;
+    relevant_sections: Array<{
+      section_heading?: string;
+      text_snippet: string;
+      page?: number;
+    }>;
   } | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -41,34 +47,79 @@ const Page = () => {
     });
 
     const data = await res.json();
+    console.log("Received relevance data:", data);
     setRelevance(data.relevance);
     setLoading(false);
   };
 
   return (
     <>
-      <div className="relative w-screen h-full md:h-screen overflow-hidden items-center">
+      <div className="relative w-screen h-full md:h-screen items-center">
         <div className="fixed  bg-black/20 blur-lg z-[-1]" />
 
         <div className="flex flex-col justify-between h-screen">
           <div className="flex flex-col mx-auto md:w-[42rem] px-[1rem] md:px-0 pt-[8rem]">
             {relevance && (
-              <div className="p-6 border rounded-[1.5rem] bg-background/80 backdrop-blur-sm">
+              <div className=" bg-background/80 backdrop-blur-sm">
+                <div className="flex items-center mb-[1rem] justify-center w-fit h-[2.25rem] min-h-[2.25rem] border border-[#BEE2B7] bg-[#BEE2B7]/30 rounded-[3rem] px-4">
+                  <span className="text-muted-foreground">{file?.name}</span>
+                </div>
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold">Relevance Analysis</h2>
+                  <div className="flex flex-col gap-4">
+                    <h2 className="text-[1.5rem] font-medium">
+                      Relevance Analysis
+                    </h2>
+                  </div>
+
                   <div className="flex items-center">
-                    <div className="h-2.5 w-2.5 rounded-full bg-green-500 mr-2"></div>
+                    <div
+                      className={`h-2.5 w-2.5 rounded-full ${
+                        relevance.score < 0.4 ? "bg-red-500" : "bg-green-500"
+                      } mr-2`}
+                    ></div>
                     <span className="text-lg font-medium">
                       {Math.round(relevance.score * 100)}% relevant
                     </span>
                   </div>
                 </div>
-                <p className="text-muted-foreground">{relevance.summary}</p>
+                <p className="text-muted-foreground mb-6">
+                  {relevance.summary}
+                </p>
+
+                {relevance.relevant_sections &&
+                  relevance.relevant_sections.length > 0 && (
+                    <div className="space-y-4 mt-10">
+                      <h3 className="text-[1.5rem] font-medium">Snippets</h3>
+                      <div className="space-y-3">
+                        {relevance.relevant_sections.map((section, index) => (
+                          <div
+                            key={index}
+                            className="p-4 bg-background/50 rounded-lg border border-border/50"
+                          >
+                            {section.section_heading && (
+                              <h4 className="text-[1rem] font-medium mb-2 text-muted-foreground">
+                                {section.section_heading}
+                                {section.page && ` (Page ${section.page})`}
+                              </h4>
+                            )}
+                            <p className="text-[1rem]">
+                              {section.text_snippet}
+                            </p>
+                            {!section.section_heading && section.page && (
+                              <p className="text-xs text-muted-foreground mt-2">
+                                Page {section.page}
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
               </div>
             )}
           </div>
 
-          <div className="w-full">
+          <div className="w-full transition-transform duration-700 ease-in-out">
             <h1 className="text-center text-[2rem] my-[2rem] text-foreground">
               Check a paper's relevance in seconds
             </h1>
