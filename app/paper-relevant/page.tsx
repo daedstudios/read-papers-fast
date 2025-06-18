@@ -57,11 +57,11 @@ const Page = () => {
       <div className="relative w-screen h-screen overflow-hidden items-center">
         <div className="fixed  bg-black/20 blur-lg z-[-1]" />
 
-        <div className="flex flex-col justify-between h-screen mb-[1rem]">
+        <div className="flex flex-col justify-center md:justify-between h-screen mb-[1rem]">
           <div className="flex flex-col mx-auto w-full md:w-[42rem] pt-[6rem] px-[1rem] md:px-0">
             {relevance && (
               <ScrollArea className="h-[calc(100vh-16rem)] px-4 scrollbar-none relative">
-                <div className="bg-background/80 backdrop-blur-sm">
+                <div className="bg-background/80 backdrop-blur-sm my-[3rem]">
                   <div className="flex items-center mb-[1rem] justify-center w-fit h-[2.25rem] min-h-[2.25rem] border border-[#BEE2B7] bg-[#BEE2B7]/30 rounded-[3rem] px-4">
                     <span className="text-muted-foreground">{file?.name}</span>
                   </div>
