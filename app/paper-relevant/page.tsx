@@ -7,6 +7,7 @@ import { Paperclip, Loader2, X, ArrowUp, Link as LinkIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import posthog from "posthog-js";
 
 const Page = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -85,6 +86,15 @@ const Page = () => {
         const data = await res.json();
         setRelevance(data.relevance);
         success = true;
+
+        // Track successful relevance summary generation
+        posthog.capture("pdf_uploaded", {
+          topic: topic,
+          source_type: file ? "file" : "url",
+          file_name: file?.name,
+          url: pdfUrl || undefined,
+          relevance_score: data.relevance.score,
+        });
       } catch (error) {
         lastError = error;
         if (attempt === 0) {
