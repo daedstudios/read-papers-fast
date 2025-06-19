@@ -181,7 +181,7 @@ export default function SidebarNav({
                   return hasSubsections ? (
                     <Collapsible
                       key={mainNumber}
-                      defaultOpen
+                      defaultOpen={false}
                       className="group/main text-[1rem]"
                     >
                       <SidebarMenuItem>
@@ -225,7 +225,7 @@ export default function SidebarNav({
                                 return hasSubSubsections ? (
                                   <Collapsible
                                     key={subNumber}
-                                    defaultOpen
+                                    defaultOpen={false}
                                     className="group/sub"
                                   >
                                     <SidebarMenuSubItem>

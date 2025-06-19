@@ -1,4 +1,5 @@
 import React from "react";
+import { Button } from "../ui/button";
 
 interface Reference {
   target: string;
@@ -21,6 +22,32 @@ const References = ({ target, text, type }: Reference) => {
         <span className="font-medium text-gray-700">Target:</span>
         <span className="text-gray-600">{target}</span>
       </div>
+      {type === "bibr" && (
+        <Button
+          onClick={() => {
+            console.log("Scrolling to reference:", target);
+            document.getElementById(`bibr-${target}`)?.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          }}
+        >
+          take me to ref
+        </Button>
+      )}
+      {type === "foot" && (
+        <Button
+          onClick={() => {
+            console.log("Scrolling to reference:", target);
+            document.getElementById(`foot-${target}`)?.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          }}
+        >
+          take me to note
+        </Button>
+      )}
     </div>
   );
 };
