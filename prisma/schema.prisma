@@ -83,19 +83,46 @@ model Acronym {
 }
 
 model PaperContentGrobid {
-  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  created_at     DateTime? @default(now()) @db.Timestamptz(6)
+  id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at     DateTime?        @default(now()) @db.Timestamptz(6)
   head           String?
   head_n         String?
   para           Json?
   paper_id       String?
   order_index    Int?
-  paperSummaryID String?   @db.Uuid
+  paperSummaryID String?          @db.Uuid
   simplifiedText String?
   simplifiedHead String?
   geminiOrder    String?
+  paragraphs     PaperParagraph[]
 
   @@index([order_index], map: "idx_paper_content_order_index")
+}
+
+model PaperParagraph {
+  id                  String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  text               String
+  order_index        Int
+  created_at         DateTime?           @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime?           @default(now()) @db.Timestamptz(6)
+  contentGrobidId    String             @db.Uuid
+  contentGrobid      PaperContentGrobid  @relation(fields: [contentGrobidId], references: [id], onDelete: Cascade)
+  references         ParagraphReference[]
+
+  @@index([contentGrobidId])
+  @@index([order_index])
+}
+
+model ParagraphReference {
+  id              String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  ref_key         String        // The key of the reference
+  ref_text        String        // The actual text of the reference
+  created_at      DateTime?     @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime?     @default(now()) @db.Timestamptz(6)
+  paragraphId     String        @db.Uuid
+  paragraph       PaperParagraph @relation(fields: [paragraphId], references: [id], onDelete: Cascade)
+
+  @@index([paragraphId])
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -198,7 +225,6 @@ model GrobidFigureData {
   updated_at       DateTime? @default(now()) @db.Timestamptz(6)
   paper_summary_id String?   @db.Uuid
   image_url        String?
-
   @@index([paper_summary_id], map: "idx_grobid_figure_data_paper_summary_id")
   @@index([xml_id], map: "idx_grobid_figure_data_xml_id")
 }
