@@ -254,7 +254,7 @@ const Page = () => {
             e.preventDefault();
             handleSearch();
           }}
-          className="w-full max-w-[64rem] flex flex-col relative h-auto rounded-[1.5rem] text-base border border-muted-foreground/30 p-[0.75rem] shadow-md"
+          className="w-full max-w-[48rem] flex flex-col relative h-auto rounded-[1.5rem] text-base border border-muted-foreground/30 p-[0.75rem] shadow-md"
         >
           <textarea
             placeholder="Enter your research topic in about 30 words..."
@@ -283,8 +283,9 @@ const Page = () => {
       </main>
       {/* Results section */}
       {results.length > 0 && (
-        <div className="w-full max-w-[64rem] px-4 mt-8">
-          <div className="mb-4">
+        <div className="w-full max-w-[48rem] px-4 mt-[4rem]">
+          <div className="mb-4 border-b border-muted-foreground/30 pb-[2rem]">
+            <h3 className="text-[1rem] mb-[1rem] ">Keywords</h3>
             <div className="flex flex-wrap gap-2">
               {keywords.map((keyword, index) => (
                 <span
@@ -297,14 +298,16 @@ const Page = () => {
             </div>
           </div>
 
-          <h3 className="text-[1.5rem] my-[2rem]">
+          {/* <h3 className="text-[1.5rem] my-[2rem]">
             Found {results.length} relevant Papers
-          </h3>
+          </h3> */}
 
-          <div className="space-y-6 mb-[10rem]">
+          <div className="space-y-6 mb-[10rem] mt-[3rem]">
             {results.map((paper) => (
               <div key={paper.id} className="">
-                <h4 className="text-[1rem] font-medium mb-2">{paper.title}</h4>
+                <h4 className="text-[1.5rem] font-medium mb-2">
+                  {paper.title}
+                </h4>
 
                 <div className="flex flex-wrap gap-1 mb-2 text-sm text-gray-600">
                   {paper.authors.map((author, idx) => (
@@ -344,7 +347,7 @@ const Page = () => {
                             href={link.href}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center bg-[#BEE2B7]/20 text-[#BEE2B7] hover:bg-[#BEE2B7]/30 px-4 py-2 rounded-full border border-[#BEE2B7]"
+                            className="inline-flex items-center bg-foreground text-background hover:bg-foreground/80 px-4 py-2 rounded-full border border-foreground"
                           >
                             <Paperclip size={16} className="mr-1 text-[1rem]" />
                             PDF
@@ -355,10 +358,16 @@ const Page = () => {
                     })}
                   </div>
                 </div>
-                <div className="mt-4">
+                <div className=" border-b border-muted-foreground/30 py-[2rem]">
                   {evaluatedResults[paper.id]?.loading ? (
-                    <div className="text-gray-400 italic">
-                      Evaluating relevance...
+                    <div className=" rounded-[1rem] bg-white">
+                      <span className="text-[1rem] font-medium flex items-center justify-between gap-2">
+                        Relevance Score:
+                        <Loader2
+                          className="animate-spin text-gray-400"
+                          size={28}
+                        />
+                      </span>
                     </div>
                   ) : evaluatedResults[paper.id]?.relevance ? (
                     <RelevanceSummaryCard
