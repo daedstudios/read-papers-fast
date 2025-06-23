@@ -63,11 +63,11 @@ export async function POST(req: NextRequest) {
   }
 
   // Send the PDF file directly to Gemini
-  const prompt = `Given the following research topic: "${topic}", evaluate how relevant the attached PDF paper is to this topic.
-In addition to scoring and summarizing the relevance, identify and analyze the most relevant sections or paragraphs within the paper that support your evaluation only if it is relevant to the topic.
+  const prompt = `Given the following research thesis topic: "${topic}", evaluate how relevant the attached PDF paper is to this topic. The user wants you to be strict and only wants a high score if the paper is relevant for their thesis.
+In addition to scoring and summarizing the relevance, identify and analyze the most relevant sections or paragraphs within the paper that support your evaluation only if it is relevant to the topic and can possibly be used as a source for the thesis. Only if it is relevant to the topic specifically.
 
 Please follow these guidelines strictly:
-1. Score the relevance from 0.01 (not relevant) to 1.00 (highly relevant). Do not round up numbers.
+1. Score the relevance from 0.01 (not relevant) to 1.00 (highly relevant). Do not round up numbers. Use the full range. Do not default to the middle or to 0.75. Only give a score above 0.8 if the paper is extremely relevant to the topic.
 2. Provide a 1-2 sentence explanation of the relevance.
 3. If the paper is relevant, include sections or snippets that specifically relate to the topic.
 4. If section headings or page numbers are not available, you can omit them.
@@ -75,7 +75,7 @@ Please follow these guidelines strictly:
 
 Respond strictly in the following JSON format:
 {
-  "score": 0.75,
+  "score": 0.21,
   "summary": "Clear explanation of relevance in 1-2 sentences",
   "relevant_sections": [
     {

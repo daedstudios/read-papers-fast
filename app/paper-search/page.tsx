@@ -183,7 +183,7 @@ const Page = () => {
           const formData = new FormData();
           formData.append("pdfUrl", pdfLink);
           formData.append("topic", topic);
-          
+
           let attempt = 0;
           let success = false;
 
@@ -285,7 +285,7 @@ const Page = () => {
       {results.length > 0 && (
         <div className="w-full max-w-[48rem] px-4 mt-[4rem]">
           <div className="mb-4 border-b border-muted-foreground/30 pb-[2rem]">
-            <h3 className="text-[1rem] mb-[1rem] ">Keywords</h3>
+            <h3 className="text-[1rem] mb-[1rem] font-medium">Keywords</h3>
             <div className="flex flex-wrap gap-2">
               {keywords.map((keyword, index) => (
                 <span
