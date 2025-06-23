@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import {
@@ -10,10 +10,12 @@ import {
   ArrowUp,
   Link as LinkIcon,
   Search,
+  Globe,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { RelevanceSummaryCard } from "./RelevanceSummaryCard";
 
 // This will be the structure for our search results later
 type SearchResult = {
@@ -52,6 +54,12 @@ const Page = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [keywords, setKeywords] = useState<string[]>([]);
+  const [evaluatedResults, setEvaluatedResults] = useState<{
+    [paperId: string]: {
+      loading: boolean;
+      relevance: any | null;
+    };
+  }>({});
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
@@ -157,114 +165,109 @@ const Page = () => {
     }
   };
 
+  useEffect(() => {
+    if (!results.length || !topic) return;
+    let cancelled = false;
+    setEvaluatedResults({});
+    async function evaluateAll() {
+      for (const paper of results) {
+        setEvaluatedResults((prev) => ({
+          ...prev,
+          [paper.id]: { loading: true, relevance: null },
+        }));
+        const pdfLink = paper.links.find(
+          (link) => link.type === "application/pdf"
+        )?.href;
+        let relevance = null;
+        if (pdfLink) {
+          const formData = new FormData();
+          formData.append("pdfUrl", pdfLink);
+          formData.append("topic", topic);
+          try {
+            const res = await fetch("/api/relevance-summary", {
+              method: "POST",
+              body: formData,
+            });
+            const data = await res.json();
+            relevance = data.relevance;
+          } catch (e) {
+            relevance = {
+              score: 0,
+              summary: "Failed to evaluate.",
+              relevant_sections: [],
+            };
+          }
+        } else {
+          relevance = {
+            score: 0,
+            summary: "No PDF link.",
+            relevant_sections: [],
+          };
+        }
+        if (!cancelled) {
+          setEvaluatedResults((prev) => ({
+            ...prev,
+            [paper.id]: { loading: false, relevance },
+          }));
+        }
+      }
+    }
+    evaluateAll();
+    return () => {
+      cancelled = true;
+    };
+  }, [results, topic]);
+
   return (
     <div className="bg-white text-black min-h-screen flex items-center justify-center flex-col">
-      <main className="flex w-[48rem] flex-col items-center justify-center text-center px-4">
-        <h2 className="text-[2rem] mb-[2rem]">
-          Find relevant papers for your research
-        </h2>
+      {results.length > 0 && <div className="mt-[10rem]" />}
+      <main className="flex w-[48rem] max-w-screen flex-col items-center justify-center text-center px-4">
+        {results.length > 0 && (
+          <div className="text-[2rem] mb-8">
+            <h2>Search Results</h2>
+          </div>
+        )}
+        {!results.length && (
+          <h2 className="text-[2rem] mb-[2rem]">
+            Find relevant papers for your research
+          </h2>
+        )}
         <form
           onSubmit={(e) => {
             e.preventDefault();
             handleSearch();
           }}
-          className="w-full max-w-[64rem] flex flex-col relative h-auto gap-[1rem] rounded-[1.5rem] text-base border border-muted-foreground/30 p-[1rem]"
+          className="w-full max-w-[64rem] flex flex-col relative h-auto rounded-[1.5rem] text-base border border-muted-foreground/30 p-[0.75rem] shadow-md"
         >
-          <Input
+          <textarea
             placeholder="Enter your research topic in about 30 words..."
-            className="border-none shadow-none bg-transparent placeholder:text-muted-foreground focus:outline-none focus:ring-0"
+            className="text-[1rem] border-none shadow-none bg-transparent placeholder:text-muted-foreground focus:outline-none focus:ring-0 resize-none w-full min-h-[2.5rem] max-h-[10rem] rounded-md p-2"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
+            rows={2}
           />
-          <div className="flex items-end justify-end">
+          <div className="flex items-end justify-end mt-[0.5rem]">
             <Button
               type="submit"
-              className="justify-end items-center rounded-full h-[2.25rem] ml-auto bg-foreground cursor-pointer text-background px-4 border-none shadow-none w-auto placeholder:text-muted-foreground focus:outline-none focus:ring-0"
+              className="justify-end items-center rounded-full ml-auto bg-foreground cursor-pointer text-background px-4 border-none shadow-none w-auto placeholder:text-muted-foreground focus:outline-none focus:ring-0"
               disabled={loading}
             >
               {loading ? (
                 <Loader2 className="animate-spin" />
               ) : (
                 <>
-                  <span className="mr-2">search</span>
-                  <Search size={16} />
+                  <span className="text-[1rem]">find papers</span>
+                  <Globe size={16} />
                 </>
               )}
             </Button>
           </div>
         </form>
-        <div className="flex gap-2 mt-[1rem] w-full items-start justify-start">
-          <Button
-            type="button"
-            onClick={() => {
-              setInputMode("file");
-              fileInputRef.current?.click();
-            }}
-            className={`h-[2.25rem] rounded-[3rem] px-4 ${
-              inputMode === "file"
-                ? "bg-[#FED68C]/20 text-[#FED68C] hover:bg-[#FED68C]/10 border border-[#FED68C] cursor-pointer"
-                : "bg-background hover:bg-[#FED68C]/20 border border-[#FED68C] text-[#FED68C]"
-            }`}
-          >
-            <Paperclip size={16} className="mr-1" />
-            Upload PDF
-          </Button>
-          <Button
-            type="button"
-            onClick={() => setInputMode("url")}
-            className={`h-[2.25rem] rounded-[3rem] px-4 bg-transparent ${
-              inputMode === "url"
-                ? "bg-[#FFBAD8]/20 text-[#FFBAD8] hover:bg-[#FFBAD8]/10 border border-[#FFBAD8] cursor-pointer"
-                : "bg-[#FFBAD8]/20 hover:bg-[#FFBAD8]/10 text-[#FFBAD8] border border-[#FFBAD8] cursor-pointer"
-            }`}
-          >
-            <LinkIcon size={16} className="mr-1" />
-            PDF URL
-          </Button>
-        </div>
-        {inputMode === "file" ? (
-          !file ? (
-            <>
-              <Input
-                className="hidden"
-                id="file-upload"
-                type="file"
-                accept=".pdf"
-                onChange={handleFileUpload}
-                ref={fileInputRef}
-              />
-            </>
-          ) : (
-            <div className="flex justify-start w-[10rem] h-[2.25rem] min-h-[2.25rem] border border-muted-foreground/30 bg-background rounded-[3rem] px-2">
-              <span className="truncate w-full text-muted-foreground mr-2">
-                {file.name}
-              </span>
-              <button
-                type="button"
-                onClick={handleRemoveFile}
-                className="hover:bg-muted rounded-full p-1 ml-1 cursor-pointer"
-                aria-label="Remove file"
-              >
-                <X size={18} className="text-muted-foreground cursor-pointer" />
-              </button>
-            </div>
-          )
-        ) : (
-          <div className="flex items-center justify-center w-full">
-            <Input
-              placeholder="https://example.pdf"
-              className="h-[2.25rem] rounded-[1rem] px-[0.5rem] shadow-none bg-transparent placeholder:text-muted-foreground focus:outline-none border-none"
-              value={pdfUrl}
-              onChange={handlePdfUrlChange}
-            />
-          </div>
-        )}
       </main>
       {/* Results section */}
       {results.length > 0 && (
         <div className="w-full max-w-[64rem] px-4 mt-8">
           <div className="mb-4">
-            <h3 className="text-xl font-semibold mb-2">Search Keywords</h3>
             <div className="flex flex-wrap gap-2">
               {keywords.map((keyword, index) => (
                 <span
@@ -277,17 +280,14 @@ const Page = () => {
             </div>
           </div>
 
-          <h3 className="text-xl font-semibold mb-4">
-            Found {results.length} Papers
+          <h3 className="text-[1.5rem] my-[2rem]">
+            Found {results.length} relevant Papers
           </h3>
 
-          <div className="space-y-6">
+          <div className="space-y-6 mb-[10rem]">
             {results.map((paper) => (
-              <div
-                key={paper.id}
-                className="border border-muted-foreground/30 rounded-lg p-4 hover:shadow-md transition-shadow"
-              >
-                <h4 className="text-lg font-medium mb-2">{paper.title}</h4>
+              <div key={paper.id} className="">
+                <h4 className="text-[1rem] font-medium mb-2">{paper.title}</h4>
 
                 <div className="flex flex-wrap gap-1 mb-2 text-sm text-gray-600">
                   {paper.authors.map((author, idx) => (
@@ -298,7 +298,7 @@ const Page = () => {
                   ))}
                 </div>
 
-                <p className="text-sm text-gray-700 mb-3 line-clamp-3">
+                <p className="text-[1rem] text-gray-700 mb-3 line-clamp-3">
                   {paper.summary}
                 </p>
 
@@ -327,9 +327,9 @@ const Page = () => {
                             href={link.href}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center bg-[#BEE2B7]/20 text-[#BEE2B7] hover:bg-[#BEE2B7]/30 px-3 py-1 rounded-full border border-[#BEE2B7]"
+                            className="inline-flex items-center bg-[#BEE2B7]/20 text-[#BEE2B7] hover:bg-[#BEE2B7]/30 px-4 py-2 rounded-full border border-[#BEE2B7]"
                           >
-                            <Paperclip size={12} className="mr-1" />
+                            <Paperclip size={16} className="mr-1 text-[1rem]" />
                             PDF
                           </a>
                         );
@@ -337,6 +337,17 @@ const Page = () => {
                       return null;
                     })}
                   </div>
+                </div>
+                <div className="mt-4">
+                  {evaluatedResults[paper.id]?.loading ? (
+                    <div className="text-gray-400 italic">
+                      Evaluating relevance...
+                    </div>
+                  ) : evaluatedResults[paper.id]?.relevance ? (
+                    <RelevanceSummaryCard
+                      data={evaluatedResults[paper.id].relevance}
+                    />
+                  ) : null}
                 </div>
               </div>
             ))}
