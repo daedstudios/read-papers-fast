@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Prompt to generate keywords from the user's topic
-  const prompt = `Based on the following research topic, generate 5 relevant keywords that can be used to search for academic papers. The goal is to not just find papers that are related to the topic, but to find papers that are actually relevant to the topic. The keywords should be specific and not too broad, as they will be used to search for papers on arXiv.
+  const prompt = `Based on the following research topic, generate 5 relevant keywords that can be used to search for academic papers.
   
   Topic: "${topic}"
   
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
       .join(" OR ");
 
     // Call arXiv API with the generated keywords
-    const arxivApiUrl = `http://export.arxiv.org/api/query?search_query=${arxivQuery}&start=0&max_results=10`;
+    const arxivApiUrl = `http://export.arxiv.org/api/query?search_query=${arxivQuery}&start=0&max_results=100`;
 
     console.log("Calling arXiv API with URL:", arxivApiUrl);
 
