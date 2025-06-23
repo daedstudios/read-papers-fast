@@ -131,6 +131,7 @@ interface GrobidContentResponse {
   geminiKeywords: Keyword[];
   references: BiblographyEntry[];
   paperNotes: Note[];
+  pdfURL: { pdf_file_path: string } | null;
 }
 
 interface ImageUrl {
@@ -361,6 +362,21 @@ function PaperContent() {
               </span>
             )}
           </div>
+          {paperSummary?.pdfURL?.pdf_file_path &&
+            (console.log("paperSummary.pdfURL", paperSummary.pdfURL),
+            (
+              <div className="flex justify-end mb-4">
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    window.open(paperSummary.pdfURL?.pdf_file_path, "_blank")
+                  }
+                  className="flex items-center gap-2"
+                >
+                  Open PDF
+                </Button>
+              </div>
+            ))}
           {paperSummary?.grobidAbstract && (
             <div className="mb-10 ">
               <h1 className="text-4xl font-medium mb-4">
