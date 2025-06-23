@@ -30,7 +30,9 @@ export function RelevanceSummaryCard({ data }: { data: RelevanceSummary }) {
   return (
     <div className="">
       <div className="flex items-center gap-4 mb-2">
-        <span className={`text-xl font-medium ${getScoreColor(data.score)}`}>
+        <span
+          className={`text-[1.25rem] font-medium  ${getScoreColor(data.score)}`}
+        >
           Relevance Score: {(data.score * 100).toFixed(1)}%
         </span>
       </div>
