@@ -17,14 +17,20 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 // This will be the structure for our search results later
 type SearchResult = {
+  id: string;
   title: string;
   authors: string[];
   summary: string;
-  pdfUrl: string;
-  relevance: {
-    score: number;
-    summary: string;
-  };
+  published: string;
+  updated: string;
+  links: {
+    href: string;
+    type: string;
+    rel: string;
+  }[];
+  doi?: string;
+  primaryCategory?: string;
+  categories?: string[];
 };
 
 const Page = () => {
@@ -45,6 +51,7 @@ const Page = () => {
   const [retrying, setRetrying] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [results, setResults] = useState<SearchResult[]>([]);
+  const [keywords, setKeywords] = useState<string[]>([]);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
@@ -120,10 +127,10 @@ const Page = () => {
     setRetrying(false);
     setLoading(false);
   };
-
   const handleSearch = async () => {
     if (!topic) return;
     setLoading(true);
+    setResults([]);
 
     try {
       const response = await fetch("/api/paper-search", {
@@ -135,15 +142,16 @@ const Page = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to generate keywords");
+        throw new Error("Failed to search for papers");
       }
 
       const data = await response.json();
-      console.log("Generated Keywords:", data.keywords);
-      // Next, we will use these keywords to call the arXiv API.
+      setKeywords(data.keywords);
+      setResults(data.papers);
+      console.log("Search results:", data);
     } catch (error) {
       console.error(error);
-      // Handle error state for the user
+      alert("Failed to search for papers. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -252,6 +260,89 @@ const Page = () => {
           </div>
         )}
       </main>
+      {/* Results section */}
+      {results.length > 0 && (
+        <div className="w-full max-w-[64rem] px-4 mt-8">
+          <div className="mb-4">
+            <h3 className="text-xl font-semibold mb-2">Search Keywords</h3>
+            <div className="flex flex-wrap gap-2">
+              {keywords.map((keyword, index) => (
+                <span
+                  key={index}
+                  className="bg-[#FED68C]/20 text-[#FED68C] px-3 py-1 rounded-full text-sm border border-[#FED68C]"
+                >
+                  {keyword}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <h3 className="text-xl font-semibold mb-4">
+            Found {results.length} Papers
+          </h3>
+
+          <div className="space-y-6">
+            {results.map((paper) => (
+              <div
+                key={paper.id}
+                className="border border-muted-foreground/30 rounded-lg p-4 hover:shadow-md transition-shadow"
+              >
+                <h4 className="text-lg font-medium mb-2">{paper.title}</h4>
+
+                <div className="flex flex-wrap gap-1 mb-2 text-sm text-gray-600">
+                  {paper.authors.map((author, idx) => (
+                    <span key={idx}>
+                      {author}
+                      {idx < paper.authors.length - 1 ? ", " : ""}
+                    </span>
+                  ))}
+                </div>
+
+                <p className="text-sm text-gray-700 mb-3 line-clamp-3">
+                  {paper.summary}
+                </p>
+
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {paper.categories?.map((category, idx) => (
+                    <span
+                      key={idx}
+                      className="bg-[#FFBAD8]/20 text-[#FFBAD8] px-2 py-0.5 rounded-full text-xs border border-[#FFBAD8]"
+                    >
+                      {category}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="flex justify-between items-center text-xs text-gray-500">
+                  <span>
+                    Published: {new Date(paper.published).toLocaleDateString()}
+                  </span>
+
+                  <div className="flex gap-2">
+                    {paper.links?.map((link, idx) => {
+                      if (link.type === "application/pdf") {
+                        return (
+                          <a
+                            key={idx}
+                            href={link.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center bg-[#BEE2B7]/20 text-[#BEE2B7] hover:bg-[#BEE2B7]/30 px-3 py-1 rounded-full border border-[#BEE2B7]"
+                          >
+                            <Paperclip size={12} className="mr-1" />
+                            PDF
+                          </a>
+                        );
+                      }
+                      return null;
+                    })}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
