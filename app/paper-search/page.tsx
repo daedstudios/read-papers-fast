@@ -183,19 +183,36 @@ const Page = () => {
           const formData = new FormData();
           formData.append("pdfUrl", pdfLink);
           formData.append("topic", topic);
-          try {
-            const res = await fetch("/api/relevance-summary", {
-              method: "POST",
-              body: formData,
-            });
-            const data = await res.json();
-            relevance = data.relevance;
-          } catch (e) {
-            relevance = {
-              score: 0,
-              summary: "Failed to evaluate.",
-              relevant_sections: [],
-            };
+          
+          let attempt = 0;
+          let success = false;
+
+          while (attempt < 2 && !success && !cancelled) {
+            try {
+              const res = await fetch("/api/relevance-summary", {
+                method: "POST",
+                body: formData,
+              });
+              if (!res.ok) {
+                throw new Error("Request failed");
+              }
+              const data = await res.json();
+              relevance = data.relevance;
+              success = true;
+            } catch (e) {
+              console.error(`Attempt ${attempt + 1} failed:`, e);
+              if (attempt === 0) {
+                // Wait a bit before retrying
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+              } else {
+                relevance = {
+                  score: 0,
+                  summary: "Failed to evaluate after retry.",
+                  relevant_sections: [],
+                };
+              }
+            }
+            attempt++;
           }
         } else {
           relevance = {
