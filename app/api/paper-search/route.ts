@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
       .join(" OR ");
 
     // Call arXiv API with the generated keywords
-    const arxivApiUrl = `http://export.arxiv.org/api/query?search_query=${arxivQuery}&start=0&max_results=100`;
+    const arxivApiUrl = `http://export.arxiv.org/api/query?search_query=${arxivQuery}&start=0&max_results=10`;
 
     console.log("Calling arXiv API with URL:", arxivApiUrl);
 

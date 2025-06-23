@@ -159,16 +159,24 @@ const Page = () => {
 
   return (
     <div className="bg-white text-black min-h-screen flex items-center justify-center flex-col">
-      <main className="flex w-[48rem] flex-col items-center justify-center text-center px-4">
-        <h2 className="text-[2rem] mb-[2rem]">
-          Find relevant papers for your research
-        </h2>
+      {results.length > 0 && <div className="mt-[10rem]" />}
+      <main className="flex w-[48rem] max-w-screen flex-col items-center justify-center text-center px-4">
+        {results.length > 0 && (
+          <div className="text-[2rem] mb-8">
+            <h2>Search Results</h2>
+          </div>
+        )}
+        {!results.length && (
+          <h2 className="text-[2rem] mb-[2rem]">
+            Find relevant papers for your research
+          </h2>
+        )}
         <form
           onSubmit={(e) => {
             e.preventDefault();
             handleSearch();
           }}
-          className="w-full max-w-[64rem] flex flex-col relative h-auto gap-[1rem] rounded-[1.5rem] text-base border border-muted-foreground/30 p-[1rem]"
+          className="w-full max-w-[64rem] flex flex-col relative h-auto gap-[1rem] rounded-[1rem] text-base border border-muted-foreground/30 p-[1rem]"
         >
           <Input
             placeholder="Enter your research topic in about 30 words..."
@@ -193,78 +201,11 @@ const Page = () => {
             </Button>
           </div>
         </form>
-        <div className="flex gap-2 mt-[1rem] w-full items-start justify-start">
-          <Button
-            type="button"
-            onClick={() => {
-              setInputMode("file");
-              fileInputRef.current?.click();
-            }}
-            className={`h-[2.25rem] rounded-[3rem] px-4 ${
-              inputMode === "file"
-                ? "bg-[#FED68C]/20 text-[#FED68C] hover:bg-[#FED68C]/10 border border-[#FED68C] cursor-pointer"
-                : "bg-background hover:bg-[#FED68C]/20 border border-[#FED68C] text-[#FED68C]"
-            }`}
-          >
-            <Paperclip size={16} className="mr-1" />
-            Upload PDF
-          </Button>
-          <Button
-            type="button"
-            onClick={() => setInputMode("url")}
-            className={`h-[2.25rem] rounded-[3rem] px-4 bg-transparent ${
-              inputMode === "url"
-                ? "bg-[#FFBAD8]/20 text-[#FFBAD8] hover:bg-[#FFBAD8]/10 border border-[#FFBAD8] cursor-pointer"
-                : "bg-[#FFBAD8]/20 hover:bg-[#FFBAD8]/10 text-[#FFBAD8] border border-[#FFBAD8] cursor-pointer"
-            }`}
-          >
-            <LinkIcon size={16} className="mr-1" />
-            PDF URL
-          </Button>
-        </div>
-        {inputMode === "file" ? (
-          !file ? (
-            <>
-              <Input
-                className="hidden"
-                id="file-upload"
-                type="file"
-                accept=".pdf"
-                onChange={handleFileUpload}
-                ref={fileInputRef}
-              />
-            </>
-          ) : (
-            <div className="flex justify-start w-[10rem] h-[2.25rem] min-h-[2.25rem] border border-muted-foreground/30 bg-background rounded-[3rem] px-2">
-              <span className="truncate w-full text-muted-foreground mr-2">
-                {file.name}
-              </span>
-              <button
-                type="button"
-                onClick={handleRemoveFile}
-                className="hover:bg-muted rounded-full p-1 ml-1 cursor-pointer"
-                aria-label="Remove file"
-              >
-                <X size={18} className="text-muted-foreground cursor-pointer" />
-              </button>
-            </div>
-          )
-        ) : (
-          <div className="flex items-center justify-center w-full">
-            <Input
-              placeholder="https://example.pdf"
-              className="h-[2.25rem] rounded-[1rem] px-[0.5rem] shadow-none bg-transparent placeholder:text-muted-foreground focus:outline-none border-none"
-              value={pdfUrl}
-              onChange={handlePdfUrlChange}
-            />
-          </div>
-        )}
       </main>
       {/* Results section */}
       {results.length > 0 && (
         <div className="w-full max-w-[64rem] px-4 mt-8">
           <div className="mb-4">
-            <h3 className="text-xl font-semibold mb-2">Search Keywords</h3>
             <div className="flex flex-wrap gap-2">
               {keywords.map((keyword, index) => (
                 <span
@@ -277,7 +218,7 @@ const Page = () => {
             </div>
           </div>
 
-          <h3 className="text-xl font-semibold mb-4">
+          <h3 className="text-[1.5rem] my-[2rem]">
             Found {results.length} Papers
           </h3>
 
@@ -285,7 +226,7 @@ const Page = () => {
             {results.map((paper) => (
               <div
                 key={paper.id}
-                className="border border-muted-foreground/30 rounded-lg p-4 hover:shadow-md transition-shadow"
+                className="border border-muted-foreground/30 rounded-[1rem] p-4 hover:shadow-md transition-shadow"
               >
                 <h4 className="text-lg font-medium mb-2">{paper.title}</h4>
 
