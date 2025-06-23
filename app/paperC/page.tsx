@@ -156,103 +156,8 @@ function PaperContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const menuRef = useRef<HTMLDivElement>(null);
-  const keyWordRef = useRef<HTMLDivElement>(null);
-  const [open, setOpen] = useState(false);
-
   const [imageUrls, setImageUrls] = useState<ImageUrl[] | []>([]);
-  const [summaryOpen, setSummaryOpen] = useState(false);
-  const [authorsOpen, setAuthorsOpen] = useState(false);
-  const [loadingPara, setLoadingPara] = useState<string | null>(null);
-  const [showSimplified, setShowSimplified] = useState<Record<string, boolean>>(
-    {}
-  );
-  const [showParaSimplified, setShowParaSimplified] = useState<
-    Record<string, boolean>
-  >({});
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
-
-  const [pdfFile, setPdfFile] = useState<File | null>(null);
-  const [summary, setSummary] = useState<string | null>(null);
-  const [summaryLoading, setSummaryLoading] = useState(false);
-  const [summaryError, setSummaryError] = useState<string | null>(null);
-  const [showPaper, setShowPaper] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // function renderWithGlossaryAndLinks(text: string, keywords: Keyword[]) {
-  //   // Sort keywords by length (desc) to avoid partial matches
-  //   const sortedKeywords = [...keywords].sort(
-  //     (a, b) => b.keyword.length - a.keyword.length
-  //   );
-
-  //   // Build a regex for all keywords and Figure/Table
-  //   const keywordPattern = sortedKeywords
-  //     .map((kw) => kw.keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-  //     .join("|");
-  //   const pattern = new RegExp(`(Figure|Table|${keywordPattern})`, "gi");
-
-  //   const parts = [];
-  //   let lastIndex = 0;
-  //   let match;
-  //   let idx = 0;
-
-  //   while ((match = pattern.exec(text)) !== null) {
-  //     const before = text.slice(lastIndex, match.index);
-  //     if (before) parts.push(before);
-
-  //     const matched = match[0];
-  //     if (matched === "Figure" || matched === "Table") {
-  //       parts.push(
-  //         <span
-  //           key={`figtable-${idx}`}
-  //           className="text-blue-600 underline cursor-pointer"
-  //           onClick={() => {
-  //             document
-  //               .getElementById("figures-section")
-  //               ?.scrollIntoView({ behavior: "smooth" });
-  //           }}
-  //         >
-  //           {matched}
-  //         </span>
-  //       );
-  //     } else {
-  //       // Find the keyword object (case-insensitive)
-  //       const kwObj = sortedKeywords.find(
-  //         (kw) => kw.keyword.toLowerCase() === matched.toLowerCase()
-  //       );
-  //       if (kwObj) {
-  //         parts.push(
-  //           <Popover key={`kw-${idx}`}>
-  //             <PopoverTrigger asChild>
-  //               <span className="relative text-foreground p-1 font-medium rounded-sm border-muted-foreground/30 border transition duration-200 cursor-pointer hover:bg-muted-foreground/30">
-  //                 {matched}
-  //               </span>
-  //             </PopoverTrigger>
-  //             <PopoverContent className="w-64 bg-background border border-border rounded-[1rem] shadow-lg p-[1rem] text-[1rem]">
-  //               <span className="block text-[1rem] text-primary font-bold mb-1">
-  //                 {kwObj.keyword}
-  //               </span>
-  //               <span className="block text-[1rem] text-primary font-bold mb-1">
-  //                 {kwObj.value}
-  //               </span>
-  //               <span className="block text-[1rem] text-muted-foreground">
-  //                 {kwObj.explanation}
-  //               </span>
-  //             </PopoverContent>
-  //           </Popover>
-  //         );
-  //       } else {
-  //         parts.push(matched);
-  //       }
-  //     }
-  //     lastIndex = pattern.lastIndex;
-  //     idx++;
-  //   }
-  //   if (lastIndex < text.length) {
-  //     parts.push(text.slice(lastIndex));
-  //   }
-  //   return parts;
-  // }
 
   useEffect(() => {
     console.log("imageUrls", imageUrls);
@@ -289,67 +194,10 @@ function PaperContent() {
     fetchPaperSummary();
   }, [id]);
 
-  // Fetch relevance summary as soon as file is selected
-  useEffect(() => {
-    if (!pdfFile) return;
-    setSummaryLoading(true);
-    setSummaryError(null);
-    setSummary(null);
-    const fetchSummary = async () => {
-      try {
-        const formData = new FormData();
-        formData.append("pdf", pdfFile);
-        const res = await fetch("/api/relevance-summary", {
-          method: "POST",
-          body: formData,
-        });
-        if (!res.ok) throw new Error("Failed to get relevance summary");
-        const data = await res.json();
-        setSummary(data.summary);
-      } catch (err) {
-        setSummaryError("Failed to load relevance summary");
-      } finally {
-        setSummaryLoading(false);
-      }
-    };
-    fetchSummary();
-  }, [pdfFile]);
-
-  // Scrollspy effect
-  useEffect(() => {
-    if (!paperSummary?.grobidContent) return;
-    const sectionIds = paperSummary.grobidContent.map((s) => s.id);
-    const sectionElements = sectionIds
-      .map((id) => document.getElementById(id))
-      .filter(Boolean);
-
-    if (sectionElements.length === 0) return;
-
-    const observer = new window.IntersectionObserver(
-      (entries) => {
-        // Find the entry that is most in view
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-        if (visible.length > 0) {
-          setActiveSectionId(visible[0].target.id);
-        }
-      },
-      { rootMargin: "-30% 0px -60% 0px", threshold: [0, 0.25, 0.5, 0.75, 1] }
-    );
-
-    sectionElements.forEach((el) => observer.observe(el!));
-    return () => observer.disconnect();
-  }, [paperSummary]);
-
   return (
     <>
       <div className="flex flex-row  w-full h-[92vh] mt-[8vh]">
-        <SidebarNav
-          sections={paperSummary?.grobidContent || []}
-          activeSectionId={activeSectionId || undefined}
-          onSectionClick={() => {}}
-        />
+        <SidebarNav id={id || ""} />
 
         <ScrollArea className="w-full border-t p-[1rem] h-full">
           <div className="flex flex-row justify-between">
