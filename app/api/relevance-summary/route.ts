@@ -8,13 +8,16 @@ export const runtime = "nodejs";
 const RelevanceSchema = z.object({
   score: z.number().min(0).max(1),
   summary: z.string(),
-  relevant_sections: z.array(
-    z.object({
-      section_heading: z.string().optional(),
-      text_snippet: z.string(),
-      page: z.number().optional(),
-    })
-  ),
+  relevant_sections: z
+    .array(
+      z.object({
+        section_heading: z.string().optional().nullable(),
+        text_snippet: z.string(),
+        page: z.number().optional().nullable(),
+      })
+    )
+    .optional()
+    .default([]),
 });
 
 export async function POST(req: NextRequest) {
@@ -60,21 +63,30 @@ export async function POST(req: NextRequest) {
   }
 
   // Send the PDF file directly to Gemini
-  const prompt = `Given the following research topic: ”${topic}”, evaluate how relevant the attached PDF paper is to this topic.
+  const prompt = `Given the following research topic: "${topic}", evaluate how relevant the attached PDF paper is to this topic.
 In addition to scoring and summarizing the relevance, identify and analyze the most relevant sections or paragraphs within the paper that support your evaluation only if it is relevant to the topic.
+
+Please follow these guidelines strictly:
+1. Score the relevance from 0.01 (not relevant) to 1.00 (highly relevant). Do not round up numbers.
+2. Provide a 1-2 sentence explanation of the relevance.
+3. If the paper is relevant, include sections or snippets that specifically relate to the topic.
+4. If section headings or page numbers are not available, you can omit them.
+5. Format your response exactly as shown in the JSON template below.
 
 Respond strictly in the following JSON format:
 {
-  "score": 0.01, // a number from 0.01 (not relevant) to 1.00 (highly relevant), DO not round up numbers,
-  "summary": "1–2 sentence explanation of the relevance",
+  "score": 0.75,
+  "summary": "Clear explanation of relevance in 1-2 sentences",
   "relevant_sections": [
     {
-      "section_heading": "optional heading if available",
-      "text_snippet": "relevant paragraph or snippet",
-      "page": 3 // if page info is known
+      "section_heading": "Introduction",
+      "text_snippet": "Exact quote or close paraphrase of relevant text",
+      "page": 2
     }
   ]
-}`;
+}
+
+Note: Do not include any explanations outside the JSON structure. The response must be valid JSON that can be parsed programmatically.`;
 
   try {
     const result = await generateObject({
@@ -90,17 +102,44 @@ Respond strictly in the following JSON format:
         },
       ],
       maxTokens: 10000,
+      temperature: 0.2, // Lower temperature for more consistent, structured output
     });
+
     console.log("API result:", result.object);
+
+    // Additional validation to ensure the response is properly structured
+    if (!result.object || !result.object.score || !result.object.summary) {
+      throw new Error("Invalid response structure from API");
+    }
+
     return NextResponse.json({ relevance: result.object });
   } catch (error) {
     console.error("Gemini API error:", error);
+
+    // More specific error handling
+    let errorMessage = "Unknown error occurred";
+    let statusCode = 500;
+
+    if (error instanceof Error) {
+      errorMessage = error.message;
+
+      // Check for specific error types
+      if (
+        errorMessage.includes("No object generated") ||
+        errorMessage.includes("response did not match")
+      ) {
+        errorMessage =
+          "The AI could not generate a properly structured response. Please try again with a clearer topic or a different PDF.";
+        statusCode = 422; // Unprocessable Entity
+      }
+    }
+
     return NextResponse.json(
       {
         error: "Gemini API error",
-        message: error instanceof Error ? error.message : String(error),
+        message: errorMessage,
       },
-      { status: 500 }
+      { status: statusCode }
     );
   }
 }
