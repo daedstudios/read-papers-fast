@@ -2,56 +2,22 @@
 
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import Header from "@/components/header";
-import {
-  Sidebar,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { set } from "zod";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
-import {
-  Drawer,
-  DrawerTrigger,
-  DrawerOverlay,
-  DrawerContent,
-} from "@/components/ui/drawer";
-import { DrawerHeader } from "@/components/ui/drawer";
-import { Card, CardContent } from "@/components/ui/card";
-import { CardHeader } from "@/components/ui/card";
-import KeywordAccordion from "@/components/KeywordsAccordion";
-import PhoneDrawer from "@/components/PhoneDrawer";
-import { ChevronDown, ChevronUp, Loader2, ArrowLeft } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import React from "react";
 import SidebarNav from "@/components/SidebarNav";
-import References from "@/components/PaperComponents/References";
+import References, {
+  ReferenceType,
+} from "@/components/PaperComponents/References";
 import BiblStructure, {
   BiblographyEntry,
 } from "@/components/PaperComponents/BiblStructure";
 import PaperNotes, { Note } from "@/components/PaperComponents/PaperNotes";
 
 gsap.registerPlugin(useGSAP);
-
-interface Section {
-  id: string;
-  title: string;
-  summary: string;
-  order: number;
-  paperSummaryId: string;
-}
 
 type Keyword = {
   id: string;
@@ -60,22 +26,10 @@ type Keyword = {
   explanation: string;
 };
 
-interface Acronyms {
-  keyword: string;
-  value: string;
-  explanation: string;
-}
-
-interface Reference {
-  id: string;
-  target: string;
-  text: string;
-  type: string;
-}
 interface GrobidParagraph {
   order_index: number;
   text: string;
-  refs?: Record<string, Reference>;
+  refs?: Record<string, ReferenceType>;
   simplifiedText?: string;
 }
 
@@ -157,7 +111,6 @@ function PaperContent() {
   const [error, setError] = useState<string | null>(null);
 
   const [imageUrls, setImageUrls] = useState<ImageUrl[] | []>([]);
-  const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
 
   useEffect(() => {
     console.log("imageUrls", imageUrls);
@@ -198,7 +151,6 @@ function PaperContent() {
     <>
       <div className="flex flex-row  w-full h-[92vh] mt-[8vh]">
         <SidebarNav id={id || ""} />
-
         <ScrollArea className="w-full border-t p-[1rem] h-full">
           <div className="flex flex-row justify-between">
             {paperSummary?.grobidAbstract.publishedDate && (
@@ -210,21 +162,19 @@ function PaperContent() {
               </span>
             )}
           </div>
-          {paperSummary?.pdfURL?.pdf_file_path &&
-            (console.log("paperSummary.pdfURL", paperSummary.pdfURL),
-            (
-              <div className="flex justify-end mb-4">
-                <Button
-                  variant="outline"
-                  onClick={() =>
-                    window.open(paperSummary.pdfURL?.pdf_file_path, "_blank")
-                  }
-                  className="flex items-center gap-2"
-                >
-                  Open PDF
-                </Button>
-              </div>
-            ))}
+          {paperSummary?.pdfURL?.pdf_file_path && (
+            <div className="flex justify-end mb-4">
+              <Button
+                variant="outline"
+                onClick={() =>
+                  window.open(paperSummary.pdfURL?.pdf_file_path, "_blank")
+                }
+                className="flex items-center gap-2"
+              >
+                Open PDF
+              </Button>
+            </div>
+          )}
           {paperSummary?.grobidAbstract && (
             <div className="mb-10 ">
               <h1 className="text-4xl font-medium mb-4">
@@ -296,25 +246,10 @@ function PaperContent() {
                 ))}
               </div>
             </div>
-          )}
-          {paperSummary?.references && paperSummary.references.length > 0 && (
-            <div className="my-8" id="references-section">
-              <h3 className="text-[1.5rem] font-medium mb-4">References</h3>
-              {paperSummary.references.map((ref, index) => (
-                <BiblStructure key={index} entry={ref} />
-              ))}
-            </div>
-          )}
-          {paperSummary?.paperNotes && paperSummary.paperNotes.length > 0 && (
-            <PaperNotes notes={paperSummary.paperNotes} />
-          )}
+          )}{" "}
+          <BiblStructure id={id || ""} />
+          <PaperNotes id={id || ""} />
         </ScrollArea>
-        <div className=" hidden lg:flex h-full w-full lg:max-w-[22rem] border-t lg:p-[1rem] lg:border-l items-center justify-center">
-          <div className="text-[1.5rem] font-medium text-muted-foreground opacity-20 select-none">
-            ReadPapersFast
-          </div>
-          {/* <ChatPanel /> */}
-        </div>
       </div>
     </>
   );
