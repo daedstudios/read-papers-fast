@@ -63,30 +63,46 @@ export async function POST(req: NextRequest) {
   }
 
   // Send the PDF file directly to Gemini
-  const prompt = `Given the following research thesis topic: "${topic}", evaluate how relevant the attached PDF paper is to this topic. The user wants you to be strict and only wants a high score if the paper is relevant for their thesis.
-In addition to scoring and summarizing the relevance, identify and analyze the most relevant sections or paragraphs within the paper that support your evaluation only if it is relevant to the topic and can possibly be used as a source for the thesis. Only if it is relevant to the topic specifically.
+  const prompt = `You are given a research thesis topic: "${topic}" and a PDF paper. Your task is to critically and strictly evaluate whether this paper is genuinely relevant to the thesis — meaning it should be useful as a direct source or citation for the user writing on this topic.
 
-Please follow these guidelines strictly:
-1. Score the relevance from 0.01 (not relevant) to 1.00 (highly relevant). Do not round up numbers. Use the full range. Do not default to the middle or to 0.75. Only give a score above 0.8 if the paper is extremely relevant to the topic.
-2. Provide a 1-2 sentence explanation of the relevance.
-3. If the paper is relevant, include sections or snippets that specifically relate to the topic.
-4. If section headings or page numbers are not available, you can omit them.
-5. Format your response exactly as shown in the JSON template below.
+📌 Relevance Criteria:
+- A paper is only relevant if it provides arguments, data, insights, or theoretical frameworks that directly support or contribute to the thesis topic.
+- Merely mentioning the topic or adjacent keywords is NOT sufficient.
+- Being "somewhat related" is NOT enough for a high score.
+- You are helping the user narrow down truly useful papers — not just thematically adjacent ones.
+
+📏 Instructions:
+1. **Score**: Provide a decimal score from 0.01 to 1.00. Use the full range. Be extremely strict:
+   - 0.01–0.30 = Not relevant
+   - 0.31–0.70 = Weak/partial relevance (likely not useful)
+   - 0.71–0.90 = Strong relevance (contains useful material, might be cited)
+   - 0.91–1.00 = Directly usable for the thesis (should definitely be cited)
+
+   NEVER assign above 0.80 unless the paper **specifically contributes** to answering or supporting the thesis.
+
+2. **Summary**: In 1–2 sentences, clearly explain why the paper is or isn’t useful for the topic. Be direct — don't hedge.
+
+3. **Relevant Sections**:
+   - Only include this if score ≥ 0.40.
+   - Extract only paragraphs that are genuinely useful for the thesis. Not vague mentions.
+   - Include heading (if available), quote/paraphrase, and page.
+
+Do NOT round up scores or include filler content. If in doubt, rate lower.
 
 Respond strictly in the following JSON format:
 {
-  "score": 0.21,
-  "summary": "Clear explanation of relevance in 1-2 sentences",
+  "score": 0.00,
+  "summary": "Your 1–2 sentence explanation here.",
   "relevant_sections": [
     {
-      "section_heading": "Introduction",
-      "text_snippet": "Exact quote or close paraphrase of relevant text",
+      "section_heading": "Optional heading",
+      "text_snippet": "Relevant snippet of text here.",
       "page": 2
     }
   ]
 }
 
-Note: Do not include any explanations outside the JSON structure. The response must be valid JSON that can be parsed programmatically.`;
+Your response must ONLY contain the JSON object. No explanations or formatting outside of it.`;
 
   try {
     const result = await generateObject({
@@ -101,7 +117,7 @@ Note: Do not include any explanations outside the JSON structure. The response m
           ],
         },
       ],
-      maxTokens: 10000,
+      maxTokens: 100000,
       temperature: 0.2, // Lower temperature for more consistent, structured output
     });
 
