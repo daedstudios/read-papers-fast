@@ -60,6 +60,8 @@ const Page = () => {
       relevance: any | null;
     };
   }>({});
+  const BATCH_SIZE = 5;
+  const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
@@ -139,6 +141,7 @@ const Page = () => {
     if (!topic) return;
     setLoading(true);
     setResults([]);
+    setVisibleCount(BATCH_SIZE);
 
     try {
       const response = await fetch("/api/paper-search", {
@@ -168,9 +171,16 @@ const Page = () => {
   useEffect(() => {
     if (!results.length || !topic) return;
     let cancelled = false;
-    setEvaluatedResults({});
-    async function evaluateAll() {
-      for (const paper of results) {
+
+    // Only evaluate up to visibleCount
+    const toEvaluate = results
+      .slice(0, visibleCount)
+      .filter((paper) => !evaluatedResults[paper.id]);
+
+    if (toEvaluate.length === 0) return;
+
+    async function evaluateBatch() {
+      for (const paper of toEvaluate) {
         setEvaluatedResults((prev) => ({
           ...prev,
           [paper.id]: { loading: true, relevance: null },
@@ -183,36 +193,19 @@ const Page = () => {
           const formData = new FormData();
           formData.append("pdfUrl", pdfLink);
           formData.append("topic", topic);
-
-          let attempt = 0;
-          let success = false;
-
-          while (attempt < 2 && !success && !cancelled) {
-            try {
-              const res = await fetch("/api/relevance-summary", {
-                method: "POST",
-                body: formData,
-              });
-              if (!res.ok) {
-                throw new Error("Request failed");
-              }
-              const data = await res.json();
-              relevance = data.relevance;
-              success = true;
-            } catch (e) {
-              console.error(`Attempt ${attempt + 1} failed:`, e);
-              if (attempt === 0) {
-                // Wait a bit before retrying
-                await new Promise((resolve) => setTimeout(resolve, 1000));
-              } else {
-                relevance = {
-                  score: 0,
-                  summary: "Failed to evaluate after retry.",
-                  relevant_sections: [],
-                };
-              }
-            }
-            attempt++;
+          try {
+            const res = await fetch("/api/relevance-summary", {
+              method: "POST",
+              body: formData,
+            });
+            const data = await res.json();
+            relevance = data.relevance;
+          } catch (e) {
+            relevance = {
+              score: 0,
+              summary: "Failed to evaluate.",
+              relevant_sections: [],
+            };
           }
         } else {
           relevance = {
@@ -229,11 +222,12 @@ const Page = () => {
         }
       }
     }
-    evaluateAll();
+
+    evaluateBatch();
     return () => {
       cancelled = true;
     };
-  }, [results, topic]);
+  }, [results, topic, visibleCount]);
 
   return (
     <div className="bg-white text-black min-h-screen flex items-center justify-center flex-col">
@@ -285,7 +279,9 @@ const Page = () => {
       {results.length > 0 && (
         <div className="w-full max-w-[48rem] px-4 mt-[4rem]">
           <div className="mb-4 border-b border-muted-foreground/30 pb-[2rem]">
-            <h3 className="text-[1rem] mb-[1rem] font-medium">Keywords</h3>
+            <h3 className="text-[1rem] mb-[1rem] font-medium">
+              Generated Keywords
+            </h3>
             <div className="flex flex-wrap gap-2">
               {keywords.map((keyword, index) => (
                 <span
@@ -303,7 +299,7 @@ const Page = () => {
           </h3> */}
 
           <div className="space-y-6 mb-[10rem] mt-[3rem]">
-            {results.map((paper) => (
+            {results.slice(0, visibleCount).map((paper) => (
               <div key={paper.id} className="">
                 <h4 className="text-[1.5rem] font-medium mb-2">
                   {paper.title}
@@ -318,9 +314,9 @@ const Page = () => {
                   ))}
                 </div>
 
-                <p className="text-[1rem] text-gray-700 mb-3 line-clamp-3">
+                {/* <p className="text-[1rem] text-gray-700 mb-3 line-clamp-3">
                   {paper.summary}
-                </p>
+                </p> */}
 
                 <div className="flex flex-wrap gap-2 mb-3">
                   {paper.categories?.map((category, idx) => (
@@ -377,6 +373,17 @@ const Page = () => {
                 </div>
               </div>
             ))}
+            {results.length > visibleCount && (
+              <div className="flex justify-center mt-8">
+                <button
+                  className="px-6 py-2 rounded-full bg-foreground text-background hover:bg-foreground/80 transition cursor-pointer"
+                  onClick={() => setVisibleCount(visibleCount + BATCH_SIZE)}
+                  disabled={loading}
+                >
+                  {loading ? "Loading..." : "Load more results"}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

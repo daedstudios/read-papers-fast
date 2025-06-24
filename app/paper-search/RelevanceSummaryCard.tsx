@@ -33,7 +33,7 @@ export function RelevanceSummaryCard({ data }: { data: RelevanceSummary }) {
         <span
           className={`text-[1.25rem] font-medium  ${getScoreColor(data.score)}`}
         >
-          Relevance Score: {(data.score * 100).toFixed(1)}%
+          Relevance: {(data.score * 100).toFixed(1)}%
         </span>
       </div>
       <div className="mb-[1rem] text-gray-700">{data.summary}</div>
@@ -41,7 +41,7 @@ export function RelevanceSummaryCard({ data }: { data: RelevanceSummary }) {
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="item-1">
             <AccordionTrigger className="text-[1rem] font-medium cursor-pointer">
-              Snippets
+              see relevant sections
             </AccordionTrigger>
             <AccordionContent>
               <ul className="space-y-4">
