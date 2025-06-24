@@ -12,9 +12,6 @@ import {
   Search,
   Globe,
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import Link from "next/link";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { RelevanceSummaryCard } from "./RelevanceSummaryCard";
 
 // This will be the structure for our search results later
@@ -60,6 +57,8 @@ const Page = () => {
       relevance: any | null;
     };
   }>({});
+  const [processingMore, setProcessingMore] = useState(false);
+  const [evaluatedCount, setEvaluatedCount] = useState(0);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
@@ -164,20 +163,31 @@ const Page = () => {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     if (!results.length || !topic) return;
     let cancelled = false;
     setEvaluatedResults({});
-    async function evaluateAll() {
-      for (const paper of results) {
+    setEvaluatedCount(0);
+
+    async function evaluateInitialBatch() {
+      // Process only the first 5 papers initially
+      const initialBatch = results.slice(0, 5);
+      await evaluateBatch(initialBatch);
+    }
+
+    async function evaluateBatch(papers: SearchResult[]) {
+      for (const paper of papers) {
+        if (cancelled) return;
+
         setEvaluatedResults((prev) => ({
           ...prev,
           [paper.id]: { loading: true, relevance: null },
         }));
+
         const pdfLink = paper.links.find(
           (link) => link.type === "application/pdf"
         )?.href;
+
         let relevance = null;
         if (pdfLink) {
           const formData = new FormData();
@@ -221,19 +231,112 @@ const Page = () => {
             relevant_sections: [],
           };
         }
+
         if (!cancelled) {
           setEvaluatedResults((prev) => ({
             ...prev,
             [paper.id]: { loading: false, relevance },
           }));
+          setEvaluatedCount((prev) => prev + 1);
         }
       }
     }
-    evaluateAll();
+
+    evaluateInitialBatch();
+
     return () => {
       cancelled = true;
     };
   }, [results, topic]);
+
+  const handleLoadMoreEvaluations = async () => {
+    if (processingMore || evaluatedCount >= results.length) return;
+
+    setProcessingMore(true);
+    let cancelled = false;
+
+    // Get the papers that haven't been evaluated yet
+    const remainingPapers = results.slice(5);
+
+    async function evaluateRemainingBatch() {
+      for (const paper of remainingPapers) {
+        if (cancelled) return;
+
+        if (evaluatedResults[paper.id]?.relevance) continue; // Skip if already evaluated
+
+        setEvaluatedResults((prev) => ({
+          ...prev,
+          [paper.id]: { loading: true, relevance: null },
+        }));
+
+        const pdfLink = paper.links.find(
+          (link) => link.type === "application/pdf"
+        )?.href;
+
+        let relevance = null;
+        if (pdfLink) {
+          const formData = new FormData();
+          formData.append("pdfUrl", pdfLink);
+          formData.append("topic", topic);
+
+          let attempt = 0;
+          let success = false;
+
+          while (attempt < 2 && !success && !cancelled) {
+            try {
+              const res = await fetch("/api/relevance-summary", {
+                method: "POST",
+                body: formData,
+              });
+              if (!res.ok) {
+                throw new Error("Request failed");
+              }
+              const data = await res.json();
+              relevance = data.relevance;
+              success = true;
+            } catch (e) {
+              console.error(`Attempt ${attempt + 1} failed:`, e);
+              if (attempt === 0) {
+                // Wait a bit before retrying
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+              } else {
+                relevance = {
+                  score: 0,
+                  summary: "Failed to evaluate after retry.",
+                  relevant_sections: [],
+                };
+              }
+            }
+            attempt++;
+          }
+        } else {
+          relevance = {
+            score: 0,
+            summary: "No PDF link.",
+            relevant_sections: [],
+          };
+        }
+
+        if (!cancelled) {
+          setEvaluatedResults((prev) => ({
+            ...prev,
+            [paper.id]: { loading: false, relevance },
+          }));
+          setEvaluatedCount((prev) => prev + 1);
+        }
+      }
+
+      if (!cancelled) {
+        setProcessingMore(false);
+      }
+    }
+
+    evaluateRemainingBatch();
+
+    return () => {
+      cancelled = true;
+    };
+  };
 
   return (
     <div className="bg-white text-black min-h-screen flex items-center justify-center flex-col">
@@ -297,11 +400,9 @@ const Page = () => {
               ))}
             </div>
           </div>
-
           {/* <h3 className="text-[1.5rem] my-[2rem]">
             Found {results.length} relevant Papers
           </h3> */}
-
           <div className="space-y-6 mb-[10rem] mt-[3rem]">
             {results.map((paper) => (
               <div key={paper.id} className="">
@@ -377,7 +478,28 @@ const Page = () => {
                 </div>
               </div>
             ))}
-          </div>
+          </div>{" "}
+          {evaluatedCount < results.length && (
+            <div className="flex flex-col items-center mt-8 mb-4">
+              <p className="text-muted-foreground mb-2">
+                {evaluatedCount} of {results.length} papers evaluated
+              </p>
+              <Button
+                onClick={handleLoadMoreEvaluations}
+                className="rounded-full bg-foreground text-background px-6 py-3 border-none shadow-md hover:bg-foreground/80 transition-all"
+                disabled={processingMore}
+              >
+                {processingMore ? (
+                  <>
+                    <Loader2 className="animate-spin mr-2" />
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <span className="text-[1rem]">Load More Evaluations</span>
+                )}
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </div>
