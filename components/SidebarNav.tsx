@@ -32,6 +32,7 @@ interface SidebarNavProps {
   activeSectionId?: string;
   onSectionClick?: (sectionId: string) => void;
   className?: string;
+  id?: string; // Added optional id prop
 }
 
 export default function SidebarNav({
@@ -39,6 +40,7 @@ export default function SidebarNav({
   activeSectionId,
   onSectionClick,
   className,
+  id,
 }: SidebarNavProps) {
   const [isLoading, setIsLoading] = useState(true);
 

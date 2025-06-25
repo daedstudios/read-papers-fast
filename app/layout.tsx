@@ -54,9 +54,6 @@ export default function RootLayout({
                   ReadPapersFast
                 </button>
               </Link>
-              <Link href="/recent" passHref>
-                <Button>Recent</Button>
-              </Link>
               <div className="flex flex-row gap-2">
                 <SignedOut>
                   <SignInButton>
