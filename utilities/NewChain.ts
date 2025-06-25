@@ -6,6 +6,21 @@ interface ProcessingResult {
   success: boolean;
 }
 
+// Helper function to retry failed requests once
+const fetchWithRetry = async (url: string, options: RequestInit, type: string): Promise<any> => {
+  try {
+    const response = await fetch(url, options);
+    return { type, response };
+  } catch (error) {
+    console.log(`${type} request failed, retrying once...`);
+    // Wait a short delay before retrying
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Retry the request
+    const retryResponse = await fetch(url, options);
+    return { type, response: retryResponse };
+  }
+};
+
 export const processUploadedFile = async (
   uploadedFile: File,
   setProgressMessage: (message: string) => void,
@@ -41,39 +56,35 @@ export const processUploadedFile = async (
     });
 
     // Run all processing tasks in parallel
-    setProgressMessage("Processing document in parallel...");
-
-    // Define all the fetch operations
+    setProgressMessage("Processing document in parallel...");    // Define all the fetch operations
     const processingTasks = [
       // Base API call
-      fetch("/api/base", {
+      fetchWithRetry("/api/base", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: data.id }),
-      }).then((res) => ({ type: "base", response: res })),
+      }, "base"),
 
       // Keywords extraction
-      fetch("/api/vertexKeyWords", {
+      fetchWithRetry("/api/vertexKeyWords", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: data.id }),
-      }).then((res) => ({ type: "keywords", response: res })),
+      }, "keywords"),
 
       // Grobid document processing
-      fetch(
+      fetchWithRetry(
         `https://python-grobid-347071481430.europe-west10.run.app/process/${data.id}`,
-        {
-          method: "GET",
-        }
-      ).then((res) => ({ type: "grobid", response: res })),
+        { method: "GET" },
+        "grobid"
+      ),
 
       // Image processing
-      fetch(
+      fetchWithRetry(
         `https://python-grobid-347071481430.europe-west10.run.app/images/${data.id}`,
-        {
-          method: "GET",
-        }
-      ).then((res) => ({ type: "images", response: res })),
+        { method: "GET" },
+        "images"
+      ),
     ];
 
     // Execute all tasks in parallel and wait for all to complete
@@ -92,19 +103,40 @@ export const processUploadedFile = async (
           result.reason
         );
       }
-    });
-
-    // Content ordering API call
+    });    // Content ordering API call
     try {
-      const contentOrderResponse = await fetch("/api/content-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: data.id }),
-      });
+      let contentOrderResponse;
+      try {
+        contentOrderResponse = await fetch("/api/content-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: data.id }),
+        });
+        
+        if (!contentOrderResponse.ok) {
+          // If the first attempt fails, retry once
+          console.log("Content ordering failed, retrying...");
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          contentOrderResponse = await fetch("/api/content-order", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: data.id }),
+          });
+        }
+      } catch (error) {
+        // If there's an exception (e.g., network error), retry once
+        console.log("Content ordering request failed, retrying...");
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        contentOrderResponse = await fetch("/api/content-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: data.id }),
+        });
+      }
 
       if (!contentOrderResponse.ok) {
         console.error(
-          "Content ordering failed:",
+          "Content ordering failed after retry:",
           await contentOrderResponse.text()
         );
       } else {
@@ -119,15 +151,38 @@ export const processUploadedFile = async (
     // Call image-match API
     try {
       setProgressMessage("Matching images...");
-      const imageMatchResponse = await fetch("/api/image-matching", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: data.id }),
-      });
+      let imageMatchResponse;
+      try {
+        imageMatchResponse = await fetch("/api/image-matching", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: data.id }),
+        });
+        
+        if (!imageMatchResponse.ok) {
+          // If the first attempt fails, retry once
+          console.log("Image matching failed, retrying...");
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          imageMatchResponse = await fetch("/api/image-matching", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: data.id }),
+          });
+        }
+      } catch (error) {
+        // If there's an exception (e.g., network error), retry once
+        console.log("Image matching request failed, retrying...");
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        imageMatchResponse = await fetch("/api/image-matching", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: data.id }),
+        });
+      }
 
       if (!imageMatchResponse.ok) {
         console.error(
-          "Image matching failed:",
+          "Image matching failed after retry:",
           await imageMatchResponse.text()
         );
       } else {

@@ -44,7 +44,7 @@ const Page = () => {
     setIsLoading(true);
     setError(null);
 
-    router.push("/survey");
+    router.push("/recent");
 
     try {
       if (uploadedFile) {
