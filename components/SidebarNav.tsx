@@ -1,9 +1,7 @@
 "use client";
-
 import {
   Sidebar,
   SidebarContent,
-  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -22,15 +20,24 @@ import { useState, useEffect } from "react";
 
 interface Section {
   id: string;
-  head: string;
+  head: string | null;
   head_n: string | null;
   geminiOrder: string | null;
 }
 
+interface SectionHierarchy {
+  section: Section;
+  subsections: Record<
+    string,
+    {
+      section: Section;
+      subsections: Section[];
+    }
+  >;
+}
+
 interface SidebarNavProps {
-  sections: Section[];
-  activeSectionId?: string;
-  onSectionClick?: (sectionId: string) => void;
+  id: string;
   className?: string;
 }
 
@@ -54,120 +61,118 @@ export default function SidebarNav({
     if (onSectionClick) {
       onSectionClick(sectionId);
     }
-    document.getElementById(sectionId)?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  };
-  // Group sections hierarchically based on geminiOrder
-  const groupSections = (sections: Section[]) => {
-    const hierarchy: Record<
-      string,
-      {
-        section: Section;
-        subsections: Record<
-          string,
-          {
-            section: Section;
-            subsections: Section[];
-          }
-        >;
-      }
-    > = {};
 
-    // First, sort sections by their geminiOrder
-    const sortedSections = [...sections].sort((a, b) => {
-      // Handle null geminiOrder values
-      if (!a.geminiOrder) return 1;
-      if (!b.geminiOrder) return -1;
+    if (aParts.length > 1 && bParts.length > 1) {
+      return aParts[1] - bParts[1];
+    }
 
-      // Convert to numeric parts for proper sorting (e.g., "10.1" should come after "2.3")
-      const aParts = a.geminiOrder.split(".").map(Number);
-      const bParts = b.geminiOrder.split(".").map(Number);
+    return aParts.length - bParts.length;
+  });
+};
 
-      // Compare first level
-      if (aParts[0] !== bParts[0]) {
-        return aParts[0] - bParts[0];
-      }
-
-      // Compare second level if first is equal
-      if (aParts.length > 1 && bParts.length > 1) {
-        return aParts[1] - bParts[1];
-      }
-
-      // If one has a second level and the other doesn't
-      return aParts.length - bParts.length;
-    });
-
-    sortedSections.forEach((section) => {
-      if (!section.geminiOrder) return; // Skip if no geminiOrder
-
-      const parts = section.geminiOrder.split(".");
-
-      if (parts.length === 1) {
-        // Main section (e.g., "1", "2", "3")
-        if (!hierarchy[parts[0]]) {
-          hierarchy[parts[0]] = {
-            section,
-            subsections: {},
-          };
+const buildSectionHierarchy = (sections: Section[]) => {
+  const hierarchy: Record<
+    string,
+    {
+      section: Section;
+      subsections: Record<
+        string,
+        {
+          section: Section;
+          subsections: Section[];
         }
-      } else if (parts.length === 2) {
-        // Subsection (e.g., "1.1", "2.3")
-        const [main, sub] = parts;
-        if (!hierarchy[main]) {
-          // Create a placeholder for the main section if it doesn't exist
-          const mainSection = sortedSections.find(
-            (s) => s.geminiOrder === main
+      >;
+    }
+  > = {};
+
+  const sortedSections = sortSectionsByOrder(sections);
+
+  sortedSections.forEach((section) => {
+    if (!section.geminiOrder) return;
+
+    const parts = section.geminiOrder.split(".");
+    const [main, sub, subSub] = parts;
+
+    // Handle level 1 sections
+    if (parts.length === 1) {
+      if (!hierarchy[main]) {
+        hierarchy[main] = { section, subsections: {} };
+      }
+      return;
+    }
+
+    // Ensure main section exists for levels 2 and 3
+    if (!hierarchy[main]) {
+      const mainSection = sortedSections.find((s) => s.geminiOrder === main);
+      hierarchy[main] = {
+        section: mainSection || section,
+        subsections: {},
+      };
+    }
+
+    // Handle level 2 sections
+    if (parts.length === 2) {
+      if (!hierarchy[main].subsections[sub]) {
+        hierarchy[main].subsections[sub] = { section, subsections: [] };
+      }
+      return;
+    }
+
+    // Handle level 3 sections
+    if (parts.length === 3) {
+      const mainSubKey = `${main}.${sub}`;
+      if (!hierarchy[main].subsections[sub]) {
+        const subSection = sortedSections.find(
+          (s) => s.geminiOrder === mainSubKey
+        );
+        hierarchy[main].subsections[sub] = {
+          section: subSection || section,
+          subsections: [],
+        };
+      }
+      hierarchy[main].subsections[sub].subsections.push(section);
+    }
+  });
+
+  return hierarchy;
+};
+
+export default function SidebarNav({ id, className }: SidebarNavProps) {
+  const [sections, setSections] = useState<Section[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchSections = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/paper-data/sidebar?id=${id}`);
+
+        if (!response.ok) {
+          throw new Error(
+            `Error fetching sidebar data: ${response.statusText}`
           );
-          hierarchy[main] = {
-            section: mainSection || section, // Use the main section if found, otherwise use this one
-            subsections: {},
-          };
-        }
-        if (!hierarchy[main].subsections[sub]) {
-          hierarchy[main].subsections[sub] = {
-            section,
-            subsections: [],
-          };
-        }
-      } else if (parts.length === 3) {
-        // Sub-subsection (e.g., "1.1.1", "2.3.4")
-        const [main, sub, subSub] = parts;
-
-        // Ensure main section exists
-        if (!hierarchy[main]) {
-          const mainSection = sortedSections.find(
-            (s) => s.geminiOrder === main
-          );
-          hierarchy[main] = {
-            section: mainSection || section,
-            subsections: {},
-          };
         }
 
-        // Ensure subsection exists
-        const mainSubKey = `${main}.${sub}`;
-        if (!hierarchy[main].subsections[sub]) {
-          const subSection = sortedSections.find(
-            (s) => s.geminiOrder === mainSubKey
-          );
-          hierarchy[main].subsections[sub] = {
-            section: subSection || section,
-            subsections: [],
-          };
-        }
-
-        // Add the sub-subsection to its parent
-        hierarchy[main].subsections[sub].subsections.push(section);
+        const data = await response.json();
+        setSections(data.grobidContent);
+      } catch (err) {
+        console.error("Failed to fetch sidebar data:", err);
+        setError(
+          err instanceof Error ? err.message : "Failed to load sidebar data"
+        );
+      } finally {
+        setLoading(false);
       }
-    });
+    };
 
-    return hierarchy;
-  };
+    if (id) {
+      fetchSections();
+    }
+  }, [id]);
 
-  const hierarchy = groupSections(sections);
-
+  // Build hierarchy after data is fetched
+  const hierarchy = buildSectionHierarchy(sections);
   return (
     <Collapsible
       className="relative border-t border-r overflow-clip"
@@ -187,7 +192,7 @@ export default function SidebarNav({
           )}
         >
           {" "}
-          <SidebarContent className="bg-background text-[1rem] overflow-hidden">
+          <SidebarContent className="bg-background text-[1rem] overflow-hidden"> 
             {isLoading ? (
               <div className="flex flex-col items-center justify-center h-[50vh] space-y-4">
                 <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />

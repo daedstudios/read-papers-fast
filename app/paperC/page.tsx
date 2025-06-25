@@ -2,56 +2,22 @@
 
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import Header from "@/components/header";
-import {
-  Sidebar,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { set } from "zod";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
-import {
-  Drawer,
-  DrawerTrigger,
-  DrawerOverlay,
-  DrawerContent,
-} from "@/components/ui/drawer";
-import { DrawerHeader } from "@/components/ui/drawer";
-import { Card, CardContent } from "@/components/ui/card";
-import { CardHeader } from "@/components/ui/card";
-import KeywordAccordion from "@/components/KeywordsAccordion";
-import PhoneDrawer from "@/components/PhoneDrawer";
-import { ChevronDown, ChevronUp, Loader2, ArrowLeft } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import React from "react";
 import SidebarNav from "@/components/SidebarNav";
-import References from "@/components/PaperComponents/References";
+import References, {
+  ReferenceType,
+} from "@/components/PaperComponents/References";
 import BiblStructure, {
   BiblographyEntry,
 } from "@/components/PaperComponents/BiblStructure";
 import PaperNotes, { Note } from "@/components/PaperComponents/PaperNotes";
 
 gsap.registerPlugin(useGSAP);
-
-interface Section {
-  id: string;
-  title: string;
-  summary: string;
-  order: number;
-  paperSummaryId: string;
-}
 
 type Keyword = {
   id: string;
@@ -60,22 +26,10 @@ type Keyword = {
   explanation: string;
 };
 
-interface Acronyms {
-  keyword: string;
-  value: string;
-  explanation: string;
-}
-
-interface Reference {
-  id: string;
-  target: string;
-  text: string;
-  type: string;
-}
 interface GrobidParagraph {
   order_index: number;
   text: string;
-  refs?: Record<string, Reference>;
+  refs?: Record<string, ReferenceType>;
   simplifiedText?: string;
 }
 
@@ -156,10 +110,6 @@ function PaperContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const menuRef = useRef<HTMLDivElement>(null);
-  const keyWordRef = useRef<HTMLDivElement>(null);
-  const [open, setOpen] = useState(false);
-
   const [imageUrls, setImageUrls] = useState<ImageUrl[] | []>([]);
   const [summaryOpen, setSummaryOpen] = useState(false);
   const [authorsOpen, setAuthorsOpen] = useState(false);
@@ -214,68 +164,10 @@ function PaperContent() {
     fetchPaperSummary();
   }, [id]);
 
-  // Fetch relevance summary as soon as file is selected
-  useEffect(() => {
-    if (!pdfFile) return;
-    setSummaryLoading(true);
-    setSummaryError(null);
-    setSummary(null);
-    const fetchSummary = async () => {
-      try {
-        const formData = new FormData();
-        formData.append("pdf", pdfFile);
-        const res = await fetch("/api/relevance-summary", {
-          method: "POST",
-          body: formData,
-        });
-        if (!res.ok) throw new Error("Failed to get relevance summary");
-        const data = await res.json();
-        setSummary(data.summary);
-      } catch (err) {
-        setSummaryError("Failed to load relevance summary");
-      } finally {
-        setSummaryLoading(false);
-      }
-    };
-    fetchSummary();
-  }, [pdfFile]);
-
-  // Scrollspy effect
-  useEffect(() => {
-    if (!paperSummary?.grobidContent) return;
-    const sectionIds = paperSummary.grobidContent.map((s) => s.id);
-    const sectionElements = sectionIds
-      .map((id) => document.getElementById(id))
-      .filter(Boolean);
-
-    if (sectionElements.length === 0) return;
-
-    const observer = new window.IntersectionObserver(
-      (entries) => {
-        // Find the entry that is most in view
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-        if (visible.length > 0) {
-          setActiveSectionId(visible[0].target.id);
-        }
-      },
-      { rootMargin: "-30% 0px -60% 0px", threshold: [0, 0.25, 0.5, 0.75, 1] }
-    );
-
-    sectionElements.forEach((el) => observer.observe(el!));
-    return () => observer.disconnect();
-  }, [paperSummary]);
-
   return (
     <>
       <div className="flex flex-row  w-full h-[92vh] mt-[8vh]">
-        <SidebarNav
-          sections={paperSummary?.grobidContent || []}
-          activeSectionId={activeSectionId || undefined}
-          onSectionClick={() => {}}
-        />
-
+        <SidebarNav id={id || ""} />
         <ScrollArea className="w-full border-t p-[1rem] h-full">
           <div className="flex flex-row justify-between">
             {paperSummary?.grobidAbstract.publishedDate && (
@@ -371,25 +263,10 @@ function PaperContent() {
                 ))}
               </div>
             </div>
-          )}
-          {paperSummary?.references && paperSummary.references.length > 0 && (
-            <div className="my-8" id="references-section">
-              <h3 className="text-[1.5rem] font-medium mb-4">References</h3>
-              {paperSummary.references.map((ref, index) => (
-                <BiblStructure key={index} entry={ref} />
-              ))}
-            </div>
-          )}
-          {paperSummary?.paperNotes && paperSummary.paperNotes.length > 0 && (
-            <PaperNotes notes={paperSummary.paperNotes} />
-          )}
+          )}{" "}
+          <BiblStructure id={id || ""} />
+          <PaperNotes id={id || ""} />
         </ScrollArea>
-        <div className=" hidden lg:flex h-full w-full lg:max-w-[22rem] border-t lg:p-[1rem] lg:border-l items-center justify-center">
-          <div className="text-[1.5rem] font-medium text-muted-foreground opacity-20 select-none">
-            ReadPapersFast
-          </div>
-          {/* <ChatPanel /> */}
-        </div>
       </div>
     </>
   );
