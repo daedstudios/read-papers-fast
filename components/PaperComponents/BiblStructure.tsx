@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 
 export interface Author {
   id: string;
@@ -33,28 +35,28 @@ export interface BiblographyEntry {
 }
 
 interface BiblStructureProps {
-  entry: BiblographyEntry;
+  id: string;
 }
 
-const BiblStructure: React.FC<BiblStructureProps> = ({ entry }) => {
-  // Format authors as a string (e.g., "L. Sarmiento, J. Emmerling, ...")
-  const formatAuthors = (authors: Author[]) => {
-    // Sort authors by position
-    const sortedAuthors = [...authors].sort((a, b) => a.position - b.position);
+// Format authors as a string (e.g., "L. Sarmiento, J. Emmerling, ...")
+const formatAuthors = (authors: Author[]) => {
+  // Sort authors by position
+  const sortedAuthors = [...authors].sort((a, b) => a.position - b.position);
 
-    return sortedAuthors
-      .map((author) => {
-        // Handle cases where surname might be empty
-        if (!author.surname && author.forename === ".") return "";
-        if (!author.surname) return author.forename;
+  return sortedAuthors
+    .map((author) => {
+      // Handle cases where surname might be empty
+      if (!author.surname && author.forename === ".") return "";
+      if (!author.surname) return author.forename;
 
-        const initials = author.forename === "." ? "" : `${author.forename}.`;
-        return `${initials} ${author.surname}`;
-      })
-      .filter((name) => name !== "")
-      .join(", ");
-  };
+      const initials = author.forename === "." ? "" : `${author.forename}.`;
+      return `${initials} ${author.surname}`;
+    })
+    .filter((name) => name !== "")
+    .join(", ");
+};
 
+const ReferenceEntry: React.FC<{ entry: BiblographyEntry }> = ({ entry }) => {
   return (
     <div className="bibl-structure my-4" id={`bibr-#${entry.xml_id}`}>
       <div className="authors">
@@ -94,6 +96,65 @@ const BiblStructure: React.FC<BiblStructureProps> = ({ entry }) => {
       <div className="reference-id">
         <strong>Reference ID:</strong> {entry.xml_id}
       </div>
+    </div>
+  );
+};
+
+const BiblStructure: React.FC<BiblStructureProps> = ({ id }) => {
+  const [references, setReferences] = useState<BiblographyEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchReferences() {
+      if (!id) {
+        setError("Paper ID is required");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/paper-data/bibl?id=${id}`);
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to fetch references");
+        }
+
+        const data = await response.json();
+        setReferences(data.references);
+      } catch (err) {
+        console.error("Error fetching references:", err);
+        setError(
+          err instanceof Error ? err.message : "An unknown error occurred"
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchReferences();
+  }, [id]);
+
+  if (loading) {
+    return <div className="text-muted-foreground">Loading references...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="text-red-500">Error loading references: {error}</div>
+    );
+  }
+
+  if (!references || references.length === 0) {
+    return <div className="text-muted-foreground">No references available</div>;
+  }
+
+  return (
+    <div className="references-section">
+      <h3 className="text-[1.5rem] font-medium mb-4">References</h3>
+      {references.map((ref, index) => (
+        <ReferenceEntry key={ref.id || index} entry={ref} />
+      ))}
     </div>
   );
 };
