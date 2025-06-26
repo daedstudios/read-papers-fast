@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { RelevanceSummaryCard } from "./RelevanceSummaryCard";
+import posthog from "posthog-js";
 
 // This will be the structure for our search results later
 type SearchResult = {
@@ -142,6 +143,10 @@ const Page = () => {
     setLoading(true);
     setResults([]);
     setVisibleCount(BATCH_SIZE);
+
+    posthog.capture("papaer searched", {
+      topic,
+    });
 
     try {
       const response = await fetch("/api/paper-search", {
@@ -377,7 +382,13 @@ const Page = () => {
               <div className="flex justify-center mt-8">
                 <button
                   className="px-6 py-2 rounded-full bg-foreground text-background hover:bg-foreground/80 transition cursor-pointer"
-                  onClick={() => setVisibleCount(visibleCount + BATCH_SIZE)}
+                  onClick={() => {
+                    posthog.capture("more results loaded", {
+                      topic,
+                      count: visibleCount + BATCH_SIZE,
+                    });
+                    setVisibleCount(visibleCount + BATCH_SIZE);
+                  }}
                   disabled={loading}
                 >
                   {loading ? "Loading..." : "Load more results"}
