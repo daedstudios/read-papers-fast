@@ -151,7 +151,6 @@ function PaperContent() {
     <>
       <div className="flex flex-row  w-full h-[92vh] mt-[8vh]">
         <SidebarNav id={id || ""} />
-
         <ScrollArea className="w-full border-t p-[1rem] h-full">
           <div className="flex flex-row justify-between">
             {paperSummary?.grobidAbstract.publishedDate && (

@@ -36,9 +36,8 @@ interface SectionHierarchy {
 }
 
 interface SidebarNavProps {
-  // id: string;
+  id: string;
   className?: string;
-  id?: string; // Added optional id prop
 }
 
 const sortSectionsByOrder = (sections: Section[]) => {
@@ -165,10 +164,7 @@ export default function SidebarNav({ id, className }: SidebarNavProps) {
   // Build hierarchy after data is fetched
   const hierarchy = buildSectionHierarchy(sections);
   return (
-    <Collapsible
-      className="relative border-t border-r overflow-clip"
-      defaultOpen
-    >
+    <Collapsible className="relative border-t border-r overflow-clip">
       <CollapsibleTrigger asChild>
         <button className="fixed top-[5rem] cursor-pointer left-[1rem] z-30 bg-black rounded-sm p-2 shadow hover:bg-neutral-800 transition focus:outline-none">
           <PanelLeft className="h-4 w-4 text-white" />
@@ -182,7 +178,6 @@ export default function SidebarNav({ id, className }: SidebarNavProps) {
             className
           )}
         >
-          {" "}
           <SidebarContent className="bg-background text-[1rem] overflow-hidden">
             {loading ? (
               <div className="flex items-center justify-center p-4">
