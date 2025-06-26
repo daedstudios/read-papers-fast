@@ -8,6 +8,7 @@ import { Plus, Loader2, X, ArrowUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { initiateRequests } from "@/utilities/PromptChain";
+import { processUploadedFile } from "@/utilities/NewChain";
 import Link from "next/link";
 import { set } from "zod";
 import posthog from "posthog-js";
@@ -43,165 +44,16 @@ const Page = () => {
     setIsLoading(true);
     setError(null);
 
-    router.push("/survey");
+    router.push("/recent");
 
     try {
       if (uploadedFile) {
-        // Handle file upload
-        const formData = new FormData();
-        formData.append("file", uploadedFile);
-
-        setProgressMessage("Uploading file...");
-        const response = await fetch("/api/upload_id", {
-          method: "POST",
-          body: formData,
-        });
-        const data = await response.json();
-
-        // Track PDF upload event with PostHog
-        posthog.capture("pdf_uploaded", {
-          file_name: uploadedFile.name,
-          paper_id: data.id,
-        });
-
-        console.log("Response from /api/upload_id:", data);
-        setProgressMessage("Processing document...");
-
-        setResult({
-          id: data.id,
-          message: "File uploaded successfully. Processing document...",
-          success: false,
-        });
-
-        // Run all processing tasks in parallel
-        setProgressMessage("Processing document in parallel...");
-
-        // Define all the fetch operations
-        const processingTasks = [
-          // Base API call
-          fetch("/api/base", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id: data.id }),
-          }).then((res) => ({ type: "base", response: res })),
-
-          // Keywords extraction
-          fetch("/api/vertexKeyWords", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id: data.id }),
-          }).then((res) => ({ type: "keywords", response: res })),
-
-          // Grobid document processing
-          fetch(
-            `https://python-grobid-347071481430.europe-west10.run.app/process/${data.id}`,
-            {
-              method: "GET",
-            }
-          ).then((res) => ({ type: "grobid", response: res })),
-
-          // Image processing
-          fetch(
-            `https://python-grobid-347071481430.europe-west10.run.app/images/${data.id}`,
-            {
-              method: "GET",
-            }
-          ).then((res) => ({ type: "images", response: res })),
-        ];
-
-        // Execute all tasks in parallel and wait for all to complete
-        const results = await Promise.allSettled(processingTasks);
-
-        // Log results
-        results.forEach((result) => {
-          if (result.status === "fulfilled") {
-            console.log(
-              `${result.value.type} processing completed:`,
-              result.value.response
-            );
-          } else {
-            console.error(
-              `${result.reason.type || "Unknown"} processing failed:`,
-              result.reason
-            );
-          }
-        });
-
-        // Content ordering API call
-        try {
-          const contentOrderResponse = await fetch("/api/content-order", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id: data.id }),
-          });
-
-          if (!contentOrderResponse.ok) {
-            console.error(
-              "Content ordering failed:",
-              await contentOrderResponse.text()
-            );
-          } else {
-            const contentOrderData = await contentOrderResponse.json();
-            console.log("Content ordering completed:", contentOrderData);
-          }
-        } catch (contentOrderError) {
-          console.error("Content ordering error:", contentOrderError);
-          // Continue processing even if content ordering fails
-        }
-
-        // Call image-match API
-        try {
-          setProgressMessage("Matching images...");
-          const imageMatchResponse = await fetch("/api/image-matching", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id: data.id }),
-          });
-
-          if (!imageMatchResponse.ok) {
-            console.error(
-              "Image matching failed:",
-              await imageMatchResponse.text()
-            );
-          } else {
-            const imageMatchData = await imageMatchResponse.json();
-            console.log("Image matching completed:", imageMatchData);
-          }
-        } catch (imageMatchError) {
-          console.error("Image matching error:", imageMatchError);
-          // Continue processing even if image matching fails
-        }
-
-        // Check if the initial upload was successful
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to upload file");
-        }
-
-        // Final success message with success field set to true
-        setResult((prev: any) => ({
-          id: prev.id,
-          message: "Analysis complete!",
-          success: true,
-        }));
-
-        // Track successful analysis completion
-        posthog.capture("paper_analysis_completed", {
-          paper_id: data.id,
-          success: true,
-        });
-
-        setProgressMessage("Analysis complete!");
-        console.log("Document processing completed:", data);
+        await processUploadedFile(uploadedFile, setProgressMessage, setResult);
       }
     } catch (error: any) {
       console.error("Upload error:", error);
       setError(error.message || "Error uploading file");
       setProgressMessage("Error uploading file");
-
-      // Track error with PostHog
-      posthog.capture("paper_processing_error", {
-        error_message: error.message || "Unknown error",
-      });
     } finally {
       setIsLoading(false);
     }
@@ -275,10 +127,11 @@ const Page = () => {
               <p className="w-full mx-auto text-center text-muted-foreground px-1">
                 Paste a link or upload a PDF directly.
                 <Link
-                  href="/paperG?id=8915e476-ea87-4540-b7bb-ac766e61a0fe"
+                  href="/recent"
                   className="px-1 font-medium underline text-foreground"
+                  target="_blank"
                 >
-                  See example
+                  See Recent
                 </Link>
               </p>
             </div>
@@ -299,73 +152,6 @@ const Page = () => {
               </button>
             </div>
           )}
-        </div>
-
-        <div className="md:flex hidden w-full z-4 flex-col text-foreground items-center pt-[6rem] text-[1rem]">
-          trusted by students of
-          <div className="relative md:w-[42rem] overflow-hidden py-[3rem]">
-            <div className="flex gap-[8rem] opacity-60 animate-marquee whitespace-nowrap">
-              <Image
-                src="/maastricht3.svg"
-                alt="maastricht"
-                width={280}
-                height={36}
-                className="opacity-100"
-              />
-              <Image
-                src="/passau3.svg"
-                alt="passau"
-                width={240}
-                height={36}
-                className="opacity-100"
-              />
-              <Image
-                src="/uci3.svg"
-                alt="uci"
-                width={64}
-                height={36}
-                className="opacity-100"
-              />
-
-              <Image
-                src="/maastricht3.svg"
-                alt="maastricht"
-                width={280}
-                height={36}
-                className="opacity-100"
-              />
-              <Image
-                src="/passau3.svg"
-                alt="passau"
-                width={240}
-                height={36}
-                className="opacity-100"
-              />
-              <Image
-                src="/uci3.svg"
-                alt="uci"
-                width={64}
-                height={36}
-                className="opacity-100"
-              />
-            </div>
-
-            <style jsx>{`
-              .animate-marquee {
-                display: inline-flex;
-                animation: scroll-left 25s linear infinite;
-              }
-
-              @keyframes scroll-left {
-                0% {
-                  transform: translateX(0);
-                }
-                100% {
-                  transform: translateX(-50%);
-                }
-              }
-            `}</style>
-          </div>
         </div>
       </div>
     </>
