@@ -1,12 +1,7 @@
-import React from "react";
-import References from "./References";
+"use client";
 
-// Define interfaces for the note and reference structures
-interface Reference {
-  text: string;
-  type: string;
-  target: string;
-}
+import React, { useEffect, useState } from "react";
+import References, { ReferenceType } from "./References";
 
 export interface Note {
   id: string;
@@ -15,17 +10,59 @@ export interface Note {
   place: string;
   note_number: string;
   content: string;
-  references: Reference[];
+  references: ReferenceType[];
   html_content: string;
   created_at: string;
   updated_at: string;
 }
 
 interface PaperNotesProps {
-  notes: Note[];
+  id: string;
 }
 
-const PaperNotes: React.FC<PaperNotesProps> = ({ notes }) => {
+const PaperNotes: React.FC<PaperNotesProps> = ({ id }) => {
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchNotes = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/paper-data/notes?id=${id}`);
+
+        if (!response.ok) {
+          throw new Error(`Error fetching notes: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        setNotes(data.paperNotes);
+      } catch (err) {
+        console.error("Failed to fetch notes:", err);
+        setError(err instanceof Error ? err.message : "Failed to load notes");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchNotes();
+    }
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin h-6 w-6 border-2 border-gray-500 rounded-full border-t-transparent"></div>
+        <span className="ml-2 text-gray-500">Loading notes...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div className="text-red-500 p-4">{error}</div>;
+  }
+
   if (!notes || notes.length === 0) {
     return <div className="text-gray-500 italic">No notes available</div>;
   }

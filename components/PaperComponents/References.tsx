@@ -1,13 +1,13 @@
 import React from "react";
 import { Button } from "../ui/button";
 
-interface Reference {
+export interface ReferenceType {
   target: string;
   text: string;
   type: string;
 }
 
-const References = ({ target, text, type }: Reference) => {
+const References = ({ target, text, type }: ReferenceType) => {
   return (
     <div className="text-sm flex flex-col p-3 space-y-2 border rounded-md shadow-sm">
       <div className="flex items-center gap-2">
