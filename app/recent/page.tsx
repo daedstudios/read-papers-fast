@@ -99,13 +99,15 @@ const Page = async () => {
             >
               <h2 className="text-xl font-semibold">
                 <Link
-                  href={`/paperG?id=${paper.mainStructure.id}`}
+                  href={`/paperC?id=${paper.mainStructure.id}`}
                   className="text-blue-600 hover:underline"
                 >
                   {paper.title}
                 </Link>
               </h2>
-
+              <h2 className="text-lg font-semibold">
+                {paper.paperSummary?.title || "Untitled"}
+              </h2>
               {paper.paperSummary?.authors && (
                 <p className="text-gray-600 mt-1">
                   Authors: {paper.paperSummary.authors.join(", ")}

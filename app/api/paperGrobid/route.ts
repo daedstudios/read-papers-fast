@@ -13,6 +13,15 @@ export async function GET(request: Request) {
       );
     }
 
+    const pdfURL = await prisma.paperMainStructure.findFirst({
+      where: {
+        id: id,
+      },
+      select: {
+        pdf_file_path: true,
+      },
+    });
+
     // Fetch all Grobid content for this paper summary, ordered by order_index
     const grobidContent = await prisma.paperContentGrobid.findMany({
       where: {
@@ -93,6 +102,7 @@ export async function GET(request: Request) {
         references,
         paperNotes,
         grobidFiguresData,
+        pdfURL,
       },
       { status: 200 }
     );
