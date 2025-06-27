@@ -36,7 +36,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import React from "react";
-import SidebarNav from "@/components/SidebarNav";
+import SidebarNav from "@/components/PaperComponents/SidebarNav";
 import References from "@/components/PaperComponents/References";
 import BiblStructure, {
   BiblographyEntry,
