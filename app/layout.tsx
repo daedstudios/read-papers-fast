@@ -51,7 +51,7 @@ export default function RootLayout({
             <header className="flex flex-row absolute p-[1rem] w-screen justify-between bg-transparent">
               <Link href="/" passHref>
                 <button className="text-[1.25rem] pt-1 cursor-pointer text-foreground font-medium">
-                  ReadPapersFast
+                  FindPapersFast
                 </button>
               </Link>
               <div className="flex flex-row gap-2">
