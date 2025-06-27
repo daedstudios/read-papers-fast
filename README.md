@@ -1,36 +1,31 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🔍 Find Papers Fast
 
-## Getting Started
+**Find Papers Fast** is a web app that helps researchers, students, and curious minds discover and understand relevant academic papers in seconds — not hours. Whether you're writing a thesis, exploring a new topic, or just trying to make sense of dense PDFs, this tool is built to make your research workflow smoother and faster.
 
-First, run the development server:
+---
+
+## 🚀 Features
+
+- **Smart Paper Search**: Enter a topic or keyword to get relevant research papers from trusted databases.
+- **Quick Relevance Summary**: Instantly see if a paper is worth reading with our AI-generated summaries.
+- **Simplified PDF Reader**: Read complex papers in plain language, section by section.
+- **Figure & Reference Extraction**: View important figures, tables, and references without digging through the PDF.
+- **Topic Expansion**: Explore related concepts and follow your curiosity with auto-suggested topics.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Next.js, React, Tailwind CSS
+- **Backend**: Node.js, Prisma, Python microservices
+- **AI Models**: Gemini (for summarization), Grobid (for PDF parsing), PubLayNet (for figure extraction)
+
+---
+
+## 📦 Getting Started
+
+1. Clone the repo:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+git clone https://github.com/yourusername/find-papers-fast.git
+cd find-papers-fast
