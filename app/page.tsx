@@ -11,6 +11,7 @@ import {
   Link as LinkIcon,
   Search,
   Globe,
+  Plus,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
@@ -35,6 +36,13 @@ type SearchResult = {
   primaryCategory?: string;
   categories?: string[];
 };
+
+const exampleTopics = [
+  "The impact of social media on mental health",
+  "Climate change and its effects on global agriculture",
+  "The role of artificial intelligence in modern education",
+  "The impact of social media on mental health",
+];
 
 const Page = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -138,14 +146,15 @@ const Page = () => {
     setRetrying(false);
     setLoading(false);
   };
-  const handleSearch = async () => {
-    if (!topic) return;
+  const handleSearch = async (overrideTopic?: string) => {
+    const searchTopic = overrideTopic || topic;
+    if (!searchTopic) return;
     setLoading(true);
     setResults([]);
     setVisibleCount(BATCH_SIZE);
 
     posthog.capture("papaer searched", {
-      topic,
+      topic: searchTopic,
     });
 
     try {
@@ -154,7 +163,7 @@ const Page = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ topic }),
+        body: JSON.stringify({ topic: searchTopic }),
       });
 
       if (!response.ok) {
@@ -171,6 +180,11 @@ const Page = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRecentTopicClick = (topic: string) => {
+    setTopic(topic);
+    handleSearch(topic);
   };
 
   useEffect(() => {
@@ -398,6 +412,26 @@ const Page = () => {
           </div>
         </div>
       )}
+      <div className="mt-[4rem] w-full max-w-[48rem] px-[1rem]">
+        <h3 className="text-[1.25rem] font-medium mb-[1rem]">
+          Recent Searches
+        </h3>
+        <ul>
+          {exampleTopics.map((topic, idx) => (
+            <li
+              key={idx}
+              className="border-b border-muted flex flex-row gap-4 justify-between items-center text-foreground py-[1rem]"
+            >
+              {topic}
+              <Plus
+                size={24}
+                className="text-foreground cursor-pointer hover:text-foreground/30"
+                onClick={() => handleRecentTopicClick(topic)}
+              />
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };
