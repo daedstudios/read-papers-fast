@@ -418,16 +418,17 @@ const Page = () => {
         </h3>
         <ul>
           {exampleTopics.map((topic, idx) => (
-            <div className="flex flex-row gap-4 justify-between items-center border-b border-muted">
-              <li key={idx} className=" text-foreground py-[1rem]">
-                {topic}
-              </li>
+            <li
+              key={idx}
+              className="border-b border-muted flex flex-row gap-4 justify-between items-center text-foreground py-[1rem]"
+            >
+              {topic}
               <Plus
                 size={24}
                 className="text-foreground cursor-pointer hover:text-foreground/30"
                 onClick={() => handleRecentTopicClick(topic)}
               />
-            </div>
+            </li>
           ))}
         </ul>
       </div>
