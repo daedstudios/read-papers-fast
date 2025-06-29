@@ -249,16 +249,16 @@ const Page = () => {
   }, [results, topic, visibleCount]);
 
   return (
-    <div className="bg-white text-black min-h-screen flex items-center justify-center flex-col">
+    <div className="bg-white text-black min-h-screen flex overflow-y-auto flex-col ">
       {results.length > 0 && <div className="mt-[10rem]" />}
-      <main className="flex w-[48rem] max-w-screen flex-col items-center justify-center text-center px-4">
+      <main className="flex w-[48rem] max-w-screen flex-col items-center justify-center text-center px-4 mx-auto  lg:mt-[16rem]">
         {results.length > 0 && (
           <div className="text-[2rem] mb-8">
             <h2>Search Results</h2>
           </div>
         )}
         {!results.length && (
-          <h2 className="text-[2rem] mb-[2rem]">
+          <h2 className="text-[2rem] mb-[2rem] mt-[10rem] lg:mt-[0rem]">
             Find relevant papers for your research
           </h2>
         )}
@@ -412,7 +412,7 @@ const Page = () => {
           </div>
         </div>
       )}
-      <div className="mt-[4rem] w-full max-w-[48rem] px-[1rem]">
+      <div className="mt-[4rem] w-full max-w-[48rem] px-[1rem] mx-auto">
         <h3 className="text-[1.25rem] font-medium mb-[1rem]">
           Recent Searches
         </h3>
