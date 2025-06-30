@@ -248,6 +248,10 @@ const Page = () => {
     };
   }, [results, topic, visibleCount]);
 
+  useEffect(() => {
+    posthog.capture("landing_page_view");
+  }, []);
+
   return (
     <div className="bg-white text-black min-h-screen flex overflow-y-auto flex-col ">
       {results.length > 0 && <div className="mt-[10rem]" />}
