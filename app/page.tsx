@@ -71,6 +71,7 @@ const Page = () => {
   }>({});
   const BATCH_SIZE = 5;
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
+  const [searchQueryId, setSearchQueryId] = useState<string | null>(null);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
@@ -158,6 +159,23 @@ const Page = () => {
     });
 
     try {
+      // First, save the search query to the database
+      const queryResponse = await fetch("/api/search-query-push", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query: searchTopic }),
+      });
+
+      if (queryResponse.ok) {
+        const queryData = await queryResponse.json();
+        setSearchQueryId(queryData.id);
+        console.log("Search query saved with ID:", queryData.id);
+      } else {
+        console.warn("Failed to save search query, but continuing with search");
+      }
+
       const response = await fetch("/api/paper-search", {
         method: "POST",
         headers: {
