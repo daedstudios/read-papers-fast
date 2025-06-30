@@ -12,12 +12,12 @@ const parser = new XMLParser({
   attributeNamePrefix: "_",
 });
 
-// Schema for generating keywords
-const KeywordSchema = z.object({
+// Schema for generating an arXiv query string and keywords
+const QuerySchema = z.object({
+  query: z.string().describe("arXiv API query string for the research topic"),
   keywords: z
     .array(z.string())
-    .length(5)
-    .describe("5 keywords for the research topic"),
+    .describe("List of keywords used to generate the query"),
 });
 
 export async function POST(req: NextRequest) {
@@ -27,45 +27,61 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Topic is required" }, { status: 400 });
   }
 
-  // Prompt to generate keywords from the user's topic
-  const prompt = `Based on the following research topic, generate 5 relevant keywords that can be used to search for academic papers.
-  
-  Topic: "${topic}"
-  
-  Please provide the keywords in a JSON object.`;
+  // Prompt to generate a smart arXiv query string and keywords
+  const prompt = `
+You are an expert in arXiv API search queries. Given the following research topic, generate:
+1. The 3-5 most relevant keywords for searching arXiv.
+2. A robust arXiv API search query string using those keywords, combining them with OR or AND, and parentheses as appropriate for the topic, but do not over-complicate. Use only the 'all:' field for each keyword or phrase.
+
+IMPORTANT: Use AND operator when two subjects are combined in a topic (e.g. "machine learning and agriculture", "climate change and LLMs" etc). Use a maximum of 1 AND operator in the query string.
+
+Respond strictly in this JSON format:
+{
+  "query": "...arxiv query string...",
+  "keywords": ["keyword1", "keyword2", ...]
+}
+
+Research topic: "${topic}"
+`;
 
   try {
     const { object } = await generateObject({
       model: google("gemini-2.0-flash-001"),
-      schema: KeywordSchema,
+      schema: QuerySchema,
       prompt: prompt,
     });
 
+    const queryString = object.query;
     const keywords = object.keywords;
 
-    // Build the search query for arXiv using the generated keywords
-    // Format: (all:keyword1 OR all:keyword2 OR all:keyword3 OR all:keyword4 OR all:keyword5)
-    const arxivQuery = keywords
-      .map((keyword) => `all:${encodeURIComponent(keyword.trim())}`)
-      .join(" OR ");
-
-    // Call arXiv API with the generated keywords
-    const arxivApiUrl = `http://export.arxiv.org/api/query?search_query=${arxivQuery}&start=0&max_results=100`;
+    // Use the generated query string directly in the arXiv API call
+    const arxivApiUrl = `http://export.arxiv.org/api/query?search_query=${encodeURIComponent(
+      queryString
+    )}&start=0&max_results=100`;
 
     console.log("Calling arXiv API with URL:", arxivApiUrl);
 
     // Fetch papers from arXiv
-    const response = await fetch(arxivApiUrl);
-
-    if (!response.ok) {
-      throw new Error(`ArXiv API responded with status: ${response.status}`);
-    }
-
-    const xmlData = await response.text();
-    const result = parser.parse(xmlData);
+    let response = await fetch(arxivApiUrl);
+    let xmlData = await response.text();
+    let result = parser.parse(xmlData);
 
     // Format the response
-    const entries = result.feed.entry || [];
+    let entries = result.feed.entry || [];
+
+    // Fallback: if no results and query contains AND, try with OR instead
+    if (entries.length === 0 && queryString.includes("AND")) {
+      const fallbackQuery = queryString.replace(/AND/g, "OR");
+      const fallbackUrl = `http://export.arxiv.org/api/query?search_query=${encodeURIComponent(
+        fallbackQuery
+      )}&start=0&max_results=100`;
+      console.log("Fallback arXiv API with URL:", fallbackUrl);
+      response = await fetch(fallbackUrl);
+      xmlData = await response.text();
+      result = parser.parse(xmlData);
+      entries = result.feed.entry || [];
+    }
+
     const formattedResults = Array.isArray(entries)
       ? entries.map((entry: any) => ({
           id: entry.id,
@@ -98,6 +114,7 @@ export async function POST(req: NextRequest) {
     console.log("Formatted Results:", formattedResults);
 
     return NextResponse.json({
+      query: queryString,
       keywords: keywords,
       totalResults: entries.length,
       papers: formattedResults,
