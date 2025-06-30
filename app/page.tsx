@@ -75,6 +75,9 @@ const Page = () => {
   const BATCH_SIZE = 5;
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
   const [searchQueryId, setSearchQueryId] = useState<string | null>(null);
+  const [paperFeedback, setPaperFeedback] = useState<{
+    [paperId: string]: "up" | "down" | null;
+  }>({});
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
@@ -206,6 +209,29 @@ const Page = () => {
   const handleRecentTopicClick = (topic: string) => {
     setTopic(topic);
     handleSearch(topic);
+  };
+
+  const handleThumbsFeedback = (
+    paperId: string,
+    feedbackType: "up" | "down"
+  ) => {
+    // Toggle feedback: if same type is clicked, remove it; otherwise set new type
+    const currentFeedback = paperFeedback[paperId];
+    const newFeedback = currentFeedback === feedbackType ? null : feedbackType;
+
+    setPaperFeedback((prev) => ({
+      ...prev,
+      [paperId]: newFeedback,
+    }));
+
+    // PostHog event tracking
+    posthog.capture("paper_feedback", {
+      paperId,
+      feedbackType: newFeedback,
+      topic,
+      searchQueryId,
+      previousFeedback: currentFeedback,
+    });
   };
 
   useEffect(() => {
@@ -425,12 +451,22 @@ const Page = () => {
                   <div className="flex flex-row gap-6  mb-[1rem] justify-start">
                     <ThumbsDown
                       size={20}
-                      className="text-foreground mt-2 cursor-pointer hover:text-foreground/30"
+                      className={`cursor-pointer transition-all duration-200 transform hover:scale-110 active:scale-95 ${
+                        paperFeedback[paper.id] === "down"
+                          ? "text-red-500 fill-red-500"
+                          : "text-foreground hover:text-foreground/30"
+                      }`}
+                      onClick={() => handleThumbsFeedback(paper.id, "down")}
                     />
 
                     <ThumbsUp
                       size={20}
-                      className="text-foreground cursor-pointer hover:text-foreground/30"
+                      className={`cursor-pointer transition-all duration-200 transform hover:scale-110 active:scale-95 ${
+                        paperFeedback[paper.id] === "up"
+                          ? "text-green-500 fill-green-500"
+                          : "text-foreground hover:text-foreground/30"
+                      }`}
+                      onClick={() => handleThumbsFeedback(paper.id, "up")}
                     />
                   </div>
                   {evaluatedResults[paper.id]?.loading ? (
