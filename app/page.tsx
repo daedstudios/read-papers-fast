@@ -253,9 +253,9 @@ const Page = () => {
   }, []);
 
   return (
-    <div className="bg-white text-black min-h-screen flex overflow-y-auto flex-col ">
+    <div className="bg-white text-black min-h-screen flex overflow-y-auto flex-col justify-center items-center ">
       {results.length > 0 && <div className="mt-[10rem]" />}
-      <main className="flex w-[48rem] max-w-screen flex-col items-center justify-center text-center px-4 mx-auto  lg:mt-[16rem]">
+      <main className="flex w-[48rem] max-w-screen flex-col items-center justify-center text-center px-4 mx-auto  lg:mt-[6rem]">
         {results.length > 0 && (
           <div className="text-[2rem] mb-8">
             <h2>Search Results</h2>
@@ -300,7 +300,7 @@ const Page = () => {
       </main>
       {/* Results section */}
       {results.length > 0 && (
-        <div className="w-full max-w-[48rem] px-4 mt-[4rem]">
+        <div className="w-full max-w-[48rem] px-4 mt-[4rem] mx-auto">
           <div className="mb-4 border-b border-muted-foreground/30 pb-[2rem]">
             <h3 className="text-[1rem] mb-[1rem] font-medium">
               Generated Keywords
