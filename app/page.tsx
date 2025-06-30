@@ -451,20 +451,20 @@ const Page = () => {
                   <div className="flex flex-row gap-6  mb-[1rem] justify-start">
                     <ThumbsDown
                       size={20}
-                      className={`cursor-pointer transition-all duration-200 transform hover:scale-110 active:scale-95 ${
+                      className={`cursor-pointer transition-all mt-1 duration-200 transform hover:scale-120 active:scale-80 ${
                         paperFeedback[paper.id] === "down"
-                          ? "text-red-500 fill-red-500"
-                          : "text-foreground hover:text-foreground/30"
+                          ? "text-foreground fill-foreground"
+                          : "text-foreground hover:text-muted-foreground"
                       }`}
                       onClick={() => handleThumbsFeedback(paper.id, "down")}
                     />
 
                     <ThumbsUp
                       size={20}
-                      className={`cursor-pointer transition-all duration-200 transform hover:scale-110 active:scale-95 ${
+                      className={`cursor-pointer transition-all duration-200 transform hover:scale-120 active:scale-80 ${
                         paperFeedback[paper.id] === "up"
-                          ? "text-green-500 fill-green-500"
-                          : "text-foreground hover:text-foreground/30"
+                          ? "text-foreground fill-foreground"
+                          : "text-foreground hover:text-muted-foreground"
                       }`}
                       onClick={() => handleThumbsFeedback(paper.id, "up")}
                     />
