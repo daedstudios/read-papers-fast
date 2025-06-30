@@ -12,6 +12,9 @@ import {
   Search,
   Globe,
   Plus,
+  Heart,
+  ThumbsUp,
+  ThumbsDown,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
@@ -316,10 +319,32 @@ const Page = () => {
           </div>
         </form>
       </main>
+      {results.length === 0 && (
+        <div className="mt-[4rem] w-full max-w-[48rem] px-[1rem] mx-auto">
+          <h3 className="text-[1.25rem] font-medium mb-[1rem]">
+            Recent Searches
+          </h3>
+          <ul>
+            {exampleTopics.map((topic, idx) => (
+              <li
+                key={idx}
+                className="border-b border-muted flex flex-row gap-4 justify-between items-center text-foreground py-[1rem]"
+              >
+                {topic}
+                <Plus
+                  size={24}
+                  className="text-foreground cursor-pointer hover:text-foreground/30"
+                  onClick={() => handleRecentTopicClick(topic)}
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       {/* Results section */}
       {results.length > 0 && (
         <div className="w-full max-w-[48rem] px-4 mt-[4rem] mx-auto">
-          <div className="mb-4 border-b border-muted-foreground/30 pb-[2rem]">
+          <div className="mb-4  pb-[2rem]">
             <h3 className="text-[1rem] mb-[1rem] font-medium">
               Generated Keywords
             </h3>
@@ -342,7 +367,7 @@ const Page = () => {
           <div className="space-y-6 mb-[10rem] mt-[3rem]">
             {results.slice(0, visibleCount).map((paper) => (
               <div key={paper.id} className="">
-                <h4 className="text-[1.5rem] font-medium mb-2">
+                <h4 className="text-[1.5rem] font-medium mb-2 flex flex-row justify-between items-center gap-[2rem]">
                   {paper.title}
                 </h4>
 
@@ -395,7 +420,19 @@ const Page = () => {
                     })}
                   </div>
                 </div>
-                <div className=" border-b border-muted-foreground/30 py-[2rem]">
+
+                <div className=" border-b border-muted-foreground/30 py-[1rem]">
+                  <div className="flex flex-row gap-6  mb-[1rem] justify-start">
+                    <ThumbsDown
+                      size={20}
+                      className="text-foreground mt-2 cursor-pointer hover:text-foreground/30"
+                    />
+
+                    <ThumbsUp
+                      size={20}
+                      className="text-foreground cursor-pointer hover:text-foreground/30"
+                    />
+                  </div>
                   {evaluatedResults[paper.id]?.loading ? (
                     <div className=" rounded-[1rem] bg-white">
                       <span className="text-[1rem] font-medium flex items-center justify-between gap-2">
@@ -434,26 +471,6 @@ const Page = () => {
           </div>
         </div>
       )}
-      <div className="mt-[4rem] w-full max-w-[48rem] px-[1rem] mx-auto">
-        <h3 className="text-[1.25rem] font-medium mb-[1rem]">
-          Recent Searches
-        </h3>
-        <ul>
-          {exampleTopics.map((topic, idx) => (
-            <li
-              key={idx}
-              className="border-b border-muted flex flex-row gap-4 justify-between items-center text-foreground py-[1rem]"
-            >
-              {topic}
-              <Plus
-                size={24}
-                className="text-foreground cursor-pointer hover:text-foreground/30"
-                onClick={() => handleRecentTopicClick(topic)}
-              />
-            </li>
-          ))}
-        </ul>
-      </div>
     </div>
   );
 };
