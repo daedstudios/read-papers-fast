@@ -55,6 +55,13 @@ const exampleTopics = [
   "The impact of social media on mental health",
 ];
 
+const placeholders = [
+  "e.g., 'Sustainable building materials in tropical climates'",
+  "Describe what you're researching",
+  "Paste your exposé or research question here",
+  "What is your thesis topic?",
+];
+
 const Page = () => {
   const [file, setFile] = useState<File | null>(null);
   const [topic, setTopic] = useState("");
@@ -84,6 +91,11 @@ const Page = () => {
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
   const [searchQueryId, setSearchQueryId] = useState<string | null>(null);
   const { isSignedIn, user, isLoaded } = useUser();
+  const [paperFeedback, setPaperFeedback] = useState<{
+    [paperId: string]: "up" | "down" | null;
+  }>({});
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [wigglingThumb, setWigglingThumb] = useState<string | null>(null);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
@@ -217,6 +229,33 @@ const Page = () => {
     handleSearch(topic);
   };
 
+  const handleThumbsFeedback = (
+    paperId: string,
+    feedbackType: "up" | "down"
+  ) => {
+    // Toggle feedback: if same type is clicked, remove it; otherwise set new type
+    const currentFeedback = paperFeedback[paperId];
+    const newFeedback = currentFeedback === feedbackType ? null : feedbackType;
+
+    setPaperFeedback((prev) => ({
+      ...prev,
+      [paperId]: newFeedback,
+    }));
+
+    // Trigger wiggle animation
+    setWigglingThumb(`${paperId}-${feedbackType}`);
+    setTimeout(() => setWigglingThumb(null), 500);
+
+    // PostHog event tracking
+    posthog.capture("paper_feedback", {
+      paperId,
+      feedbackType: newFeedback,
+      topic,
+      searchQueryId,
+      previousFeedback: currentFeedback,
+    });
+  };
+
   useEffect(() => {
     if (!results.length || !topic) return;
     let cancelled = false;
@@ -283,14 +322,11 @@ const Page = () => {
   }, []);
 
   useEffect(() => {
-    if (isLoaded && isSignedIn) {
-      posthog.identify(user.id, {
-        email: user.primaryEmailAddress?.emailAddress || "",
-        name: user.fullName || "",
-      });
-    }
-    console.log("User signed in:", isSignedIn, user);
-  }, [isLoaded, isSignedIn, user]);
+    const interval = setInterval(() => {
+      setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="bg-white text-black min-h-screen flex overflow-y-auto flex-col justify-center items-center ">
@@ -313,13 +349,15 @@ const Page = () => {
           }}
           className="w-full max-w-[48rem] flex flex-col relative h-auto rounded-[1.5rem] text-base border border-muted-foreground/30 p-[0.75rem] shadow-md"
         >
-          <textarea
-            placeholder="Enter your research topic in about 30 words..."
-            className="text-[1rem] border-none shadow-none bg-transparent placeholder:text-muted-foreground focus:outline-none focus:ring-0 resize-none w-full min-h-[2.5rem] max-h-[10rem] rounded-md p-2"
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            rows={2}
-          />
+          <div className="relative w-full">
+            <textarea
+              placeholder={placeholders[placeholderIndex]}
+              className="text-[1rem] border-none shadow-none bg-transparent placeholder:text-muted-foreground focus:outline-none focus:ring-0 resize-none w-full min-h-[2.5rem] max-h-[10rem] rounded-md p-2"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              rows={1}
+            />
+          </div>
           <div className="flex items-end justify-end mt-[0.5rem]">
             <Button
               type="submit"
@@ -444,12 +482,24 @@ const Page = () => {
                   <div className="flex flex-row gap-6  mb-[1rem] justify-start">
                     <ThumbsDown
                       size={20}
-                      className="text-foreground mt-2 cursor-pointer hover:text-foreground/30"
+                      className={`cursor-pointer transition-all mt-1 duration-200 transform hover:scale-120 active:scale-80 ${
+                        paperFeedback[paper.id] === "down"
+                          ? "text-foreground fill-foreground"
+                          : "text-foreground hover:text-muted-foreground"
+                      } ${
+                        wigglingThumb === `${paper.id}-down` ? "wiggle" : ""
+                      }`}
+                      onClick={() => handleThumbsFeedback(paper.id, "down")}
                     />
 
                     <ThumbsUp
                       size={20}
-                      className="text-foreground cursor-pointer hover:text-foreground/30"
+                      className={`cursor-pointer transition-all duration-200 transform hover:scale-120 active:scale-80 ${
+                        paperFeedback[paper.id] === "up"
+                          ? "text-foreground fill-foreground"
+                          : "text-foreground hover:text-muted-foreground"
+                      } ${wigglingThumb === `${paper.id}-up` ? "wiggle" : ""}`}
+                      onClick={() => handleThumbsFeedback(paper.id, "up")}
                     />
                   </div>
                   {evaluatedResults[paper.id]?.loading ? (
