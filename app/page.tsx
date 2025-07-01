@@ -47,6 +47,13 @@ const exampleTopics = [
   "The impact of social media on mental health",
 ];
 
+const placeholders = [
+  "e.g., 'Sustainable building materials in tropical climates'",
+  "Describe what you're researching",
+  "Paste your exposé or research question here",
+  "What is your thesis topic?",
+];
+
 const Page = () => {
   const [file, setFile] = useState<File | null>(null);
   const [topic, setTopic] = useState("");
@@ -78,6 +85,8 @@ const Page = () => {
   const [paperFeedback, setPaperFeedback] = useState<{
     [paperId: string]: "up" | "down" | null;
   }>({});
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [wigglingThumb, setWigglingThumb] = useState<string | null>(null);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
@@ -224,6 +233,10 @@ const Page = () => {
       [paperId]: newFeedback,
     }));
 
+    // Trigger wiggle animation
+    setWigglingThumb(`${paperId}-${feedbackType}`);
+    setTimeout(() => setWigglingThumb(null), 500);
+
     // PostHog event tracking
     posthog.capture("paper_feedback", {
       paperId,
@@ -299,6 +312,13 @@ const Page = () => {
     posthog.capture("landing_page_view");
   }, []);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="bg-white text-black min-h-screen flex overflow-y-auto flex-col justify-center items-center ">
       {results.length > 0 && <div className="mt-[10rem]" />}
@@ -320,13 +340,15 @@ const Page = () => {
           }}
           className="w-full max-w-[48rem] flex flex-col relative h-auto rounded-[1.5rem] text-base border border-muted-foreground/30 p-[0.75rem] shadow-md"
         >
-          <textarea
-            placeholder="Enter your research topic in about 30 words..."
-            className="text-[1rem] border-none shadow-none bg-transparent placeholder:text-muted-foreground focus:outline-none focus:ring-0 resize-none w-full min-h-[2.5rem] max-h-[10rem] rounded-md p-2"
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            rows={2}
-          />
+          <div className="relative w-full">
+            <textarea
+              placeholder={placeholders[placeholderIndex]}
+              className="text-[1rem] border-none shadow-none bg-transparent placeholder:text-muted-foreground focus:outline-none focus:ring-0 resize-none w-full min-h-[2.5rem] max-h-[10rem] rounded-md p-2"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              rows={1}
+            />
+          </div>
           <div className="flex items-end justify-end mt-[0.5rem]">
             <Button
               type="submit"
@@ -455,6 +477,8 @@ const Page = () => {
                         paperFeedback[paper.id] === "down"
                           ? "text-foreground fill-foreground"
                           : "text-foreground hover:text-muted-foreground"
+                      } ${
+                        wigglingThumb === `${paper.id}-down` ? "wiggle" : ""
                       }`}
                       onClick={() => handleThumbsFeedback(paper.id, "down")}
                     />
@@ -465,7 +489,7 @@ const Page = () => {
                         paperFeedback[paper.id] === "up"
                           ? "text-foreground fill-foreground"
                           : "text-foreground hover:text-muted-foreground"
-                      }`}
+                      } ${wigglingThumb === `${paper.id}-up` ? "wiggle" : ""}`}
                       onClick={() => handleThumbsFeedback(paper.id, "up")}
                     />
                   </div>
