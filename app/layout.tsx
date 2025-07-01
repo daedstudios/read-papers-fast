@@ -48,7 +48,7 @@ export default function RootLayout({
             />
           </head>
           <body className="antialiased">
-            <header className="flex flex-row absolute p-[1rem] w-screen justify-between bg-transparent">
+            <header className="flex flex-row absolute p-[1rem] w-screen justify-between bg-transparent z-100">
               <Link href="/" passHref>
                 <button className="text-[1.25rem] pt-1 cursor-pointer text-foreground font-medium">
                   FindPapersFast
@@ -68,11 +68,9 @@ export default function RootLayout({
                   </SignUpButton>
                 </SignedOut>
               </div>
-              {/* <div className="z-100">
               <SignedIn>
-              <UserButton />
+                <UserButton />
               </SignedIn>
-              </div> */}
             </header>
             <AppContextProvider>{children}</AppContextProvider>
           </body>
