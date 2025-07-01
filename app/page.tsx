@@ -87,6 +87,9 @@ const Page = () => {
   }>({});
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [wigglingThumb, setWigglingThumb] = useState<string | null>(null);
+  const [preEvaluations, setPreEvaluations] = useState<{
+    [paperId: string]: { relevant: boolean; summary: string };
+  }>({});
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
@@ -205,6 +208,31 @@ const Page = () => {
 
       const data = await response.json();
       setKeywords(data.keywords);
+      // Pre-evaluate all papers in parallel
+      const preEvalResults = await Promise.all(
+        data.papers.map(async (paper: SearchResult) => {
+          const res = await fetch("/api/pre-evaluate-relevance", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title: paper.title,
+              summary: paper.summary,
+              topic: searchTopic,
+            }),
+          });
+          const preEval = await res.json();
+          return { paperId: paper.id, ...preEval };
+        })
+      );
+      // Store pre-evaluation results in state
+      const preEvalMap: {
+        [paperId: string]: { relevant: boolean; summary: string };
+      } = {};
+      preEvalResults.forEach(({ paperId, relevant, summary }) => {
+        preEvalMap[paperId] = { relevant, summary };
+      });
+      setPreEvaluations(preEvalMap);
+      console.log("Pre-evaluation results:", preEvalMap);
       setResults(data.papers);
       console.log("Search results:", data);
     } catch (error) {
@@ -251,10 +279,15 @@ const Page = () => {
     if (!results.length || !topic) return;
     let cancelled = false;
 
-    // Only evaluate up to visibleCount
+    // Only evaluate up to visibleCount and if pre-evaluation is relevant
     const toEvaluate = results
       .slice(0, visibleCount)
-      .filter((paper) => !evaluatedResults[paper.id]);
+      .filter(
+        (paper) =>
+          !evaluatedResults[paper.id] &&
+          preEvaluations[paper.id] &&
+          preEvaluations[paper.id].relevant
+      );
 
     if (toEvaluate.length === 0) return;
 
@@ -306,7 +339,7 @@ const Page = () => {
     return () => {
       cancelled = true;
     };
-  }, [results, topic, visibleCount]);
+  }, [results, topic, visibleCount, preEvaluations]);
 
   useEffect(() => {
     posthog.capture("landing_page_view");
@@ -493,7 +526,13 @@ const Page = () => {
                       onClick={() => handleThumbsFeedback(paper.id, "up")}
                     />
                   </div>
-                  {evaluatedResults[paper.id]?.loading ? (
+                  {/* Show pre-evaluation summary if not relevant */}
+                  {preEvaluations[paper.id] &&
+                  !preEvaluations[paper.id].relevant ? (
+                    <div className="text-gray-400 italic">
+                      Not relevant: {preEvaluations[paper.id].summary}
+                    </div>
+                  ) : evaluatedResults[paper.id]?.loading ? (
                     <div className=" rounded-[1rem] bg-white">
                       <span className="text-[1rem] font-medium flex items-center justify-between gap-2">
                         Relevance Score:
