@@ -57,7 +57,7 @@ Research topic: "${topic}"
     // Use the generated query string directly in the arXiv API call
     const arxivApiUrl = `http://export.arxiv.org/api/query?search_query=${encodeURIComponent(
       queryString
-    )}&start=0&max_results=100`;
+    )}&start=0&max_results=500`;
 
     console.log("Calling arXiv API with URL:", arxivApiUrl);
 

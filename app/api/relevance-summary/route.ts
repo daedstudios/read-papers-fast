@@ -63,6 +63,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Send the PDF file directly to Gemini
+
   const prompt = `You are given a research thesis topic: "${topic}" and a PDF paper. Your task is to critically evaluate whether this paper is genuinely relevant to the thesis — meaning it should provide material the user would directly cite in their writing.
 
 Strict Relevance Criteria:
@@ -94,6 +95,7 @@ Before assigning a score:
     - If weakly: 0.40–0.70
     - If strong but not central: 0.71–0.90
     - If directly on-point: 0.91–1.00
+
 
 Respond strictly in the following JSON format:
 
