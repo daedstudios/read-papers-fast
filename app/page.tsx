@@ -522,7 +522,7 @@ const Page = () => {
             ))}
             {results.length > visibleCount && (
               <div className="flex justify-center mt-8">
-                <SignedIn>
+                {isSignedIn ? (
                   <button
                     className="px-6 py-2 rounded-full bg-foreground text-background hover:bg-foreground/80 transition cursor-pointer"
                     onClick={() => {
@@ -536,8 +536,7 @@ const Page = () => {
                   >
                     {loading ? "Loading..." : "Load more results"}
                   </button>
-                </SignedIn>
-                <SignedOut>
+                ) : (
                   <div className="flex flex-col items-center gap-4">
                     <p className="text-muted-foreground text-sm">
                       Sign in to load more results
@@ -555,7 +554,7 @@ const Page = () => {
                       </SignUpButton>
                     </div>
                   </div>
-                </SignedOut>
+                )}
               </div>
             )}
           </div>
