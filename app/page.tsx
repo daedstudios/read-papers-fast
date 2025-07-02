@@ -15,6 +15,7 @@ import {
   Heart,
   ThumbsUp,
   ThumbsDown,
+  Check,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
@@ -87,8 +88,9 @@ const Page = () => {
       relevance: any | null;
     };
   }>({});
-  const BATCH_SIZE = 5;
+  const BATCH_SIZE = 10;
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
+  const [visibleRelevantCount, setVisibleRelevantCount] = useState(BATCH_SIZE);
   const [searchQueryId, setSearchQueryId] = useState<string | null>(null);
   const { isSignedIn, user, isLoaded } = useUser();
   const [paperFeedback, setPaperFeedback] = useState<{
@@ -181,6 +183,7 @@ const Page = () => {
     setLoading(true);
     setResults([]);
     setVisibleCount(BATCH_SIZE);
+    setVisibleRelevantCount(BATCH_SIZE);
 
     posthog.capture("papaer searched", {
       topic: searchTopic,
@@ -372,6 +375,11 @@ const Page = () => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    setVisibleCount(BATCH_SIZE);
+    setVisibleRelevantCount(BATCH_SIZE);
+  }, [results]);
+
   return (
     <div className="bg-white text-black min-h-screen flex overflow-y-auto flex-col justify-center items-center ">
       {results.length > 0 && <div className="mt-[10rem]" />}
@@ -444,8 +452,8 @@ const Page = () => {
       )}
       {/* Results section */}
       {results.length > 0 && (
-        <div className="w-full max-w-[48rem] px-4 mt-[4rem] mx-auto">
-          <div className="mb-4 pb-[2rem]">
+        <div className="w-full max-w-[48rem] px-4 mt-[2rem] mx-auto items-center justify-center">
+          <div className="mb-4 pb-[2rem] mx-auto ">
             <h3 className="text-[1rem] mb-[1rem] font-medium">
               Generated Keywords
             </h3>
@@ -453,7 +461,7 @@ const Page = () => {
               {keywords.map((keyword, index) => (
                 <span
                   key={index}
-                  className="bg-[#FED68C]/20 text-[#FED68C] px-3 py-1 rounded-full text-sm border border-[#FED68C]"
+                  className="bg-[#FED68C]/10 text-[#FFA600] px-3 py-1 rounded-full text-sm border border-muted"
                 >
                   {keyword}
                 </span>
@@ -475,21 +483,29 @@ const Page = () => {
             }{" "}
             relevant papers
           </div>
-          <div className="flex gap-2 mb-4 mt-[2rem]">
-            <Button
-              variant={!showOnlyRelevant ? "default" : "outline"}
-              onClick={() => setShowOnlyRelevant(false)}
-              className="text-[1rem] font-medium rounded-full"
-            >
-              Show all
-            </Button>
-            <Button
-              variant={showOnlyRelevant ? "default" : "outline"}
-              onClick={() => setShowOnlyRelevant(true)}
-              className="text-[1rem] font-medium rounded-full"
-            >
-              Relevant
-            </Button>
+          <div className="flex flex-col gap-2 my-[2rem] justify-end w-full">
+            <div className="flex gap-2 justify-end w-full">
+              <Button
+                variant={!showOnlyRelevant ? "default" : "outline"}
+                onClick={() => setShowOnlyRelevant(false)}
+                className="text-[1rem] font-medium rounded-full border-foreground shadow-none cursor-pointer flex items-center gap-2"
+              >
+                {!showOnlyRelevant && (
+                  <Check size={16} className="inline-block" />
+                )}
+                Show all
+              </Button>
+              <Button
+                variant={showOnlyRelevant ? "default" : "outline"}
+                onClick={() => setShowOnlyRelevant(true)}
+                className="text-[1rem] font-medium rounded-full border-foreground shadow-none cursor-pointer flex items-center gap-2"
+              >
+                {showOnlyRelevant && (
+                  <Check size={16} className="inline-block" />
+                )}
+                Relevant
+              </Button>
+            </div>
           </div>
           <div className="space-y-6 mb-[10rem] mt-[3rem]">
             {results
@@ -522,7 +538,7 @@ const Page = () => {
                     {paper.categories?.map((category, idx) => (
                       <span
                         key={idx}
-                        className="bg-[#FFBAD8]/20 text-[#FFBAD8] px-2 py-0.5 rounded-full text-xs border border-[#FFBAD8]"
+                        className="bg-[#FFBAD8]/10 text-[#FF5BA2] px-2 py-1 rounded-full text-xs border border-muted"
                       >
                         {category}
                       </span>
@@ -560,36 +576,16 @@ const Page = () => {
                   </div>
 
                   <div className=" border-b border-muted-foreground/30 py-[1rem]">
-                    <div className="flex flex-row gap-6  mb-[1rem] justify-start">
-                      <ThumbsDown
-                        size={20}
-                        className={`cursor-pointer transition-all mt-1 duration-200 transform hover:scale-120 active:scale-80 ${
-                          paperFeedback[paper.id] === "down"
-                            ? "text-foreground fill-foreground"
-                            : "text-foreground hover:text-muted-foreground"
-                        } ${
-                          wigglingThumb === `${paper.id}-down` ? "wiggle" : ""
-                        }`}
-                        onClick={() => handleThumbsFeedback(paper.id, "down")}
-                      />
-
-                      <ThumbsUp
-                        size={20}
-                        className={`cursor-pointer transition-all duration-200 transform hover:scale-120 active:scale-80 ${
-                          paperFeedback[paper.id] === "up"
-                            ? "text-foreground fill-foreground"
-                            : "text-foreground hover:text-muted-foreground"
-                        } ${
-                          wigglingThumb === `${paper.id}-up` ? "wiggle" : ""
-                        }`}
-                        onClick={() => handleThumbsFeedback(paper.id, "up")}
-                      />
-                    </div>
                     {/* Show pre-evaluation summary if not relevant */}
                     {preEvaluations[paper.id] &&
                     preEvaluations[paper.id].relevance !== "relevant" ? (
-                      <div className="text-gray-400 italic">
-                        Not relevant: {preEvaluations[paper.id].summary}
+                      <div className="flex flex-col gap-2">
+                        <div className="text-muted-foreground text-[1.25rem] font-medium">
+                          not relevant
+                        </div>
+                        <div className="text-muted-foreground text-[1rem]">
+                          {preEvaluations[paper.id].summary}
+                        </div>
                       </div>
                     ) : evaluatedResults[paper.id]?.loading ? (
                       <div className=" rounded-[1rem] bg-white">
@@ -606,6 +602,31 @@ const Page = () => {
                         data={evaluatedResults[paper.id].relevance}
                       />
                     ) : null}
+                    <div className="flex flex-row gap-6  my-[1rem] justify-start text-muted-foreground">
+                      helpful?
+                      <ThumbsDown
+                        size={20}
+                        className={`cursor-pointer transition-all mt-1 duration-200 transform hover:scale-120 active:scale-80 ${
+                          paperFeedback[paper.id] === "down"
+                            ? "text-muted-foreground fill-foreground"
+                            : "text-muted-foreground hover:text-muted-foreground"
+                        } ${
+                          wigglingThumb === `${paper.id}-down` ? "wiggle" : ""
+                        }`}
+                        onClick={() => handleThumbsFeedback(paper.id, "down")}
+                      />
+                      <ThumbsUp
+                        size={20}
+                        className={`cursor-pointer transition-all duration-200 transform hover:scale-120 active:scale-80 ${
+                          paperFeedback[paper.id] === "up"
+                            ? "text-muted-foreground fill-foreground"
+                            : "text-muted-foreground hover:text-muted-foreground"
+                        } ${
+                          wigglingThumb === `${paper.id}-up` ? "wiggle" : ""
+                        }`}
+                        onClick={() => handleThumbsFeedback(paper.id, "up")}
+                      />
+                    </div>
                   </div>
                 </div>
               ))}
@@ -635,7 +656,7 @@ const Page = () => {
                 ) : (
                   <div className="flex flex-col items-center gap-4">
                     <p className="text-muted-foreground text-sm">
-                      Sign in to load more results
+                      Sign up for free to load more results
                     </p>
                     <div className="flex gap-3">
                       <SignInButton>
