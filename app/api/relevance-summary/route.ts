@@ -63,33 +63,42 @@ export async function POST(req: NextRequest) {
   }
 
   // Send the PDF file directly to Gemini
-  const prompt = `You are given a research thesis topic: "${topic}" and a PDF paper. Your task is to critically and strictly evaluate whether this paper is genuinely relevant to the thesis — meaning it should be useful as a direct source or citation for the user writing on this topic.
 
-Relevance Criteria:
-- A paper is only relevant if it provides arguments, data, insights, or theoretical frameworks that directly support or contribute to the thesis topic.
-- Merely mentioning the topic or adjacent keywords is NOT sufficient.
-- Being "somewhat related" is NOT enough for a high score.
-- You are helping the user narrow down truly useful papers — not just thematically adjacent ones.
+  const prompt = `You are given a research thesis topic: "${topic}" and a PDF paper. Your task is to critically evaluate whether this paper is genuinely relevant to the thesis — meaning it should provide material the user would directly cite in their writing.
+
+Strict Relevance Criteria:
+- A paper is relevant **only** if it offers **specific arguments, data, case studies, or theoretical frameworks** that directly support or inform the thesis topic.
+- Mere keyword overlaps, vague mentions, or being in a related field is **not enough**.
+- Your goal is to help the user eliminate noise and keep only **truly useful** papers.
+
+Examples of relevance:
+- The paper presents empirical findings or models that support the thesis argument.
+- The paper discusses core theories, controversies, or frameworks that the thesis builds on.
+
+Examples of non-relevance:
+- The paper briefly mentions the topic without contributing meaningful content.
+- It is about a similar field but answers a different research question.
 
 Instructions:
-1. **Score**: Provide a decimal score from 0.01 to 1.00. Use the full range. Be extremely strict:
-   - 0.01–0.30 = Not relevant
-   - 0.31–0.70 = Weak/partial relevance (likely not useful)
-   - 0.71–0.90 = Strong relevance (contains useful material, might be cited)
-   - 0.91–1.00 = Directly usable for the thesis (should definitely be cited)
+1. **Score**: Provide a decimal score between 0.01 and 1.00. Use the full range:
+   - 0.01–0.30 = Not relevant (cannot be cited)
+   - 0.31–0.70 = Weak or indirect relevance (likely not worth citing)
+   - 0.71–0.90 = Strong relevance (useful background or supportive content)
+   - 0.91–1.00 = Direct match (definitely cite this)
 
-   NEVER assign above 0.80 unless the paper **specifically contributes** to answering or supporting the thesis.
+2. **Summary**: In 1–2 sentences, clearly explain *why* the paper is or is not relevant. Be direct. No hedging.
 
-2. **Summary**: In 1–2 sentences, clearly explain why the paper is or isn’t useful for the topic. Be direct — don't hedge.
+Before assigning a score:
+- Ask: Would this paper be cited in the thesis?
+- If no, score must be < 0.40.
+- If yes, ask: Does it contain specific data, case studies, or theoretical framing that supports the topic?
+    - If weakly: 0.40–0.70
+    - If strong but not central: 0.71–0.90
+    - If directly on-point: 0.91–1.00
 
-3. **Relevant Sections**:
-   - Only include this if score ≥ 0.40.
-   - Extract only paragraphs that are genuinely useful for the thesis. Not vague mentions.
-   - Include heading (if available), quote/paraphrase, and page.
-
-Do NOT round up scores or include filler content. If in doubt, rate lower.
 
 Respond strictly in the following JSON format:
+
 {
   "score": 0.00,
   "summary": "Your 1–2 sentence explanation here.",
@@ -102,7 +111,26 @@ Respond strictly in the following JSON format:
   ]
 }
 
-Your response must ONLY contain the JSON object. No explanations or formatting outside of it.`;
+Here is an example of a relevant paper with the user input topic of "Climate change and its effects on global agriculture":
+{
+ "score": 0.95,
+  "title": "The Historical Impact of Anthropogenic Climate Change on Global Agricultural Productivity",
+  "summary": "This paper is highly relevant to the topic of climate change and its effects on global agriculture. It provides a robust econometric model of weather effects on global agricultural total factor productivity (TFP) and combine this model with counterfactual climate scenarios to evaluate impacts of past climate trends on TFP. Our baseline model indicates that anthropogenic climate change has reduced global agricultural TFP by about 21% since 1961, a slowdown that is equivalent to losing the last 9 years of productivity growth. The effect is substantially more severe (a reduction of ~30-33%) in warmer regions such as Africa and Latin America and the Caribbean. We also find that global agriculture has grown more vulnerable to ongoing climate change.",
+  "relevant_sections": [
+    { "heading": "Introduction", "text": "..." },
+    { "heading": "Results", "text": "..." }
+  ]
+}
+
+Here is an example of a NOT relevant paper with the user input topic of "Climate change and its effects on global agriculture":
+{
+  "score": 0.04,
+  "title": "Agricultural Economics and Innovation in the Inca Empire",
+  "summary": "This paper discusses agricultural innovations in the Inca Empire, focusing on terrace farming. While it touches on sustainable practices, it does not directly address the effects of modern climate change on global agriculture, making it tangentially relevant but not citable for the specified thesis.",
+  "relevant_sections": []
+}
+
+Return ONLY the JSON. Do not explain your reasoning outside of it.`;
 
   try {
     const result = await generateObject({
