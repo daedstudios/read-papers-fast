@@ -21,7 +21,15 @@ import Link from "next/link";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { RelevanceSummaryCard } from "@/components/RelevanceSummaryCard";
 import posthog from "posthog-js";
-
+import { useUser } from "@clerk/nextjs";
+import {
+  ClerkProvider,
+  SignInButton,
+  SignUpButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from "@clerk/nextjs";
 // This will be the structure for our search results later
 type SearchResult = {
   id: string;
@@ -82,6 +90,7 @@ const Page = () => {
   const BATCH_SIZE = 5;
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
   const [searchQueryId, setSearchQueryId] = useState<string | null>(null);
+  const { isSignedIn, user, isLoaded } = useUser();
   const [paperFeedback, setPaperFeedback] = useState<{
     [paperId: string]: "up" | "down" | null;
   }>({});
@@ -513,19 +522,40 @@ const Page = () => {
             ))}
             {results.length > visibleCount && (
               <div className="flex justify-center mt-8">
-                <button
-                  className="px-6 py-2 rounded-full bg-foreground text-background hover:bg-foreground/80 transition cursor-pointer"
-                  onClick={() => {
-                    posthog.capture("more results loaded", {
-                      topic,
-                      count: visibleCount + BATCH_SIZE,
-                    });
-                    setVisibleCount(visibleCount + BATCH_SIZE);
-                  }}
-                  disabled={loading}
-                >
-                  {loading ? "Loading..." : "Load more results"}
-                </button>
+                <SignedIn>
+                  <button
+                    className="px-6 py-2 rounded-full bg-foreground text-background hover:bg-foreground/80 transition cursor-pointer"
+                    onClick={() => {
+                      posthog.capture("more results loaded", {
+                        topic,
+                        count: visibleCount + BATCH_SIZE,
+                      });
+                      setVisibleCount(visibleCount + BATCH_SIZE);
+                    }}
+                    disabled={loading}
+                  >
+                    {loading ? "Loading..." : "Load more results"}
+                  </button>
+                </SignedIn>
+                <SignedOut>
+                  <div className="flex flex-col items-center gap-4">
+                    <p className="text-muted-foreground text-sm">
+                      Sign in to load more results
+                    </p>
+                    <div className="flex gap-3">
+                      <SignInButton>
+                        <Button className="bg-background/30 w-auto px-4 py-2 text-foreground cursor-pointer rounded-full border border-muted/30 hover:bg-background/10 hover:text-background">
+                          Log In
+                        </Button>
+                      </SignInButton>
+                      <SignUpButton>
+                        <Button className="bg-foreground w-auto px-4 py-2 text-background cursor-pointer rounded-full hover:bg-foreground/80">
+                          Sign Up
+                        </Button>
+                      </SignUpButton>
+                    </div>
+                  </div>
+                </SignedOut>
               </div>
             )}
           </div>
