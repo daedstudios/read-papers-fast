@@ -322,6 +322,16 @@ const Page = () => {
   }, []);
 
   useEffect(() => {
+    // Debug auth state for production issues
+    console.log("Auth state debug:", {
+      isLoaded,
+      isSignedIn,
+      userId: user?.id,
+      timestamp: new Date().toISOString(),
+    });
+  }, [isLoaded, isSignedIn, user]);
+
+  useEffect(() => {
     const interval = setInterval(() => {
       setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
     }, 2000);
@@ -522,7 +532,14 @@ const Page = () => {
             ))}
             {results.length > visibleCount && (
               <div className="flex justify-center mt-8">
-                {isSignedIn ? (
+                {!isLoaded ? (
+                  <button
+                    className="px-6 py-2 rounded-full bg-foreground/50 text-background cursor-not-allowed"
+                    disabled
+                  >
+                    <Loader2 className="animate-spin" size={16} />
+                  </button>
+                ) : isSignedIn ? (
                   <button
                     className="px-6 py-2 rounded-full bg-foreground text-background hover:bg-foreground/80 transition cursor-pointer"
                     onClick={() => {
