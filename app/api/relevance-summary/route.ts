@@ -65,13 +65,13 @@ export async function POST(req: NextRequest) {
   // Send the PDF file directly to Gemini
   const prompt = `You are given a research thesis topic: "${topic}" and a PDF paper. Your task is to critically and strictly evaluate whether this paper is genuinely relevant to the thesis — meaning it should be useful as a direct source or citation for the user writing on this topic.
 
-📌 Relevance Criteria:
+Relevance Criteria:
 - A paper is only relevant if it provides arguments, data, insights, or theoretical frameworks that directly support or contribute to the thesis topic.
 - Merely mentioning the topic or adjacent keywords is NOT sufficient.
 - Being "somewhat related" is NOT enough for a high score.
 - You are helping the user narrow down truly useful papers — not just thematically adjacent ones.
 
-📏 Instructions:
+Instructions:
 1. **Score**: Provide a decimal score from 0.01 to 1.00. Use the full range. Be extremely strict:
    - 0.01–0.30 = Not relevant
    - 0.31–0.70 = Weak/partial relevance (likely not useful)

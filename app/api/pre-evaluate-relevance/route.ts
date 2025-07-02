@@ -4,7 +4,7 @@ import { google } from "@ai-sdk/google";
 import { z } from "zod";
 
 const PreEvalSchema = z.object({
-  relevant: z.boolean(),
+  relevance: z.enum(["relevant", "somewhat relevant", "not relevant"]),
   summary: z.string(),
 });
 
@@ -19,15 +19,19 @@ export async function POST(req: NextRequest) {
   }
 
   const prompt = `
-Given the following research topic and paper, decide if the paper is DIRECTLY and SUBSTANTIALLY about the topic, based on its title and abstract only. 
-Only mark as relevant if the paper's main focus is clearly and strongly related to the topic. 
-If the connection is weak, tangential, or only briefly mentioned, mark as not relevant.
+Given the following research topic and paper, classify the paper's relevance to the topic based on its title and abstract only.
 
-DO NOT MARK A PAPER AS RELEVANT IF IT IS ONLY ABOUT THE TOPIC IN A SUPERFICIAL WAY.
+Assign one of these categories:
+- "relevant": The paper's main focus is directly and substantially about the topic. It must be directly citable in the thesis.
+- "somewhat relevant": The paper is partially about the topic, or the connection is moderate but not central.
+- "not relevant": The paper is only tangentially or superficially related as in it mentions part of the topic, or not about the topic at all.
+
+Be strict. Only assign "relevant" if the paper is a strong match and provides a direct and substantial contribution to the topic.
 
 Examples:
 - If the topic is "climate change and agriculture" and the paper is about "climate change with deep learning," mark as not relevant.
 - If the topic is "climate change and agriculture" and the paper is about "effects of climate change on crop yields," mark as relevant.
+
 
 Research topic: "${topic}"
 Paper title: "${title}"
@@ -35,7 +39,7 @@ Paper abstract: "${summary}"
 
 Respond in this JSON format:
 {
-  "relevant": true, // or false
+  "relevance": "relevant" | "somewhat relevant" | "not relevant",
   "summary": "Short explanation of why it is or is not relevant"
 }
 `;

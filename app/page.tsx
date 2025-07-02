@@ -88,8 +88,9 @@ const Page = () => {
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [wigglingThumb, setWigglingThumb] = useState<string | null>(null);
   const [preEvaluations, setPreEvaluations] = useState<{
-    [paperId: string]: { relevant: boolean; summary: string };
+    [paperId: string]: { relevance: string; summary: string };
   }>({});
+  const [showOnlyRelevant, setShowOnlyRelevant] = useState(false);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
@@ -226,10 +227,10 @@ const Page = () => {
       );
       // Store pre-evaluation results in state
       const preEvalMap: {
-        [paperId: string]: { relevant: boolean; summary: string };
+        [paperId: string]: { relevance: string; summary: string };
       } = {};
-      preEvalResults.forEach(({ paperId, relevant, summary }) => {
-        preEvalMap[paperId] = { relevant, summary };
+      preEvalResults.forEach(({ paperId, relevance, summary }) => {
+        preEvalMap[paperId] = { relevance, summary };
       });
       setPreEvaluations(preEvalMap);
       console.log("Pre-evaluation results:", preEvalMap);
@@ -286,7 +287,7 @@ const Page = () => {
         (paper) =>
           !evaluatedResults[paper.id] &&
           preEvaluations[paper.id] &&
-          preEvaluations[paper.id].relevant
+          preEvaluations[paper.id].relevance === "relevant"
       );
 
     if (toEvaluate.length === 0) return;
@@ -425,7 +426,7 @@ const Page = () => {
       {/* Results section */}
       {results.length > 0 && (
         <div className="w-full max-w-[48rem] px-4 mt-[4rem] mx-auto">
-          <div className="mb-4  pb-[2rem]">
+          <div className="mb-4 pb-[2rem]">
             <h3 className="text-[1rem] mb-[1rem] font-medium">
               Generated Keywords
             </h3>
@@ -444,112 +445,151 @@ const Page = () => {
           {/* <h3 className="text-[1.5rem] my-[2rem]">
             Found {results.length} relevant Papers
           </h3> */}
-
+          <div className="mb-2 text-left text-gray-500 text-[1rem] italic">
+            Searched through {results.length} papers
+            {" · "}
+            Found{" "}
+            {
+              Object.values(preEvaluations).filter(
+                (e) => e.relevance === "relevant"
+              ).length
+            }{" "}
+            relevant papers
+          </div>
+          <div className="flex gap-2 mb-4 mt-[2rem]">
+            <Button
+              variant={!showOnlyRelevant ? "default" : "outline"}
+              onClick={() => setShowOnlyRelevant(false)}
+              className="text-[1rem] font-medium rounded-full"
+            >
+              Show all
+            </Button>
+            <Button
+              variant={showOnlyRelevant ? "default" : "outline"}
+              onClick={() => setShowOnlyRelevant(true)}
+              className="text-[1rem] font-medium rounded-full"
+            >
+              Relevant
+            </Button>
+          </div>
           <div className="space-y-6 mb-[10rem] mt-[3rem]">
-            {results.slice(0, visibleCount).map((paper) => (
-              <div key={paper.id} className="">
-                <h4 className="text-[1.5rem] font-medium mb-2 flex flex-row justify-between items-center gap-[2rem]">
-                  {paper.title}
-                </h4>
+            {results
+              .filter((paper) => {
+                if (!showOnlyRelevant) return true;
+                const preEval = preEvaluations[paper.id];
+                return preEval && preEval.relevance === "relevant";
+              })
+              .slice(0, visibleCount)
+              .map((paper) => (
+                <div key={paper.id} className="">
+                  <h4 className="text-[1.5rem] font-medium mb-2 flex flex-row justify-between items-center gap-[2rem]">
+                    {paper.title}
+                  </h4>
 
-                <div className="flex flex-wrap gap-1 mb-2 text-sm text-gray-600">
-                  {paper.authors.map((author, idx) => (
-                    <span key={idx}>
-                      {author}
-                      {idx < paper.authors.length - 1 ? ", " : ""}
-                    </span>
-                  ))}
-                </div>
-
-                {/* <p className="text-[1rem] text-gray-700 mb-3 line-clamp-3">
-                  {paper.summary}
-                </p> */}
-
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {paper.categories?.map((category, idx) => (
-                    <span
-                      key={idx}
-                      className="bg-[#FFBAD8]/20 text-[#FFBAD8] px-2 py-0.5 rounded-full text-xs border border-[#FFBAD8]"
-                    >
-                      {category}
-                    </span>
-                  ))}
-                </div>
-
-                <div className="flex justify-between items-center text-xs text-gray-500">
-                  <span>
-                    Published: {new Date(paper.published).toLocaleDateString()}
-                  </span>
-
-                  <div className="flex gap-2">
-                    {paper.links?.map((link, idx) => {
-                      if (link.type === "application/pdf") {
-                        return (
-                          <a
-                            key={idx}
-                            href={link.href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center bg-foreground text-background hover:bg-foreground/80 px-4 py-2 rounded-full border border-foreground"
-                          >
-                            <Paperclip size={16} className="mr-1 text-[1rem]" />
-                            PDF
-                          </a>
-                        );
-                      }
-                      return null;
-                    })}
-                  </div>
-                </div>
-
-                <div className=" border-b border-muted-foreground/30 py-[1rem]">
-                  <div className="flex flex-row gap-6  mb-[1rem] justify-start">
-                    <ThumbsDown
-                      size={20}
-                      className={`cursor-pointer transition-all mt-1 duration-200 transform hover:scale-120 active:scale-80 ${
-                        paperFeedback[paper.id] === "down"
-                          ? "text-foreground fill-foreground"
-                          : "text-foreground hover:text-muted-foreground"
-                      } ${
-                        wigglingThumb === `${paper.id}-down` ? "wiggle" : ""
-                      }`}
-                      onClick={() => handleThumbsFeedback(paper.id, "down")}
-                    />
-
-                    <ThumbsUp
-                      size={20}
-                      className={`cursor-pointer transition-all duration-200 transform hover:scale-120 active:scale-80 ${
-                        paperFeedback[paper.id] === "up"
-                          ? "text-foreground fill-foreground"
-                          : "text-foreground hover:text-muted-foreground"
-                      } ${wigglingThumb === `${paper.id}-up` ? "wiggle" : ""}`}
-                      onClick={() => handleThumbsFeedback(paper.id, "up")}
-                    />
-                  </div>
-                  {/* Show pre-evaluation summary if not relevant */}
-                  {preEvaluations[paper.id] &&
-                  !preEvaluations[paper.id].relevant ? (
-                    <div className="text-gray-400 italic">
-                      Not relevant: {preEvaluations[paper.id].summary}
-                    </div>
-                  ) : evaluatedResults[paper.id]?.loading ? (
-                    <div className=" rounded-[1rem] bg-white">
-                      <span className="text-[1rem] font-medium flex items-center justify-between gap-2">
-                        Relevance Score:
-                        <Loader2
-                          className="animate-spin text-gray-400"
-                          size={28}
-                        />
+                  <div className="flex flex-wrap gap-1 mb-2 text-sm text-gray-600">
+                    {paper.authors.map((author, idx) => (
+                      <span key={idx}>
+                        {author}
+                        {idx < paper.authors.length - 1 ? ", " : ""}
                       </span>
+                    ))}
+                  </div>
+
+                  {/* <p className="text-[1rem] text-gray-700 mb-3 line-clamp-3">
+                      {paper.summary}
+                    </p> */}
+
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {paper.categories?.map((category, idx) => (
+                      <span
+                        key={idx}
+                        className="bg-[#FFBAD8]/20 text-[#FFBAD8] px-2 py-0.5 rounded-full text-xs border border-[#FFBAD8]"
+                      >
+                        {category}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex justify-between items-center text-xs text-gray-500">
+                    <span>
+                      Published:{" "}
+                      {new Date(paper.published).toLocaleDateString()}
+                    </span>
+
+                    <div className="flex gap-2">
+                      {paper.links?.map((link, idx) => {
+                        if (link.type === "application/pdf") {
+                          return (
+                            <a
+                              key={idx}
+                              href={link.href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center bg-foreground text-background hover:bg-foreground/80 px-4 py-2 rounded-full border border-foreground"
+                            >
+                              <Paperclip
+                                size={16}
+                                className="mr-1 text-[1rem]"
+                              />
+                              PDF
+                            </a>
+                          );
+                        }
+                        return null;
+                      })}
                     </div>
-                  ) : evaluatedResults[paper.id]?.relevance ? (
-                    <RelevanceSummaryCard
-                      data={evaluatedResults[paper.id].relevance}
-                    />
-                  ) : null}
+                  </div>
+
+                  <div className=" border-b border-muted-foreground/30 py-[1rem]">
+                    <div className="flex flex-row gap-6  mb-[1rem] justify-start">
+                      <ThumbsDown
+                        size={20}
+                        className={`cursor-pointer transition-all mt-1 duration-200 transform hover:scale-120 active:scale-80 ${
+                          paperFeedback[paper.id] === "down"
+                            ? "text-foreground fill-foreground"
+                            : "text-foreground hover:text-muted-foreground"
+                        } ${
+                          wigglingThumb === `${paper.id}-down` ? "wiggle" : ""
+                        }`}
+                        onClick={() => handleThumbsFeedback(paper.id, "down")}
+                      />
+
+                      <ThumbsUp
+                        size={20}
+                        className={`cursor-pointer transition-all duration-200 transform hover:scale-120 active:scale-80 ${
+                          paperFeedback[paper.id] === "up"
+                            ? "text-foreground fill-foreground"
+                            : "text-foreground hover:text-muted-foreground"
+                        } ${
+                          wigglingThumb === `${paper.id}-up` ? "wiggle" : ""
+                        }`}
+                        onClick={() => handleThumbsFeedback(paper.id, "up")}
+                      />
+                    </div>
+                    {/* Show pre-evaluation summary if not relevant */}
+                    {preEvaluations[paper.id] &&
+                    preEvaluations[paper.id].relevance !== "relevant" ? (
+                      <div className="text-gray-400 italic">
+                        Not relevant: {preEvaluations[paper.id].summary}
+                      </div>
+                    ) : evaluatedResults[paper.id]?.loading ? (
+                      <div className=" rounded-[1rem] bg-white">
+                        <span className="text-[1rem] font-medium flex items-center justify-between gap-2">
+                          Relevance Score:
+                          <Loader2
+                            className="animate-spin text-gray-400"
+                            size={28}
+                          />
+                        </span>
+                      </div>
+                    ) : evaluatedResults[paper.id]?.relevance ? (
+                      <RelevanceSummaryCard
+                        data={evaluatedResults[paper.id].relevance}
+                      />
+                    ) : null}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
             {results.length > visibleCount && (
               <div className="flex justify-center mt-8">
                 <button
