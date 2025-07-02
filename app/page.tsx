@@ -665,7 +665,16 @@ const Page = () => {
                         </Button>
                       </SignInButton>
                       <SignUpButton>
-                        <Button className="bg-foreground w-auto px-4 py-2 text-background cursor-pointer rounded-full hover:bg-foreground/80">
+                        <Button
+                          className="bg-foreground w-auto px-4 py-2 text-background cursor-pointer rounded-full hover:bg-foreground/80"
+                          onClick={() => {
+                            posthog.capture("sign_up_clicked", {
+                              location: "load_more_results",
+                              topic,
+                              searchQueryId,
+                            });
+                          }}
+                        >
                           Sign Up
                         </Button>
                       </SignUpButton>
