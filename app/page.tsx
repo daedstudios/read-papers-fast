@@ -386,11 +386,11 @@ const Page = () => {
       <main className="flex w-[48rem] max-w-screen flex-col items-center justify-center text-center px-4 mx-auto  lg:mt-[6rem]">
         {results.length > 0 && (
           <div className="text-[2rem] mb-8">
-            <h2>Search Results</h2>
+            <h2 className="font-serif">Search Results</h2>
           </div>
         )}
         {!results.length && (
-          <h2 className="text-[2rem] mb-[2rem] mt-[10rem] lg:mt-[0rem]">
+          <h2 className="font-serif text-[2rem] mb-[2rem] mt-[10rem] lg:mt-[0rem]">
             Find relevant papers for your research
           </h2>
         )}
@@ -420,7 +420,7 @@ const Page = () => {
                 <Loader2 className="animate-spin" />
               ) : (
                 <>
-                  <span className="text-[1rem]">find papers</span>
+                  <span className="text-[1rem] font-serif ">find papers</span>
                   <Globe size={16} />
                 </>
               )}

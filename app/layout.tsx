@@ -11,11 +11,19 @@ import {
 } from "@clerk/nextjs";
 import Link from "next/link";
 import Image from "next/image";
+import { Playfair_Display } from "next/font/google";
 
 import { Button } from "@/components/ui/button";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import Script from "next/script";
 import { PostHogProvider } from "@/components/Posthog";
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  variable: "--font-playfair",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "ReadPapersFast",
@@ -30,7 +38,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <PostHogProvider>
-        <html lang="en">
+        <html lang="en" className={playfair.variable}>
           <head>
             <Script
               id="posthog-script"
