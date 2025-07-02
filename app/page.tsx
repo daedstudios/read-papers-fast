@@ -102,6 +102,9 @@ const Page = () => {
     [paperId: string]: { relevance: string; summary: string };
   }>({});
   const [showOnlyRelevant, setShowOnlyRelevant] = useState(false);
+  const [heading, setHeading] = useState(
+    "Find relevant papers for your research"
+  );
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
@@ -380,6 +383,41 @@ const Page = () => {
     setVisibleRelevantCount(BATCH_SIZE);
   }, [results]);
 
+  useEffect(() => {
+    let timer1: NodeJS.Timeout;
+    let timer2: NodeJS.Timeout;
+    let timer3: NodeJS.Timeout;
+    let timer4: NodeJS.Timeout;
+    let timer5: NodeJS.Timeout;
+    if (loading) {
+      setHeading("Generating keywords...");
+      timer1 = setTimeout(() => {
+        setHeading("Querying databases...");
+        timer2 = setTimeout(() => {
+          setHeading("Finding papers for you...");
+          timer3 = setTimeout(() => {
+            setHeading("Looking left and right for papers...");
+            timer4 = setTimeout(() => {
+              setHeading("Filtering out junk...");
+              timer5 = setTimeout(() => {
+                setHeading("Evaluating relevance...");
+              }, 4000); // 3 seconds for the last state
+            }, 4000); // 3 seconds for filtering out junk
+          }, 4000); // 3 seconds for looking left and right
+        }, 4000); // 3 seconds for finding papers
+      }, 4000); // 2 seconds for querying databases
+    } else {
+      setHeading("Find relevant papers for your research");
+    }
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+      clearTimeout(timer4);
+      clearTimeout(timer5);
+    };
+  }, [loading]);
+
   return (
     <div className="bg-white text-black min-h-screen flex overflow-y-auto flex-col justify-center items-center ">
       {results.length > 0 && <div className="mt-[10rem]" />}
@@ -390,8 +428,8 @@ const Page = () => {
           </div>
         )}
         {!results.length && (
-          <h2 className="text-[2rem] mb-[2rem] mt-[10rem] lg:mt-[0rem]">
-            Find relevant papers for your research
+          <h2 className="font-playfair text-[2rem] mb-[2rem] mt-[10rem] lg:mt-[0rem]">
+            {heading}
           </h2>
         )}
         <form
