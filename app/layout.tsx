@@ -16,6 +16,42 @@ import { Button } from "@/components/ui/button";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import Script from "next/script";
 import { PostHogProvider } from "@/components/Posthog";
+import SurveyPopup from "@/components/survey-popup";
+
+function LayoutContent({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <header className="flex flex-row absolute p-[1rem] w-screen justify-between bg-transparent z-100">
+        <Link href="/" passHref>
+          <button className="text-[1.25rem] pt-1 cursor-pointer text-foreground font-medium">
+            FindPapersFast
+          </button>
+        </Link>
+        <div className="flex flex-row gap-2">
+          <SignedOut>
+            <SignInButton>
+              <Button className="bg-background/30 w-auto p-4 text-foreground cursor-pointer rounded-[3rem] border border-muted/30 hover:bg-background/10 hover:text-background">
+                Log In
+              </Button>
+            </SignInButton>
+            <SignUpButton>
+              <Button className="bg-foreground w-auto p-4 text-background cursor-pointer rounded-[3rem]  hover:bg-foreground/30">
+                Sign Up
+              </Button>
+            </SignUpButton>
+          </SignedOut>
+        </div>
+        <SignedIn>
+          <UserButton />
+        </SignedIn>
+      </header>
+      <AppContextProvider>
+        {children}
+        <SurveyPopup />
+      </AppContextProvider>
+    </>
+  );
+}
 
 export const metadata: Metadata = {
   title: "FindPapersFast",
@@ -48,31 +84,7 @@ export default function RootLayout({
             />
           </head>
           <body className="antialiased">
-            <header className="flex flex-row absolute p-[1rem] w-screen justify-between bg-transparent z-100">
-              <Link href="/" passHref>
-                <button className="text-[1.25rem] pt-1 cursor-pointer text-foreground font-medium">
-                  FindPapersFast
-                </button>
-              </Link>
-              <div className="flex flex-row gap-2">
-                <SignedOut>
-                  <SignInButton>
-                    <Button className="bg-background/30 w-auto p-4 text-foreground cursor-pointer rounded-[3rem] border border-muted/30 hover:bg-background/10 hover:text-background">
-                      Log In
-                    </Button>
-                  </SignInButton>
-                  <SignUpButton>
-                    <Button className="bg-foreground w-auto p-4 text-background cursor-pointer rounded-[3rem]  hover:bg-foreground/30">
-                      Sign Up
-                    </Button>
-                  </SignUpButton>
-                </SignedOut>
-              </div>
-              <SignedIn>
-                <UserButton />
-              </SignedIn>
-            </header>
-            <AppContextProvider>{children}</AppContextProvider>
+            <LayoutContent>{children}</LayoutContent>
           </body>
         </html>
       </PostHogProvider>

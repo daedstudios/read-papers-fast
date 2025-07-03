@@ -23,6 +23,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { RelevanceSummaryCard } from "@/components/RelevanceSummaryCard";
 import posthog from "posthog-js";
 import { useUser } from "@clerk/nextjs";
+import { useAppContext } from "@/components/AppContext";
 import {
   ClerkProvider,
   SignInButton,
@@ -99,6 +100,7 @@ const Page = () => {
   const [visibleRelevantCount, setVisibleRelevantCount] = useState(BATCH_SIZE);
   const [searchQueryId, setSearchQueryId] = useState<string | null>(null);
   const { isSignedIn, user, isLoaded } = useUser();
+  const { setSearchTriggered } = useAppContext();
   const [paperFeedback, setPaperFeedback] = useState<{
     [paperId: string]: "up" | "down" | null;
   }>({});
@@ -194,6 +196,9 @@ const Page = () => {
     setResults([]);
     setVisibleCount(BATCH_SIZE);
     setVisibleRelevantCount(BATCH_SIZE);
+
+    // Trigger the survey popup after a delay
+    setSearchTriggered(true);
 
     posthog.capture("papaer searched", {
       topic: searchTopic,
