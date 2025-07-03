@@ -18,8 +18,8 @@ import Script from "next/script";
 import { PostHogProvider } from "@/components/Posthog";
 
 export const metadata: Metadata = {
-  title: "ReadPapersFast",
-  description: "Read research papers 10x faster",
+  title: "FindPapersFast",
+  description: "Find research papers 10x faster",
 };
 
 export default function RootLayout({
