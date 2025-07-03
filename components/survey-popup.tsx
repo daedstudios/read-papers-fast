@@ -21,7 +21,7 @@ const SurveyPopup = () => {
       setIsVisible(true);
       setHasBeenShown(true);
       sessionStorage.setItem("surveyShown", "true");
-    }, 500);
+    }, 10000);
 
     return () => clearTimeout(timer);
   }, []);
