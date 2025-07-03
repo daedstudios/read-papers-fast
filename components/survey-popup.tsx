@@ -3,10 +3,12 @@
 import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAppContext } from "./AppContext";
 
 const SurveyPopup = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [hasBeenShown, setHasBeenShown] = useState(false);
+  const { searchTriggered } = useAppContext();
 
   useEffect(() => {
     // Check if survey has already been shown in this session
@@ -16,7 +18,12 @@ const SurveyPopup = () => {
       return;
     }
 
-    // Show popup after 5 seconds
+    // Only show popup if search has been triggered
+    if (!searchTriggered) {
+      return;
+    }
+
+    // Show popup 10 seconds after search is triggered
     const timer = setTimeout(() => {
       setIsVisible(true);
       setHasBeenShown(true);
@@ -24,7 +31,7 @@ const SurveyPopup = () => {
     }, 10000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [searchTriggered]);
 
   const handleClose = () => {
     setIsVisible(false);

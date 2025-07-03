@@ -12,6 +12,8 @@ interface AppContextState {
   setResult: (result: any) => void;
   progressMessage: string;
   setProgressMessage: (msg: string) => void;
+  searchTriggered: boolean;
+  setSearchTriggered: (triggered: boolean) => void;
 }
 
 const AppContext = createContext<AppContextState | undefined>(undefined);
@@ -21,6 +23,7 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
   const [progressMessage, setProgressMessage] = useState("");
+  const [searchTriggered, setSearchTriggered] = useState(false);
 
   return (
     <AppContext.Provider
@@ -33,6 +36,8 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
         setResult,
         progressMessage,
         setProgressMessage,
+        searchTriggered,
+        setSearchTriggered,
       }}
     >
       {children}
