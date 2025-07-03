@@ -49,6 +49,12 @@ type SearchResult = {
   categories?: string[];
 };
 
+type RecentQuery = {
+  id: string;
+  query: string;
+  createdAt: string;
+};
+
 const exampleTopics = [
   "The impact of social media on mental health",
   "Climate change and its effects on global agriculture",
@@ -105,6 +111,7 @@ const Page = () => {
   const [heading, setHeading] = useState(
     "Find relevant papers for your research"
   );
+  const [recentQueries, setRecentQueries] = useState<RecentQuery[]>([]);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
@@ -264,6 +271,20 @@ const Page = () => {
     handleSearch(topic);
   };
 
+  const fetchRecentQueries = async () => {
+    try {
+      const response = await fetch("/api/fetch-recent");
+      if (response.ok) {
+        const data = await response.json();
+        setRecentQueries(data.queries || []);
+      } else {
+        console.warn("Failed to fetch recent queries");
+      }
+    } catch (error) {
+      console.error("Error fetching recent queries:", error);
+    }
+  };
+
   const handleThumbsFeedback = (
     paperId: string,
     feedbackType: "up" | "down"
@@ -359,6 +380,7 @@ const Page = () => {
 
   useEffect(() => {
     posthog.capture("landing_page_view");
+    fetchRecentQueries();
   }, []);
 
   useEffect(() => {
@@ -472,19 +494,33 @@ const Page = () => {
             Recent Searches
           </h3>
           <ul>
-            {exampleTopics.map((topic, idx) => (
-              <li
-                key={idx}
-                className="border-b border-muted flex flex-row gap-4 justify-between items-center text-foreground py-[1rem]"
-              >
-                {topic}
-                <Plus
-                  size={24}
-                  className="text-foreground cursor-pointer hover:text-foreground/30"
-                  onClick={() => handleRecentTopicClick(topic)}
-                />
-              </li>
-            ))}
+            {recentQueries.length > 0
+              ? recentQueries.map((queryItem) => (
+                  <li
+                    key={queryItem.id}
+                    className="border-b border-muted flex flex-row gap-4 justify-between items-center text-foreground py-[1rem]"
+                  >
+                    {queryItem.query}
+                    <Plus
+                      size={24}
+                      className="text-foreground cursor-pointer hover:text-foreground/30"
+                      onClick={() => handleRecentTopicClick(queryItem.query)}
+                    />
+                  </li>
+                ))
+              : exampleTopics.map((topic, idx) => (
+                  <li
+                    key={idx}
+                    className="border-b border-muted flex flex-row gap-4 justify-between items-center text-foreground py-[1rem]"
+                  >
+                    {topic}
+                    <Plus
+                      size={24}
+                      className="text-foreground cursor-pointer hover:text-foreground/30"
+                      onClick={() => handleRecentTopicClick(topic)}
+                    />
+                  </li>
+                ))}
           </ul>
         </div>
       )}
