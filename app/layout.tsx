@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import Script from "next/script";
 import { PostHogProvider } from "@/components/Posthog";
+import SurveyPopup from "@/components/survey-popup";
 
 export const metadata: Metadata = {
   title: "FindPapersFast",
@@ -73,6 +74,7 @@ export default function RootLayout({
               </SignedIn>
             </header>
             <AppContextProvider>{children}</AppContextProvider>
+            <SurveyPopup />
           </body>
         </html>
       </PostHogProvider>
