@@ -7,6 +7,7 @@ export const runtime = "nodejs";
 
 const RelevanceSchema = z.object({
   score: z.number().min(0).max(1),
+  title: z.string(),
   summary: z.string(),
   relevant_sections: z
     .array(
@@ -66,6 +67,8 @@ export async function POST(req: NextRequest) {
 
   const prompt = `You are given a research thesis topic: "${topic}" and a PDF paper. Your task is to critically evaluate whether this paper is genuinely relevant to the thesis — meaning it should provide material the user would directly cite in their writing.
 
+First, extract the title of the paper from the PDF content. Look for the main title, usually found in the first few pages or in headers.
+
 Strict Relevance Criteria:
 - A paper is relevant **only** if it offers **specific arguments, data, case studies, or theoretical frameworks** that directly support or inform the thesis topic.
 - Mere keyword overlaps, vague mentions, or being in a related field is **not enough**.
@@ -80,13 +83,14 @@ Examples of non-relevance:
 - It is about a similar field but answers a different research question.
 
 Instructions:
-1. **Score**: Provide a decimal score between 0.01 and 1.00. Use the full range:
+1. **Title**: Extract the main title of the paper from the PDF content.
+2. **Score**: Provide a decimal score between 0.01 and 1.00. Use the full range:
    - 0.01–0.30 = Not relevant (cannot be cited)
    - 0.31–0.70 = Weak or indirect relevance (likely not worth citing)
    - 0.71–0.90 = Strong relevance (useful background or supportive content)
    - 0.91–1.00 = Direct match (definitely cite this)
 
-2. **Summary**: In 1–2 sentences, clearly explain *why* the paper is or is not relevant. Be direct. No hedging.
+3. **Summary**: In 1–2 sentences, clearly explain *why* the paper is or is not relevant. Be direct. No hedging.
 
 Before assigning a score:
 - Ask: Would this paper be cited in the thesis?
@@ -101,6 +105,7 @@ Respond strictly in the following JSON format:
 
 {
   "score": 0.00,
+  "title": "Extracted paper title here",
   "summary": "Your 1–2 sentence explanation here.",
   "relevant_sections": [
     {
