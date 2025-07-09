@@ -44,7 +44,7 @@ const Page = () => {
     setIsLoading(true);
     setError(null);
 
-    router.push("/recent");
+    // router.push("/recent");
 
     try {
       if (uploadedFile) {
