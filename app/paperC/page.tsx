@@ -125,7 +125,7 @@ function PaperContent() {
       }
 
       try {
-        const response = await fetch(`/api/paperGrobid?id=${id}`);
+        const response = await fetch(`/api/read/paperGrobid?id=${id}`);
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.error || "Failed to fetch paper summary");

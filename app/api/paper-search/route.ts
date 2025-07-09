@@ -2,23 +2,40 @@ import { NextRequest, NextResponse } from "next/server";
 import { generateObject } from "ai";
 import { google } from "@ai-sdk/google";
 import { z } from "zod";
-import { XMLParser } from "fast-xml-parser";
 
 export const runtime = "nodejs";
 
-// Initialize XML parser
-const parser = new XMLParser({
-  ignoreAttributes: false,
-  attributeNamePrefix: "_",
-});
-
-// Schema for generating an arXiv query string and keywords
+// Schema for generating an OpenAlex query string and keywords
 const QuerySchema = z.object({
-  query: z.string().describe("arXiv API query string for the research topic"),
+  query: z.string().describe("OpenAlex API search query string for the research topic"),
   keywords: z
     .array(z.string())
     .describe("List of keywords used to generate the query"),
 });
+
+// Function to reconstruct abstract from inverted index
+function reconstructAbstract(abstractInvertedIndex: any): string {
+  if (!abstractInvertedIndex || typeof abstractInvertedIndex !== 'object') {
+    return "No abstract available";
+  }
+
+  const words: { [position: number]: string } = {};
+  
+  // Reconstruct the abstract from the inverted index
+  for (const [word, positions] of Object.entries(abstractInvertedIndex)) {
+    if (Array.isArray(positions)) {
+      positions.forEach((pos: number) => {
+        words[pos] = word;
+      });
+    }
+  }
+
+  // Sort by position and join
+  const sortedPositions = Object.keys(words).map(Number).sort((a, b) => a - b);
+  const reconstructed = sortedPositions.map(pos => words[pos]).join(' ');
+  
+  return reconstructed || "Abstract available but could not be reconstructed";
+}
 
 export async function POST(req: NextRequest) {
   const { topic } = await req.json();
@@ -27,17 +44,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Topic is required" }, { status: 400 });
   }
 
-  // Prompt to generate a smart arXiv query string and keywords
+  // Prompt to generate a smart OpenAlex query string and keywords
   const prompt = `
-You are an expert in arXiv API search queries. Given the following research topic, generate:
-1. The 3-5 most relevant keywords for searching arXiv.
-2. A robust arXiv API search query string using those keywords, combining them with OR or AND, and parentheses as appropriate for the topic, but do not over-complicate. Use only the 'all:' field for each keyword or phrase.
+You are an expert in OpenAlex API search queries. Given the following research topic, generate:
+1. The 3-5 most relevant keywords for searching OpenAlex.
+2. A robust OpenAlex API search query string using those keywords, combining them with OR, AND, and NOT operators as appropriate. You can use parentheses for grouping and quotes for exact phrases.
 
 IMPORTANT: Use AND operator when two subjects are combined in a topic (e.g. "machine learning and agriculture", "climate change and LLMs" etc). Use a maximum of 1 AND operator in the query string.
 
+Examples of valid OpenAlex queries:
+- machine learning AND agriculture
+- "climate change" OR "global warming"
+- (deep learning OR neural networks) AND computer vision
+- artificial intelligence NOT "artificial general intelligence"
+
 Respond strictly in this JSON format:
 {
-  "query": "...arxiv query string...",
+  "query": "...openalex query string...",
   "keywords": ["keyword1", "keyword2", ...]
 }
 
@@ -54,69 +77,74 @@ Research topic: "${topic}"
     const queryString = object.query;
     const keywords = object.keywords;
 
-    // Use the generated query string directly in the arXiv API call
-    const arxivApiUrl = `http://export.arxiv.org/api/query?search_query=${encodeURIComponent(
+    // Use the generated query string directly in the OpenAlex API call
+    const openAlexApiUrl = `https://api.openalex.org/works?search=${encodeURIComponent(
       queryString
-    )}&start=0&max_results=500`;
+    )}&per_page=100&sort=relevance_score:desc`;
 
-    console.log("Calling arXiv API with URL:", arxivApiUrl);
+    console.log("Calling OpenAlex API with URL:", openAlexApiUrl);
 
-    // Fetch papers from arXiv
-    let response = await fetch(arxivApiUrl);
-    let xmlData = await response.text();
-    let result = parser.parse(xmlData);
+    // Fetch papers from OpenAlex
+    let response = await fetch(openAlexApiUrl);
+    let data = await response.json();
 
-    // Format the response
-    let entries = result.feed.entry || [];
+    // Format the response to match the expected structure
+    let results = data.results || [];
 
     // Fallback: if no results and query contains AND, try with OR instead
-    if (entries.length === 0 && queryString.includes("AND")) {
+    if (results.length === 0 && queryString.includes("AND")) {
       const fallbackQuery = queryString.replace(/AND/g, "OR");
-      const fallbackUrl = `http://export.arxiv.org/api/query?search_query=${encodeURIComponent(
+      const fallbackUrl = `https://api.openalex.org/works?search=${encodeURIComponent(
         fallbackQuery
-      )}&start=0&max_results=100`;
-      console.log("Fallback arXiv API with URL:", fallbackUrl);
+      )}&per_page=100&sort=relevance_score:desc`;
+      console.log("Fallback OpenAlex API with URL:", fallbackUrl);
       response = await fetch(fallbackUrl);
-      xmlData = await response.text();
-      result = parser.parse(xmlData);
-      entries = result.feed.entry || [];
+      data = await response.json();
+      results = data.results || [];
     }
 
-    const formattedResults = Array.isArray(entries)
-      ? entries.map((entry: any) => ({
-          id: entry.id,
-          title: entry.title,
-          summary: entry.summary,
-          published: entry.published,
-          updated: entry.updated,
-          authors: Array.isArray(entry.author)
-            ? entry.author.map((author: any) => author.name)
-            : [entry.author?.name],
-          doi: entry.doi,
-          primaryCategory: entry["_primary-category"],
-          categories: Array.isArray(entry.category)
-            ? entry.category.map((cat: any) => cat._term)
-            : [entry.category?._term],
-          links: Array.isArray(entry.link)
-            ? entry.link.map((link: any) => ({
-                href: link._href,
-                type: link._type,
-                rel: link._rel,
-              }))
-            : [entry.link].map((link: any) => ({
-                href: link._href,
-                type: link._type,
-                rel: link._rel,
-              })),
-        }))
-      : [];
+    const formattedResults = results.map((work: any) => ({
+      id: work.id,
+      title: work.title || work.display_name,
+      summary: work.abstract || 
+        (work.abstract_inverted_index ? reconstructAbstract(work.abstract_inverted_index) : "No abstract available"),
+      published: work.publication_date,
+      updated: work.publication_date,
+      authors: work.authorships?.map((authorship: any) => 
+        authorship.author?.display_name
+      ).filter(Boolean) || [],
+      doi: work.doi,
+      primaryCategory: work.primary_topic?.display_name || work.type,
+      categories: work.topics?.map((topic: any) => topic.display_name) || [],
+      links: [
+        {
+          href: work.primary_location?.landing_page_url || work.id,
+          type: "text/html",
+          rel: "alternate",
+        },
+        ...(work.primary_location?.pdf_url ? [{
+          href: work.primary_location.pdf_url,
+          type: "application/pdf",
+          rel: "alternate",
+        }] : []),
+        ...(work.open_access?.oa_url ? [{
+          href: work.open_access.oa_url,
+          type: "application/pdf",
+          rel: "alternate",
+        }] : []),
+      ],
+      relevance_score: work.relevance_score,
+      publication_year: work.publication_year,
+      open_access: work.open_access,
+      cited_by_count: work.cited_by_count,
+    }));
 
     console.log("Formatted Results:", formattedResults);
 
     return NextResponse.json({
       query: queryString,
       keywords: keywords,
-      totalResults: entries.length,
+      totalResults: data.meta?.count || results.length,
       papers: formattedResults,
     });
   } catch (error) {

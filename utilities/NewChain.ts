@@ -34,7 +34,7 @@ export const processUploadedFile = async (
     formData.append("file", uploadedFile);
 
     setProgressMessage("Uploading file...");
-    const response = await fetch("/api/upload_id", {
+    const response = await fetch("/api/read/upload_id", {
       method: "POST",
       body: formData,
     });
@@ -59,18 +59,12 @@ export const processUploadedFile = async (
     setProgressMessage("Processing document in parallel...");    // Define all the fetch operations
     const processingTasks = [
       // Base API call
-      fetchWithRetry("/api/base", {
+      fetchWithRetry("/api/read/base", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: data.id }),
       }, "base"),
 
-      // Keywords extraction
-      fetchWithRetry("/api/vertexKeyWords", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: data.id }),
-      }, "keywords"),
 
       // Grobid document processing
       fetchWithRetry(
@@ -107,7 +101,7 @@ export const processUploadedFile = async (
     try {
       let contentOrderResponse;
       try {
-        contentOrderResponse = await fetch("/api/content-order", {
+        contentOrderResponse = await fetch("/api/read/content-order", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id: data.id }),
@@ -117,7 +111,7 @@ export const processUploadedFile = async (
           // If the first attempt fails, retry once
           console.log("Content ordering failed, retrying...");
           await new Promise(resolve => setTimeout(resolve, 1000));
-          contentOrderResponse = await fetch("/api/content-order", {
+          contentOrderResponse = await fetch("/api/read/content-order", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ id: data.id }),
@@ -127,7 +121,7 @@ export const processUploadedFile = async (
         // If there's an exception (e.g., network error), retry once
         console.log("Content ordering request failed, retrying...");
         await new Promise(resolve => setTimeout(resolve, 1000));
-        contentOrderResponse = await fetch("/api/content-order", {
+        contentOrderResponse = await fetch("/api/read/content-order", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id: data.id }),
@@ -153,7 +147,7 @@ export const processUploadedFile = async (
       setProgressMessage("Matching images...");
       let imageMatchResponse;
       try {
-        imageMatchResponse = await fetch("/api/image-matching", {
+        imageMatchResponse = await fetch("/api/read/image-matching", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id: data.id }),
@@ -163,7 +157,7 @@ export const processUploadedFile = async (
           // If the first attempt fails, retry once
           console.log("Image matching failed, retrying...");
           await new Promise(resolve => setTimeout(resolve, 1000));
-          imageMatchResponse = await fetch("/api/image-matching", {
+          imageMatchResponse = await fetch("/api/read/image-matching", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ id: data.id }),
@@ -173,7 +167,7 @@ export const processUploadedFile = async (
         // If there's an exception (e.g., network error), retry once
         console.log("Image matching request failed, retrying...");
         await new Promise(resolve => setTimeout(resolve, 1000));
-        imageMatchResponse = await fetch("/api/image-matching", {
+        imageMatchResponse = await fetch("/api/read/image-matching", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id: data.id }),
