@@ -16,11 +16,11 @@ import {
   ThumbsUp,
   ThumbsDown,
   Check,
+  Asterisk,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { RelevanceSummaryCard } from "@/components/RelevanceSummaryCard";
 import posthog from "posthog-js";
 import { useUser } from "@clerk/nextjs";
 import { useAppContext } from "@/components/AppContext";
@@ -48,6 +48,8 @@ type SearchResult = {
   doi?: string;
   primaryCategory?: string;
   categories?: string[];
+  relevance_score?: number;
+  cited_by_count?: number;
 };
 
 type RecentQuery = {
@@ -89,12 +91,6 @@ const Page = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [keywords, setKeywords] = useState<string[]>([]);
-  const [evaluatedResults, setEvaluatedResults] = useState<{
-    [paperId: string]: {
-      loading: boolean;
-      relevance: any | null;
-    };
-  }>({});
   const BATCH_SIZE = 10;
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
   const [visibleRelevantCount, setVisibleRelevantCount] = useState(BATCH_SIZE);
@@ -316,72 +312,6 @@ const Page = () => {
       previousFeedback: currentFeedback,
     });
   };
-
-  useEffect(() => {
-    if (!results.length || !topic) return;
-    let cancelled = false;
-
-    // Only evaluate up to visibleCount and if pre-evaluation is relevant
-    const toEvaluate = results
-      .slice(0, visibleCount)
-      .filter(
-        (paper) =>
-          !evaluatedResults[paper.id] &&
-          preEvaluations[paper.id] &&
-          preEvaluations[paper.id].relevance === "relevant"
-      );
-
-    if (toEvaluate.length === 0) return;
-
-    async function evaluateBatch() {
-      for (const paper of toEvaluate) {
-        setEvaluatedResults((prev) => ({
-          ...prev,
-          [paper.id]: { loading: true, relevance: null },
-        }));
-        const pdfLink = paper.links.find(
-          (link) => link.type === "application/pdf"
-        )?.href;
-        let relevance = null;
-        if (pdfLink) {
-          const formData = new FormData();
-          formData.append("pdfUrl", pdfLink);
-          formData.append("topic", topic);
-          try {
-            const res = await fetch("/api/relevance-summary", {
-              method: "POST",
-              body: formData,
-            });
-            const data = await res.json();
-            relevance = data.relevance;
-          } catch (e) {
-            relevance = {
-              score: 0,
-              summary: "Failed to evaluate.",
-              relevant_sections: [],
-            };
-          }
-        } else {
-          relevance = {
-            score: 0,
-            summary: "No PDF link.",
-            relevant_sections: [],
-          };
-        }
-        if (!cancelled) {
-          setEvaluatedResults((prev) => ({
-            ...prev,
-            [paper.id]: { loading: false, relevance },
-          }));
-        }
-      }
-    }
-
-    evaluateBatch();
-    return () => {
-      cancelled = true;
-    };
-  }, [results, topic, visibleCount, preEvaluations]);
 
   useEffect(() => {
     posthog.capture("landing_page_view");
@@ -655,32 +585,45 @@ const Page = () => {
                   </div>
 
                   <div className=" border-b border-muted-foreground/30 py-[1rem]">
-                    {/* Show pre-evaluation summary if not relevant */}
-                    {preEvaluations[paper.id] &&
-                    preEvaluations[paper.id].relevance !== "relevant" ? (
-                      <div className="flex flex-col gap-2">
-                        <div className="text-muted-foreground text-[1.25rem] font-medium">
-                          not relevant
+                    {preEvaluations[paper.id] ? (
+                      <div className="flex flex-col gap-4">
+                        <div className="flex items-center justify-between">
+                          <div
+                            className={`text-[1.25rem] font-medium ${
+                              preEvaluations[paper.id].relevance === "relevant"
+                                ? "text-green-700"
+                                : "text-muted-foreground"
+                            }`}
+                          >
+                            {preEvaluations[paper.id].relevance}
+                          </div>
+                          {paper.relevance_score && (
+                            <div className="text-foreground text-[1rem] font-medium">
+                              Score: {paper.relevance_score.toFixed(2)}
+                            </div>
+                          )}
                         </div>
-                        <div className="text-muted-foreground text-[1rem]">
+                        <div
+                          className={`text-[1rem] ${
+                            preEvaluations[paper.id].relevance === "relevant"
+                              ? "text-foreground"
+                              : "text-muted-foreground"
+                          }`}
+                        >
                           {preEvaluations[paper.id].summary}
                         </div>
+                        {paper.cited_by_count !== undefined && (
+                          <div className="text-blue-900 bg-blue-100/30  text-sm px-2 w-fit  border border-muted rounded-full flex items-center gap-1 justify-end">
+                            <Asterisk size={24} />
+                            Cited by {paper.cited_by_count} papers
+                          </div>
+                        )}
                       </div>
-                    ) : evaluatedResults[paper.id]?.loading ? (
-                      <div className=" rounded-[1rem] bg-white">
-                        <span className="text-[1rem] font-medium flex items-center justify-between gap-2">
-                          Relevance Score:
-                          <Loader2
-                            className="animate-spin text-gray-400"
-                            size={28}
-                          />
-                        </span>
+                    ) : (
+                      <div className="text-muted-foreground text-[1rem]">
+                        Analyzing relevance...
                       </div>
-                    ) : evaluatedResults[paper.id]?.relevance ? (
-                      <RelevanceSummaryCard
-                        data={evaluatedResults[paper.id].relevance}
-                      />
-                    ) : null}
+                    )}
                     <div className="flex flex-row gap-6  my-[1rem] justify-start text-muted-foreground">
                       helpful?
                       <ThumbsDown

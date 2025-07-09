@@ -23,8 +23,8 @@ Given the following research topic and paper, classify the paper's relevance to 
 
 Assign one of these categories:
 - "relevant": The paper's main focus is directly and substantially about the topic. It must be directly citable in the thesis.
-- "somewhat relevant": The paper is partially about the topic, or the connection is moderate but not central.
-- "not relevant": The paper is only tangentially or superficially related as in it mentions part of the topic, or not about the topic at all.
+- "not relevant": The paper is partially about the topic, or the connection is moderate but not central.
+- "definetly not relevant": The paper is only tangentially or superficially related as in it mentions part of the topic, or not about the topic at all.
 
 Be strict. Only assign "relevant" if the paper is a strong match and provides a direct and substantial contribution to the topic.
 
