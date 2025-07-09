@@ -55,6 +55,7 @@ export async function POST(request: Request) {
 
     const create = await prisma.paperMainStructure.create({
       data: {
+        id: uuidv4(),
         pdf_file_path: fileUrl,
         status: "pending",
       },
