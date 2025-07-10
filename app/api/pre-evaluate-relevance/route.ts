@@ -40,7 +40,7 @@ Paper abstract: "${summary}"
 Respond in this JSON format:
 {
   "relevance": "relevant" | "somewhat relevant" | "not relevant",
-  "summary": "Short explanation of why it is or is not relevant"
+  "summary": "In 1–2 sentences, clearly explain *why* the paper is or is not relevant. Be direct. No hedging."
 }
 `;
 

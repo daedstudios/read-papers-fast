@@ -17,6 +17,7 @@ import {
   ThumbsDown,
   Check,
   Asterisk,
+  Sparkle,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
@@ -561,26 +562,36 @@ const Page = () => {
                     </span>
 
                     <div className="flex gap-2">
-                      {paper.links?.map((link, idx) => {
-                        if (link.type === "application/pdf") {
-                          return (
-                            <a
-                              key={idx}
-                              href={link.href}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center bg-foreground text-background hover:bg-foreground/80 px-4 py-2 rounded-full border border-foreground"
-                            >
-                              <Paperclip
-                                size={16}
-                                className="mr-1 text-[1rem]"
-                              />
-                              PDF
-                            </a>
-                          );
-                        }
-                        return null;
-                      })}
+                      {paper.links
+                        ?.filter(
+                          (link, idx, arr) =>
+                            link.type === "application/pdf" &&
+                            arr.findIndex(
+                              (l) =>
+                                l.type === "application/pdf" &&
+                                l.href === link.href
+                            ) === idx
+                        )
+                        .map((link, idx) => (
+                          <a
+                            key={idx}
+                            href={link.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center bg-foreground text-background hover:bg-foreground/80 px-4 py-2 rounded-full border border-foreground"
+                          >
+                            <Paperclip size={16} className="mr-1 text-[1rem]" />
+                            PDF
+                          </a>
+                        ))}
+                      {(!paper.links ||
+                        !paper.links.some(
+                          (link) => link.type === "application/pdf"
+                        )) && (
+                        <span className="text-muted-foreground text-xs italic">
+                          No PDF available
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -613,10 +624,28 @@ const Page = () => {
                           {preEvaluations[paper.id].summary}
                         </div>
                         {paper.cited_by_count !== undefined && (
-                          <div className="text-blue-900 bg-blue-100/30  text-sm px-2 w-fit  border border-muted rounded-full flex items-center gap-1 justify-end">
-                            <Asterisk size={24} />
-                            Cited by {paper.cited_by_count} papers
-                          </div>
+                          <>
+                            <div className="flex flex-row gap-2">
+                              <div className="text-blue-900 bg-blue-100/30 text-sm px-2 w-fit border border-muted rounded-full flex items-center gap-1 justify-end">
+                                <Asterisk size={24} />
+                                cited by {paper.cited_by_count} papers
+                              </div>
+                              {(() => {
+                                const year = new Date(
+                                  paper.published
+                                ).getFullYear();
+                                if (year > 2020) {
+                                  return (
+                                    <div className=" bg-blue-100/30 text-blue-900 text-sm px-2 py-0.5 border border-muted w-fit flex items-center gap-1  rounded-full ">
+                                      <Sparkle size={16} />
+                                      new
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              })()}
+                            </div>
+                          </>
                         )}
                       </div>
                     ) : (
