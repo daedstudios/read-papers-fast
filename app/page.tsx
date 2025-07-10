@@ -111,6 +111,8 @@ const Page = () => {
     "Find relevant papers for your research"
   );
   const [recentQueries, setRecentQueries] = useState<RecentQuery[]>([]);
+  const [currentStep, setCurrentStep] = useState<string | null>(null);
+  const [completedSteps, setCompletedSteps] = useState<string[]>([]);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
@@ -193,6 +195,10 @@ const Page = () => {
     setResults([]);
     setVisibleCount(BATCH_SIZE);
     setVisibleRelevantCount(BATCH_SIZE);
+    setCompletedSteps([]);
+
+    // Step 1: Initialize search
+    setCurrentStep("Preparing your search...");
 
     // Trigger the survey popup after a delay
     setSearchTriggered(true);
@@ -202,7 +208,9 @@ const Page = () => {
     });
 
     try {
-      // First, save the search query to the database
+      // Step 2: Save search query to database
+      setCompletedSteps(["Preparing your search..."]);
+      setCurrentStep("Saving your search query...");
       const queryResponse = await fetch("/api/search-query-push", {
         method: "POST",
         headers: {
@@ -219,6 +227,12 @@ const Page = () => {
         console.warn("Failed to save search query, but continuing with search");
       }
 
+      // Step 3: Search for papers
+      setCompletedSteps([
+        "Preparing your search...",
+        "Saving your search query...",
+      ]);
+      setCurrentStep("Searching academic databases...");
       const response = await fetch("/api/paper-search", {
         method: "POST",
         headers: {
@@ -233,7 +247,14 @@ const Page = () => {
 
       const data = await response.json();
       setKeywords(data.keywords);
-      // Pre-evaluate all papers in parallel
+
+      // Step 4: Evaluate papers for relevance
+      setCompletedSteps([
+        "Preparing your search...",
+        "Saving your search query...",
+        "Searching academic databases...",
+      ]);
+      setCurrentStep("Analyzing paper relevance...");
       const preEvalResults = await Promise.all(
         data.papers.map(async (paper: SearchResult) => {
           const res = await fetch("/api/pre-evaluate-relevance", {
@@ -249,7 +270,15 @@ const Page = () => {
           return { paperId: paper.id, ...preEval };
         })
       );
-      // Store pre-evaluation results in state
+
+      // Step 5: Finalizing results
+      setCompletedSteps([
+        "Preparing your search...",
+        "Saving your search query...",
+        "Searching academic databases...",
+        "Analyzing paper relevance...",
+      ]);
+      setCurrentStep("Organizing your results...");
       const preEvalMap: {
         [paperId: string]: { relevance: string; summary: string };
       } = {};
@@ -260,9 +289,21 @@ const Page = () => {
       console.log("Pre-evaluation results:", preEvalMap);
       setResults(data.papers);
       console.log("Search results:", data);
+
+      // Mark all steps as completed
+      setCompletedSteps([
+        "Preparing your search...",
+        "Saving your search query...",
+        "Searching academic databases...",
+        "Analyzing paper relevance...",
+        "Organizing your results...",
+      ]);
+      setCurrentStep(null);
     } catch (error) {
       console.error(error);
       alert("Failed to search for papers. Please try again.");
+      setCurrentStep(null);
+      setCompletedSteps([]);
     } finally {
       setLoading(false);
     }
@@ -342,38 +383,10 @@ const Page = () => {
   }, [results]);
 
   useEffect(() => {
-    let timer1: NodeJS.Timeout;
-    let timer2: NodeJS.Timeout;
-    let timer3: NodeJS.Timeout;
-    let timer4: NodeJS.Timeout;
-    let timer5: NodeJS.Timeout;
-    if (loading) {
-      setHeading("Generating keywords...");
-      timer1 = setTimeout(() => {
-        setHeading("Querying databases...");
-        timer2 = setTimeout(() => {
-          setHeading("Finding papers for you...");
-          timer3 = setTimeout(() => {
-            setHeading("Looking left and right for papers...");
-            timer4 = setTimeout(() => {
-              setHeading("Filtering out junk...");
-              timer5 = setTimeout(() => {
-                setHeading("Evaluating relevance...");
-              }, 4000); // 3 seconds for the last state
-            }, 4000); // 3 seconds for filtering out junk
-          }, 4000); // 3 seconds for looking left and right
-        }, 4000); // 3 seconds for finding papers
-      }, 4000); // 2 seconds for querying databases
-    } else {
-      setHeading("Find relevant papers for your research");
+    if (!loading) {
+      setCurrentStep(null);
+      setCompletedSteps([]);
     }
-    return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-      clearTimeout(timer3);
-      clearTimeout(timer4);
-      clearTimeout(timer5);
-    };
   }, [loading]);
 
   return (
@@ -423,6 +436,29 @@ const Page = () => {
             </Button>
           </div>
         </form>
+
+        {/* Loading Steps */}
+        {loading && (
+          <div className="w-full max-w-[48rem] mt-6 px-4">
+            <div className="flex flex-col gap-3">
+              {completedSteps.map((step, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-3 text-green-600"
+                >
+                  <Check size={20} />
+                  <span className="text-[1rem]">{step}</span>
+                </div>
+              ))}
+              {currentStep && (
+                <div className="flex items-center gap-3 text-foreground">
+                  <Loader2 size={20} className="animate-spin" />
+                  <span className="text-[1rem]">{currentStep}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </main>
       {results.length === 0 && (
         <div className="mt-[4rem] w-full max-w-[48rem] px-[1rem] mx-auto">
