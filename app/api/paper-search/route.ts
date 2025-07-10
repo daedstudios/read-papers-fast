@@ -45,23 +45,29 @@ export async function POST(req: NextRequest) {
   }
 
   // Prompt to generate a smart OpenAlex query string and keywords
-  const prompt = `
-You are an expert in OpenAlex API search queries. Given the following research topic, generate:
-1. The 3-5 most relevant keywords for searching OpenAlex.
-2. A robust OpenAlex API search query string using those keywords, combining them with OR, AND, and NOT operators as appropriate. You can use parentheses for grouping and quotes for exact phrases.
+const prompt = `
+You are an expert in OpenAlex API search query generation.
 
-IMPORTANT: Use AND operator when two subjects are combined in a topic (e.g. "machine learning and agriculture", "climate change and LLMs" etc). Use a maximum of 1 AND operator in the query string.
+Given a research topic, do the following:
 
-Examples of valid OpenAlex queries:
-- machine learning AND agriculture
-- "climate change" OR "global warming"
-- (deep learning OR neural networks) AND computer vision
-- artificial intelligence NOT "artificial general intelligence"
+1. Identify the 3–7 most relevant and specific keywords, including synonyms, subfields, and related terminology the user might not have thought of.
+2. Generate a robust OpenAlex API query using Boolean operators:
+   - Use **AND** to combine key concepts or limit the scope (e.g. "climate change" AND "food security").
+   - Use **OR** for related terms or synonyms (e.g. "global warming" OR "climate change").
+   - Use **NOT** to explicitly filter out unrelated or unwanted topics (e.g. NOT "adults" for child mental health).
+   - Use parentheses and **double quotation marks** for exact phrases and operator precedence.
 
-Respond strictly in this JSON format:
+Use a maximum of 2 AND clauses to keep queries focused. Avoid wildcard operators.
+
+📌 Examples:
+- ("deep learning" OR "neural networks") AND "computer vision"
+- ("mental health" OR depression OR anxiety) AND children NOT adults
+- ("climate change" OR "global warming") AND agriculture AND "food systems"
+
+Output format:
 {
-  "query": "...openalex query string...",
-  "keywords": ["keyword1", "keyword2", ...]
+  "query": "…OpenAlex query string…",
+  "keywords": ["keyword1", "keyword2", "related term", …]
 }
 
 Research topic: "${topic}"
@@ -80,7 +86,7 @@ Research topic: "${topic}"
     // Use the generated query string directly in the OpenAlex API call
     const openAlexApiUrl = `https://api.openalex.org/works?search=${encodeURIComponent(
       queryString
-    )}&per_page=100&sort=relevance_score:desc`;
+    )}&per_page=100&sort=relevance_score:desc&filter=open_access.oa_status:gold`;
 
     console.log("Calling OpenAlex API with URL:", openAlexApiUrl);
 

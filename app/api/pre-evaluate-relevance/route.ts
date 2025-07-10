@@ -18,20 +18,19 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const prompt = `
+ const prompt = `
 Given the following research topic and paper, classify the paper's relevance to the topic based on its title and abstract only.
 
 Assign one of these categories:
-- "relevant": The paper's main focus is directly and substantially about the topic. It must be directly citable in the thesis.
-- "not relevant": The paper is partially about the topic, or the connection is moderate but not central.
-- "definetly not relevant": The paper is only tangentially or superficially related as in it mentions part of the topic, or not about the topic at all.
+- "relevant": The paper’s *core focus* is directly about the topic. It provides *central, citable arguments or findings* that clearly support a thesis on this topic. Do not mark a paper as "relevant" unless it would likely appear in the bibliography of a well-written thesis on this exact topic.
+- "not relevant": The paper is partially or loosely connected to the topic, but the connection is not strong enough to cite in a focused thesis.
+- "definitely not relevant": The paper is tangential, unrelated, or only shares keywords without meaningful thematic or analytical overlap.
 
-Be strict. Only assign "relevant" if the paper is a strong match and provides a direct and substantial contribution to the topic.
+Be strict. Only assign "relevant" if the paper makes a *clear, substantial contribution* to the topic.
 
 Examples:
 - If the topic is "climate change and agriculture" and the paper is about "climate change with deep learning," mark as not relevant.
 - If the topic is "climate change and agriculture" and the paper is about "effects of climate change on crop yields," mark as relevant.
-
 
 Research topic: "${topic}"
 Paper title: "${title}"
@@ -39,8 +38,8 @@ Paper abstract: "${summary}"
 
 Respond in this JSON format:
 {
-  "relevance": "relevant" | "somewhat relevant" | "not relevant",
-  "summary": "In 1–2 sentences, clearly explain *why* the paper is or is not relevant. Be direct. No hedging."
+  "relevance": "relevant" | "not relevant" | "definitely not relevant",
+  "summary": "In 1–2 sentences, clearly explain *why* the paper is or is not relevant. Be direct. Do not hedge. Only mark as relevant if it would *absolutely* be cited in a well-written thesis."
 }
 `;
 

@@ -18,6 +18,7 @@ import {
   Check,
   Asterisk,
   Sparkle,
+  Flame,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
@@ -198,7 +199,7 @@ const Page = () => {
     setCompletedSteps([]);
 
     // Step 1: Initialize search
-    setCurrentStep("Preparing your search...");
+    setCurrentStep("Generating your keywords...");
 
     // Trigger the survey popup after a delay
     setSearchTriggered(true);
@@ -209,8 +210,8 @@ const Page = () => {
 
     try {
       // Step 2: Save search query to database
-      setCompletedSteps(["Preparing your search..."]);
-      setCurrentStep("Saving your search query...");
+      setCompletedSteps(["Generating your keywords..."]);
+      setCurrentStep("Generating your search query to search through 200m+ papers...");
       const queryResponse = await fetch("/api/search-query-push", {
         method: "POST",
         headers: {
@@ -229,10 +230,10 @@ const Page = () => {
 
       // Step 3: Search for papers
       setCompletedSteps([
-        "Preparing your search...",
-        "Saving your search query...",
+        "Generating your keywords...",
+        "Generating your search query to search through 200m+ papers...",
       ]);
-      setCurrentStep("Searching academic databases...");
+      setCurrentStep("Searching through 200m+ papers...");
       const response = await fetch("/api/paper-search", {
         method: "POST",
         headers: {
@@ -273,10 +274,10 @@ const Page = () => {
 
       // Step 5: Finalizing results
       setCompletedSteps([
-        "Preparing your search...",
-        "Saving your search query...",
-        "Searching academic databases...",
-        "Analyzing paper relevance...",
+        "Generating your keywords...",
+        "Generating your search query to search through 200m+ papers...",
+        "Searching through 200m+ papers...",
+        "Evaluating paper relevance based on your topic...",
       ]);
       setCurrentStep("Organizing your results...");
       const preEvalMap: {
@@ -292,10 +293,10 @@ const Page = () => {
 
       // Mark all steps as completed
       setCompletedSteps([
-        "Preparing your search...",
-        "Saving your search query...",
-        "Searching academic databases...",
-        "Analyzing paper relevance...",
+        "Generating your keywords...",
+        "Generating your search query to search through 200m+ papers...",
+        "Searching through 200m+ papers...",
+        "Evaluating paper relevance based on your topic...",
         "Organizing your results...",
       ]);
       setCurrentStep(null);
@@ -644,11 +645,11 @@ const Page = () => {
                           >
                             {preEvaluations[paper.id].relevance}
                           </div>
-                          {paper.relevance_score && (
+                          {/* {paper.relevance_score && (
                             <div className="text-foreground text-[1rem] font-medium">
                               Score: {paper.relevance_score.toFixed(2)}
                             </div>
-                          )}
+                          )} */}
                         </div>
                         <div
                           className={`text-[1rem] ${
@@ -662,7 +663,7 @@ const Page = () => {
                         {paper.cited_by_count !== undefined && (
                           <>
                             <div className="flex flex-row gap-2">
-                              <div className="text-blue-900 bg-blue-100/30 text-sm px-2 w-fit border border-muted rounded-full flex items-center gap-1 justify-end">
+                              <div className="text-blue-900 text-sm px-2 w-fit border border-muted rounded-full flex items-center gap-1 justify-end">
                                 <Asterisk size={24} />
                                 cited by {paper.cited_by_count} papers
                               </div>
@@ -670,15 +671,25 @@ const Page = () => {
                                 const year = new Date(
                                   paper.published
                                 ).getFullYear();
-                                if (year > 2020) {
-                                  return (
-                                    <div className=" bg-blue-100/30 text-blue-900 text-sm px-2 py-0.5 border border-muted w-fit flex items-center gap-1  rounded-full ">
-                                      <Sparkle size={16} />
-                                      new
-                                    </div>
-                                  );
-                                }
-                                return null;
+                                const isNew = year > 2020;
+                                const isHot =
+                                  isNew && paper.cited_by_count > 50;
+                                return (
+                                  <>
+                                    {isNew && (
+                                      <div className=" text-green-700 text-sm px-2 py-0.5 border border-muted w-fit flex items-center gap-1 rounded-full">
+                                        <Sparkle size={16} />
+                                        new
+                                      </div>
+                                    )}
+                                    {isHot && (
+                                      <div className="bg-[#FEDFB5]/20 text-[#FFA600] text-sm px-2 py-0.5 border border-muted w-fit flex items-center gap-1 rounded-full">
+                                        <Flame size={16} />
+                                        hot
+                                      </div>
+                                    )}
+                                  </>
+                                );
                               })()}
                             </div>
                           </>
@@ -689,10 +700,10 @@ const Page = () => {
                         Analyzing relevance...
                       </div>
                     )}
-                    <div className="flex flex-row gap-6  my-[1rem] justify-start text-muted-foreground">
+                    <div className="flex flex-row gap-2 text-[0.75rem] my-[1rem] justify-start text-muted-foreground">
                       helpful?
                       <ThumbsDown
-                        size={20}
+                        size={12}
                         className={`cursor-pointer transition-all mt-1 duration-200 transform hover:scale-120 active:scale-80 ${
                           paperFeedback[paper.id] === "down"
                             ? "text-muted-foreground fill-foreground"
@@ -703,7 +714,7 @@ const Page = () => {
                         onClick={() => handleThumbsFeedback(paper.id, "down")}
                       />
                       <ThumbsUp
-                        size={20}
+                        size={12}
                         className={`cursor-pointer transition-all duration-200 transform hover:scale-120 active:scale-80 ${
                           paperFeedback[paper.id] === "up"
                             ? "text-muted-foreground fill-foreground"
