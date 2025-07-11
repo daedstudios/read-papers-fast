@@ -5,7 +5,186 @@ import { z } from "zod";
 
 export const runtime = "nodejs";
 
-// Schema for generating an OpenAlex query string and keywords
+// Types for OpenAlex author data
+type OpenAlexAuthor = {
+  id: string;
+  display_name: string;
+  display_name_alternatives: string[];
+  relevance_score: number;
+  works_count: number;
+  cited_by_count: number;
+  summary_stats: {
+    h_index: number;
+    i10_index: number;
+    "2yr_mean_citedness": number;
+  };
+  affiliations: Array<{
+    institution: {
+      id: string;
+      display_name: string;
+      country_code: string;
+      type: string;
+    };
+    years: number[];
+  }>;
+  last_known_institutions: Array<{
+    id: string;
+    display_name: string;
+    country_code: string;
+  }>;
+  topics: Array<{
+    id: string;
+    display_name: string;
+    count: number;
+    subfield: {
+      display_name: string;
+    };
+    field: {
+      display_name: string;
+    };
+    domain: {
+      display_name: string;
+    };
+  }>;
+};
+
+// Schema for author analysis
+const AuthorAnalysisSchema = z.object({
+  mostRelevantAuthorId: z.string(),
+  authorName: z.string(),
+  topicRelevanceScore: z.number().min(1).max(10).describe("How relevant this author is to the research topic on a scale of 1-10"),
+  reasoning: z.string(),
+  keyTopics: z.array(z.string()),
+  alternativeAuthors: z.array(z.object({
+    id: z.string(),
+    name: z.string(),
+    reason: z.string()
+  }))
+});
+
+// Function to find the most relevant author for a topic
+async function findRelevantAuthor(authorName: string, topic: string): Promise<{ authorId: string | null; authorInfo: any }> {
+  try {
+    // Step 1: Search for authors using OpenAlex API
+    const openAlexUrl = `https://api.openalex.org/authors?search=${encodeURIComponent(authorName)}`;
+    
+    const openAlexResponse = await fetch(openAlexUrl);
+    if (!openAlexResponse.ok) {
+      console.error(`OpenAlex API error: ${openAlexResponse.status}`);
+      return { authorId: null, authorInfo: null };
+    }
+
+    const authorData = await openAlexResponse.json();
+
+    if (!authorData.results || authorData.results.length === 0) {
+      console.log("No authors found with that name");
+      return { authorId: null, authorInfo: null };
+    }
+
+    // Step 2: Filter and prepare author data for Gemini analysis
+    const filteredAuthors = authorData.results
+      .filter((author: OpenAlexAuthor) => 
+        author.works_count > 10 && 
+        author.summary_stats.h_index > 5 && 
+        author.topics.length > 0
+      )
+      .slice(0, 10);
+
+    const authorsToAnalyze = filteredAuthors.length >= 3 ? filteredAuthors : authorData.results.slice(0, 8);
+
+    const authorsForAnalysis = authorsToAnalyze.map((author: OpenAlexAuthor) => ({
+      id: author.id,
+      name: author.display_name,
+      alternativeNames: author.display_name_alternatives,
+      openalexRelevanceScore: author.relevance_score,
+      worksCount: author.works_count,
+      citedByCount: author.cited_by_count,
+      hIndex: author.summary_stats.h_index,
+      i10Index: author.summary_stats.i10_index,
+      recentCitedness: author.summary_stats["2yr_mean_citedness"],
+      currentInstitutions: author.last_known_institutions.map(inst => inst.display_name),
+      researchTopics: author.topics.slice(0, 8).map(topic => ({
+        name: topic.display_name,
+        count: topic.count,
+        field: topic.field.display_name,
+        domain: topic.domain.display_name
+      })),
+      recentAffiliations: author.affiliations
+        .filter(aff => aff.years.some(year => year >= 2020))
+        .slice(0, 3)
+        .map(aff => ({
+          institution: aff.institution.display_name,
+          country: aff.institution.country_code,
+          recentYears: aff.years.filter(year => year >= 2020)
+        }))
+    }));
+
+    // Step 3: Use Gemini to analyze and find the most relevant author
+    const analysisPrompt = `
+You are an academic research assistant. I need to find the most relevant author for a specific research topic from a list of candidates.
+
+Research Topic: "${topic}"
+
+Candidate Authors (filtered for quality and relevance):
+${JSON.stringify(authorsForAnalysis, null, 2)}
+
+Please analyze each author and determine which one is most relevant to the research topic. Consider:
+
+1. **Topic Alignment**: How well their research topics align with "${topic}"
+2. **OpenAlex Relevance**: Their openalexRelevanceScore (higher = more relevant to search)
+3. **Academic Impact**: Citation count, h-index, and recent research activity
+4. **Research Depth**: Count of papers in related topics and field expertise
+5. **Current Activity**: Recent citedness and active institutional affiliations
+
+IMPORTANT: 
+- OpenAlex has already ranked these authors by relevance to the search term "${authorName}"
+- Use this as a starting point but prioritize topic relevance to "${topic}" over name matching
+- For topicRelevanceScore: Rate 1-10 how well THIS AUTHOR'S RESEARCH matches the topic "${topic}" (NOT their OpenAlex relevance score)
+  - 1-3: Minimal relevance to the topic
+  - 4-6: Some relevance, overlapping fields
+  - 7-8: Strong relevance, clear topic alignment
+  - 9-10: Perfect match, core expertise in this exact topic
+
+Select the most relevant author and provide detailed analysis.`;
+
+    const result = await generateObject({
+      model: google('gemini-1.5-flash'),
+      prompt: analysisPrompt,
+      schema: AuthorAnalysisSchema,
+    });
+
+    const analysisResult = result.object;
+
+    // Step 4: Get full details of the selected author
+    const selectedAuthor = authorData.results.find(
+      (author: OpenAlexAuthor) => author.id === analysisResult.mostRelevantAuthorId
+    );
+
+    if (!selectedAuthor) {
+      console.error("Selected author not found in original results");
+      return { authorId: null, authorInfo: null };
+    }
+
+    const authorInfo = {
+      id: selectedAuthor.id,
+      name: selectedAuthor.display_name,
+      alternativeNames: selectedAuthor.display_name_alternatives,
+      openalexRelevanceScore: selectedAuthor.relevance_score,
+      worksCount: selectedAuthor.works_count,
+      citedByCount: selectedAuthor.cited_by_count,
+      hIndex: selectedAuthor.summary_stats.h_index,
+      currentInstitutions: selectedAuthor.last_known_institutions,
+      topResearchTopics: selectedAuthor.topics.slice(0, 5),
+      topicRelevanceScore: analysisResult.topicRelevanceScore
+    };
+
+    return { authorId: selectedAuthor.id, authorInfo };
+
+  } catch (error) {
+    console.error("Error finding relevant author:", error);
+    return { authorId: null, authorInfo: null };
+  }
+}
 const QuerySchema = z.object({
   query: z
     .string()
@@ -123,38 +302,16 @@ Research topic: "${topic}"
 
     // Step 2: If author is mentioned, find the most relevant author
     if (hasAuthorMention && authorName) {
-      try {
-        console.log(`Finding author: ${authorName} for topic: ${topicWithoutAuthor}`);
-        
-        // Call the find-author API internally
-        const baseUrl = process.env.VERCEL_URL 
-          ? `https://${process.env.VERCEL_URL}` 
-          : process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-          
-        const findAuthorResponse = await fetch(`${baseUrl}/api/find-author`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            authorName: authorName,
-            topic: topicWithoutAuthor
-          })
-        });
-
-        if (findAuthorResponse.ok) {
-          const authorResult = await findAuthorResponse.json();
-          if (authorResult.success && authorResult.selectedAuthor) {
-            authorId = authorResult.selectedAuthor.id;
-            authorInfo = authorResult.selectedAuthor;
-            console.log(`Found relevant author: ${authorInfo.name} (${authorId})`);
-          }
-        } else {
-          console.warn('Find-author API failed, proceeding without author filter');
-        }
-      } catch (error) {
-        console.error('Error calling find-author API:', error);
-        // Continue without author filter if the API call fails
+      console.log(`Finding author: ${authorName} for topic: ${topicWithoutAuthor}`);
+      
+      const { authorId: foundAuthorId, authorInfo: foundAuthorInfo } = await findRelevantAuthor(authorName, topicWithoutAuthor);
+      
+      if (foundAuthorId && foundAuthorInfo) {
+        authorId = foundAuthorId;
+        authorInfo = foundAuthorInfo;
+        console.log(`Found relevant author: ${authorInfo.name} (${authorId})`);
+      } else {
+        console.warn('No relevant author found, proceeding without author filter');
       }
     }
 
