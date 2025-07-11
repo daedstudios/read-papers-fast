@@ -7,7 +7,9 @@ export const runtime = "nodejs";
 
 // Schema for generating an OpenAlex query string and keywords
 const QuerySchema = z.object({
-  query: z.string().describe("OpenAlex API search query string for the research topic"),
+  query: z
+    .string()
+    .describe("OpenAlex API search query string for the research topic"),
   keywords: z
     .array(z.string())
     .describe("List of keywords used to generate the query"),
@@ -15,12 +17,12 @@ const QuerySchema = z.object({
 
 // Function to reconstruct abstract from inverted index
 function reconstructAbstract(abstractInvertedIndex: any): string {
-  if (!abstractInvertedIndex || typeof abstractInvertedIndex !== 'object') {
+  if (!abstractInvertedIndex || typeof abstractInvertedIndex !== "object") {
     return "No abstract available";
   }
 
   const words: { [position: number]: string } = {};
-  
+
   // Reconstruct the abstract from the inverted index
   for (const [word, positions] of Object.entries(abstractInvertedIndex)) {
     if (Array.isArray(positions)) {
@@ -31,9 +33,11 @@ function reconstructAbstract(abstractInvertedIndex: any): string {
   }
 
   // Sort by position and join
-  const sortedPositions = Object.keys(words).map(Number).sort((a, b) => a - b);
-  const reconstructed = sortedPositions.map(pos => words[pos]).join(' ');
-  
+  const sortedPositions = Object.keys(words)
+    .map(Number)
+    .sort((a, b) => a - b);
+  const reconstructed = sortedPositions.map((pos) => words[pos]).join(" ");
+
   return reconstructed || "Abstract available but could not be reconstructed";
 }
 
@@ -45,7 +49,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Prompt to generate a smart OpenAlex query string and keywords
-const prompt = `
+  const prompt = `
 You are an expert in OpenAlex API search query generation.
 
 Given a research topic, do the following:
@@ -112,13 +116,17 @@ Research topic: "${topic}"
     const formattedResults = results.map((work: any) => ({
       id: work.id,
       title: work.title || work.display_name,
-      summary: work.abstract || 
-        (work.abstract_inverted_index ? reconstructAbstract(work.abstract_inverted_index) : "No abstract available"),
+      summary:
+        work.abstract ||
+        (work.abstract_inverted_index
+          ? reconstructAbstract(work.abstract_inverted_index)
+          : "No abstract available"),
       published: work.publication_date,
       updated: work.publication_date,
-      authors: work.authorships?.map((authorship: any) => 
-        authorship.author?.display_name
-      ).filter(Boolean) || [],
+      authors:
+        work.authorships
+          ?.map((authorship: any) => authorship.author?.display_name)
+          .filter(Boolean) || [],
       doi: work.doi,
       primaryCategory: work.primary_topic?.display_name || work.type,
       categories: work.topics?.map((topic: any) => topic.display_name) || [],
@@ -128,21 +136,32 @@ Research topic: "${topic}"
           type: "text/html",
           rel: "alternate",
         },
-        ...(work.primary_location?.pdf_url ? [{
-          href: work.primary_location.pdf_url,
-          type: "application/pdf",
-          rel: "alternate",
-        }] : []),
-        ...(work.open_access?.oa_url ? [{
-          href: work.open_access.oa_url,
-          type: "application/pdf",
-          rel: "alternate",
-        }] : []),
+        ...(work.primary_location?.pdf_url
+          ? [
+              {
+                href: work.primary_location.pdf_url,
+                type: "application/pdf",
+                rel: "alternate",
+              },
+            ]
+          : []),
+        ...(work.open_access?.oa_url
+          ? [
+              {
+                href: work.open_access.oa_url,
+                type: "application/pdf",
+                rel: "alternate",
+              },
+            ]
+          : []),
       ],
       relevance_score: work.relevance_score,
       publication_year: work.publication_year,
       open_access: work.open_access,
       cited_by_count: work.cited_by_count,
+      host_venue: work.host_venue, // <-- include this field
+      journal_name: work.primary_location?.source?.display_name,
+      publisher: work.primary_location?.source?.host_organization_name,
     }));
 
     console.log("Formatted Results:", formattedResults);

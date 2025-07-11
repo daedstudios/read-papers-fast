@@ -19,6 +19,7 @@ import {
   Asterisk,
   Sparkle,
   Flame,
+  BookOpen,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
@@ -52,6 +53,8 @@ type SearchResult = {
   categories?: string[];
   relevance_score?: number;
   cited_by_count?: number;
+  journal_name?: string;
+  publisher?: string;
 };
 
 type RecentQuery = {
@@ -211,7 +214,9 @@ const Page = () => {
     try {
       // Step 2: Save search query to database
       setCompletedSteps(["Generating your keywords..."]);
-      setCurrentStep("Generating your search query to search through 200m+ papers...");
+      setCurrentStep(
+        "Generating your search query to search through 200m+ papers..."
+      );
       const queryResponse = await fetch("/api/search-query-push", {
         method: "POST",
         headers: {
@@ -251,11 +256,11 @@ const Page = () => {
 
       // Step 4: Evaluate papers for relevance
       setCompletedSteps([
-        "Preparing your search...",
-        "Saving your search query...",
-        "Searching academic databases...",
+        "Generating your keywords...",
+        "Generating your search query to search through 200m+ papers...",
+        "Searching through 200m+ papers...",
       ]);
-      setCurrentStep("Analyzing paper relevance...");
+      setCurrentStep("Evaluating paper relevance based on your topic...");
       const preEvalResults = await Promise.all(
         data.papers.map(async (paper: SearchResult) => {
           const res = await fetch("/api/pre-evaluate-relevance", {
@@ -441,27 +446,44 @@ const Page = () => {
         {/* Loading Steps */}
         {loading && (
           <div className="w-full max-w-[48rem] mt-6 px-4">
-            <div className="flex flex-col gap-3">
-              {completedSteps.map((step, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-3 text-green-600"
-                >
-                  <Check size={20} />
-                  <span className="text-[1rem]">{step}</span>
-                </div>
-              ))}
-              {currentStep && (
-                <div className="flex items-center gap-3 text-foreground">
-                  <Loader2 size={20} className="animate-spin" />
-                  <span className="text-[1rem]">{currentStep}</span>
-                </div>
-              )}
+            <div className="relative pl-6">
+              {/* Vertical line */}
+              <div className="absolute left-2 top-0 bottom-0 w-0.5 bg-muted-foreground/30" />
+              <div className="flex flex-col gap-6">
+                {completedSteps.map((step, index) => (
+                  <div key={index} className="flex items-center gap-3 relative">
+                    {/* Step icon */}
+                    <div className="absolute -left-6 top-1">
+                      <Check
+                        size={16}
+                        className="text-muted-foreground bg-white rounded-full border border-muted-foreground/30"
+                      />
+                    </div>
+                    <span className="text-[1rem] text-muted-foreground">
+                      {step}
+                    </span>
+                  </div>
+                ))}
+                {currentStep && (
+                  <div className="flex items-center gap-3 relative">
+                    {/* Current step icon */}
+                    <div className="absolute -left-6 top-1">
+                      <Loader2
+                        size={20}
+                        className="animate-spin text-muted-foreground bg-white rounded-full border border-muted-foreground/30"
+                      />
+                    </div>
+                    <span className="text-[1rem] text-foreground font-semibold">
+                      {currentStep}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
       </main>
-      {results.length === 0 && (
+      {!loading && results.length === 0 && (
         <div className="mt-[4rem] w-full max-w-[48rem] px-[1rem] mx-auto">
           <h3 className="text-[1.25rem] font-medium mb-[1rem]">
             Recent Searches
@@ -568,7 +590,7 @@ const Page = () => {
                     {paper.title}
                   </h4>
 
-                  <div className="flex flex-wrap gap-1 mb-2 text-sm text-gray-600">
+                  <div className="flex flex-wrap gap-1 mb-2 text-[0.75rem] text-muted-foreground">
                     {paper.authors.map((author, idx) => (
                       <span key={idx}>
                         {author}
@@ -597,39 +619,6 @@ const Page = () => {
                       Published:{" "}
                       {new Date(paper.published).toLocaleDateString()}
                     </span>
-
-                    <div className="flex gap-2">
-                      {paper.links
-                        ?.filter(
-                          (link, idx, arr) =>
-                            link.type === "application/pdf" &&
-                            arr.findIndex(
-                              (l) =>
-                                l.type === "application/pdf" &&
-                                l.href === link.href
-                            ) === idx
-                        )
-                        .map((link, idx) => (
-                          <a
-                            key={idx}
-                            href={link.href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center bg-foreground text-background hover:bg-foreground/80 px-4 py-2 rounded-full border border-foreground"
-                          >
-                            <Paperclip size={16} className="mr-1 text-[1rem]" />
-                            PDF
-                          </a>
-                        ))}
-                      {(!paper.links ||
-                        !paper.links.some(
-                          (link) => link.type === "application/pdf"
-                        )) && (
-                        <span className="text-muted-foreground text-xs italic">
-                          No PDF available
-                        </span>
-                      )}
-                    </div>
                   </div>
 
                   <div className=" border-b border-muted-foreground/30 py-[1rem]">
@@ -662,7 +651,7 @@ const Page = () => {
                         </div>
                         {paper.cited_by_count !== undefined && (
                           <>
-                            <div className="flex flex-row gap-2">
+                            <div className="flex flex-wrap gap-2 pt-[0.5rem]">
                               <div className="text-blue-900 text-sm px-2 w-fit border border-muted rounded-full flex items-center gap-1 justify-end">
                                 <Asterisk size={24} />
                                 cited by {paper.cited_by_count} papers
@@ -677,20 +666,66 @@ const Page = () => {
                                 return (
                                   <>
                                     {isNew && (
-                                      <div className=" text-green-700 text-sm px-2 py-0.5 border border-muted w-fit flex items-center gap-1 rounded-full">
+                                      <div className=" text-green-700 text-sm px-2 py-1 border border-muted w-fit flex items-center gap-1 rounded-full">
                                         <Sparkle size={16} />
                                         new
                                       </div>
                                     )}
                                     {isHot && (
-                                      <div className="bg-[#FEDFB5]/20 text-[#FFA600] text-sm px-2 py-0.5 border border-muted w-fit flex items-center gap-1 rounded-full">
+                                      <div className=" text-[#FFA600] text-sm px-2 py-1 border border-muted w-fit flex items-center gap-1 rounded-full">
                                         <Flame size={16} />
                                         hot
                                       </div>
                                     )}
+                                    {paper.journal_name ? (
+                                      <div className=" text-sm rounded-full px-2 py-1 text-orange-500 w-fit border border-muted flex items-center gap-2">
+                                        <BookOpen size={16} />
+                                        {paper.journal_name}
+                                      </div>
+                                    ) : paper.publisher ? (
+                                      <div className="mb-1 text-xs px-2 py-1 border border-muted rounded-full text-foreground w-fit flex items-center gap-1">
+                                        <BookOpen size={16} />
+                                        Publisher: {paper.publisher}
+                                      </div>
+                                    ) : null}
                                   </>
                                 );
                               })()}
+                            </div>
+                            <div className="flex gap-2 justify-end mt-[0.5rem]">
+                              {paper.links
+                                ?.filter(
+                                  (link, idx, arr) =>
+                                    link.type === "application/pdf" &&
+                                    arr.findIndex(
+                                      (l) =>
+                                        l.type === "application/pdf" &&
+                                        l.href === link.href
+                                    ) === idx
+                                )
+                                .map((link, idx) => (
+                                  <a
+                                    key={idx}
+                                    href={link.href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center bg-foreground text-background hover:bg-foreground/80 px-4 py-1 rounded-full border border-foreground"
+                                  >
+                                    <Paperclip
+                                      size={16}
+                                      className="mr-2 text-[1rem]"
+                                    />
+                                  pdf link
+                                  </a>
+                                ))}
+                              {(!paper.links ||
+                                !paper.links.some(
+                                  (link) => link.type === "application/pdf"
+                                )) && (
+                                <span className="text-muted-foreground text-xs italic">
+                                  No PDF available
+                                </span>
+                              )}
                             </div>
                           </>
                         )}
