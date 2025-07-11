@@ -318,17 +318,21 @@ Research topic: "${topic}"
     // Step 3: Build OpenAlex API URL with optional author filter
     let openAlexApiUrl: string;
     
+    // Create a comprehensive search query using all keywords
+    const keywordQuery = keywords.slice(0, 6).join(" OR "); // Use first 6 keywords with OR to broaden search
+    const finalQuery = keywordQuery || queryString; // Fallback to original query if no keywords
+    
     if (authorId) {
       // Extract just the ID part from the full OpenAlex URL (e.g., "A5014894861" from "https://openalex.org/A5014894861")
       const cleanAuthorId = authorId.replace('https://openalex.org/', '');
       
-      // Use the title_and_abstract.search parameter with author filter
-      openAlexApiUrl = `https://api.openalex.org/works?filter=title_and_abstract.search:${encodeURIComponent(queryString)},authorships.author.id:${cleanAuthorId}&per_page=100&sort=relevance_score:desc`;
-      console.log(`Searching with author filter: ${authorInfo?.name}`);
+      // Use the title_and_abstract.search parameter with author filter and all keywords
+      openAlexApiUrl = `https://api.openalex.org/works?filter=title_and_abstract.search:${encodeURIComponent(finalQuery)},authorships.author.id:${cleanAuthorId}&per_page=100&sort=relevance_score:desc`;
+      console.log(`Searching with author filter: ${authorInfo?.name} and keywords: ${finalQuery}`);
     } else {
-      // Standard search without author filter
+      // Standard search without author filter but with all keywords
       openAlexApiUrl = `https://api.openalex.org/works?search=${encodeURIComponent(
-        queryString
+        finalQuery
       )}&per_page=100&sort=relevance_score:desc&filter=open_access.oa_status:gold`;
     }
 
@@ -341,22 +345,42 @@ Research topic: "${topic}"
     // Format the response to match the expected structure
     let results = data.results || [];
 
-    // Fallback: if no results and query contains AND, try with OR instead
-    if (results.length === 0 && queryString.includes("AND")) {
-      const fallbackQuery = queryString.replace(/AND/g, "OR");
+    // Fallback: if no results and query contains OR, try with fewer keywords using AND
+    if (results.length === 0 && finalQuery.includes("OR")) {
+      // Try with top 3 keywords using AND for more focused search
+      const focusedQuery = keywords.slice(0, 3).join(" AND ");
       let fallbackUrl: string;
       
       if (authorId) {
         const cleanAuthorId = authorId.replace('https://openalex.org/', '');
-        fallbackUrl = `https://api.openalex.org/works?filter=title_and_abstract.search:${encodeURIComponent(fallbackQuery)},authorships.author.id:${cleanAuthorId}&per_page=100&sort=relevance_score:desc`;
+        fallbackUrl = `https://api.openalex.org/works?filter=title_and_abstract.search:${encodeURIComponent(focusedQuery)},authorships.author.id:${cleanAuthorId}&per_page=100&sort=relevance_score:desc`;
       } else {
         fallbackUrl = `https://api.openalex.org/works?search=${encodeURIComponent(
-          fallbackQuery
+          focusedQuery
         )}&per_page=100&sort=relevance_score:desc`;
       }
       
-      console.log("Fallback OpenAlex API with URL:", fallbackUrl);
+      console.log("Fallback with focused keywords:", fallbackUrl);
       response = await fetch(fallbackUrl);
+      data = await response.json();
+      results = data.results || [];
+    }
+
+    // Second fallback: if still no results, try the original simple query
+    if (results.length === 0) {
+      let secondFallbackUrl: string;
+      
+      if (authorId) {
+        const cleanAuthorId = authorId.replace('https://openalex.org/', '');
+        secondFallbackUrl = `https://api.openalex.org/works?filter=title_and_abstract.search:${encodeURIComponent(queryString)},authorships.author.id:${cleanAuthorId}&per_page=100&sort=relevance_score:desc`;
+      } else {
+        secondFallbackUrl = `https://api.openalex.org/works?search=${encodeURIComponent(
+          queryString
+        )}&per_page=100&sort=relevance_score:desc`;
+      }
+      
+      console.log("Second fallback with original query:", secondFallbackUrl);
+      response = await fetch(secondFallbackUrl);
       data = await response.json();
       results = data.results || [];
     }
@@ -365,7 +389,7 @@ Research topic: "${topic}"
     if (results.length === 0 && authorId) {
       console.log("No results with author filter, trying without author...");
       const fallbackUrl = `https://api.openalex.org/works?search=${encodeURIComponent(
-        queryString
+        finalQuery
       )}&per_page=100&sort=relevance_score:desc&filter=open_access.oa_status:gold`;
       
       response = await fetch(fallbackUrl);
