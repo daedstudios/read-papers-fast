@@ -122,12 +122,8 @@ Research topic: "${topic}"
       try {
         console.log(`Finding author: ${authorName} for topic: ${topicWithoutAuthor}`);
         
-        // Call the find-author API internally
-        const baseUrl = process.env.VERCEL_URL 
-          ? `https://${process.env.VERCEL_URL}` 
-          : process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-          
-        const findAuthorResponse = await fetch(`${baseUrl}/api/find-author`, {
+        // Call the find-author API internally using relative path
+        const findAuthorResponse = await fetch('/api/find-author', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
