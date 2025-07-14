@@ -27,6 +27,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import posthog from "posthog-js";
 import { useUser } from "@clerk/nextjs";
 import { useAppContext } from "@/components/AppContext";
+import RelatedQueries from "@/components/RelatedQueries";
 import {
   ClerkProvider,
   SignInButton,
@@ -537,6 +538,15 @@ const Page = () => {
               ))}
             </div>
           </div>
+
+          {/* Related Queries Section */}
+          <RelatedQueries
+            originalQuery={topic}
+            onQuerySelect={(newQuery) => {
+              setTopic(newQuery);
+              handleSearch(newQuery);
+            }}
+          />
 
           {/* <h3 className="text-[1.5rem] my-[2rem]">
             Found {results.length} relevant Papers
