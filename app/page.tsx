@@ -460,7 +460,7 @@ const Page = () => {
                         className="text-muted-foreground bg-white rounded-full border border-muted-foreground/30"
                       />
                     </div>
-                    <span className="text-[1rem] text-muted-foreground">
+                    <span className="text-[1rem] text-left text-muted-foreground">
                       {step}
                     </span>
                   </div>
@@ -474,7 +474,7 @@ const Page = () => {
                         className="animate-spin text-muted-foreground bg-white rounded-full border border-muted-foreground/30"
                       />
                     </div>
-                    <span className="text-[1rem] text-foreground font-semibold">
+                    <span className="text-[1rem] text-left text-foreground">
                       {currentStep}
                     </span>
                   </div>
@@ -524,7 +524,7 @@ const Page = () => {
       {results.length > 0 && (
         <div className="w-full max-w-[48rem] px-4 mt-[2rem] mx-auto items-center justify-center">
           <div className="mb-4 pb-[2rem] mx-auto ">
-            <h3 className="text-[1rem] mb-[1rem] font-medium">
+            <h3 className="text-[1.25rem] mb-[1rem]">
               Generated Keywords
             </h3>
             <div className="flex flex-wrap gap-2">
@@ -551,9 +551,9 @@ const Page = () => {
           {/* <h3 className="text-[1.5rem] my-[2rem]">
             Found {results.length} relevant Papers
           </h3> */}
-          <div className="mb-2 text-left text-gray-500 text-[1rem] italic">
-            Searched through {results.length} papers
-            {" · "}
+          <div className="mb-2 text-left text-foreground text-[1.25rem]">
+            {/* Searched through {results.length} papers
+            {" · "} */}
             Found{" "}
             {
               Object.values(preEvaluations).filter(
