@@ -59,7 +59,7 @@ export default function RelatedQueries({
 
   if (loading) {
     return (
-      <div className="w-full max-w-[48rem] px-4 mb-6">
+      <div className="w-full max-w-[48rem] mb-6">
         <div className="flex items-center gap-2 mb-4">
           <h3 className="text-[1rem] font-medium">Related Queries</h3>
           <Loader2 size={16} className="animate-spin text-muted-foreground" />
@@ -82,14 +82,15 @@ export default function RelatedQueries({
   }
 
   return (
-    <div className="w-full max-w-[48rem] px-4 mb-6">
-      <h3 className="text-[1rem] font-medium mb-4">Related Queries</h3>
+    <div className="w-full max-w-[48rem] mb-[2rem]">
+      <h3 className="text-[1.25rem] mb-4">Related Queries</h3>
+
       <div className="flex flex-wrap gap-2">
         {suggestions.map((suggestion, index) => (
           <button
             key={index}
             onClick={() => onQuerySelect(suggestion.query)}
-            className="group bg-blue-50/50 hover:bg-blue-100/80 text-blue-700 hover:text-blue-800 px-4 py-2 rounded-full text-sm border border-blue-200 hover:border-blue-300 transition-all duration-200 flex items-center gap-2 cursor-pointer"
+            className="group text-left hover:bg-muted text-foreground  px-4 py-2 rounded-full text-sm border border-muted hover:border-muted-foreground/30 transition-all duration-200 flex items-center gap-2 cursor-pointer"
             title={suggestion.reasoning}
           >
             <Search size={14} className="opacity-60 group-hover:opacity-100" />
@@ -97,7 +98,7 @@ export default function RelatedQueries({
           </button>
         ))}
       </div>
-      <p className="text-xs text-muted-foreground mt-2">
+      <p className="text-xs text-muted-foreground my-[1rem]">
         Click on any query to explore related research
       </p>
     </div>

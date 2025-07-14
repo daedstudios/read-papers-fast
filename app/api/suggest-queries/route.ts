@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
 
     // Generate suggested queries using Gemini AI
     const prompt = `
-You are an expert research assistant. Given a research query, generate 6-8 related research queries that researchers might be interested in exploring.
+You are an expert research assistant. Given a research query, generate 5 related research queries that researchers might be interested in exploring.
 
 Original Query: "${query}"
 
