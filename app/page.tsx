@@ -524,9 +524,7 @@ const Page = () => {
       {results.length > 0 && (
         <div className="w-full max-w-[48rem] px-4 mt-[2rem] mx-auto items-center justify-center">
           <div className="mb-4 pb-[2rem] mx-auto ">
-            <h3 className="text-[1.25rem] mb-[1rem]">
-              Generated Keywords
-            </h3>
+            <h3 className="text-[1.25rem] mb-[1rem]">Generated Keywords</h3>
             <div className="flex flex-wrap gap-2">
               {keywords.map((keyword, index) => (
                 <span
@@ -540,13 +538,6 @@ const Page = () => {
           </div>
 
           {/* Related Queries Section */}
-          <RelatedQueries
-            originalQuery={topic}
-            onQuerySelect={(newQuery) => {
-              setTopic(newQuery);
-              handleSearch(newQuery);
-            }}
-          />
 
           {/* <h3 className="text-[1.5rem] my-[2rem]">
             Found {results.length} relevant Papers
@@ -725,7 +716,7 @@ const Page = () => {
                                       size={16}
                                       className="mr-2 text-[1rem]"
                                     />
-                                  pdf link
+                                    pdf link
                                   </a>
                                 ))}
                               {(!paper.links ||
@@ -773,6 +764,13 @@ const Page = () => {
                   </div>
                 </div>
               ))}
+            <RelatedQueries
+              originalQuery={topic}
+              onQuerySelect={(newQuery) => {
+                setTopic(newQuery);
+                handleSearch(newQuery);
+              }}
+            />
             {results.length > visibleCount && (
               <div className="flex justify-center mt-8">
                 {!isLoaded ? (

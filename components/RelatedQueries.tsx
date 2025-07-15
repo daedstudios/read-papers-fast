@@ -82,7 +82,7 @@ export default function RelatedQueries({
   }
 
   return (
-    <div className="w-full max-w-[48rem] mb-[2rem]">
+    <div className="w-full max-w-[48rem] mb-[4rem] mt-[4rem]">
       <h3 className="text-[1.25rem] mb-4">Related Queries</h3>
 
       <div className="flex flex-wrap gap-2">
@@ -90,10 +90,10 @@ export default function RelatedQueries({
           <button
             key={index}
             onClick={() => onQuerySelect(suggestion.query)}
-            className="group text-left hover:bg-muted text-foreground  px-4 py-2 rounded-full text-sm border border-muted hover:border-muted-foreground/30 transition-all duration-200 flex items-center gap-2 cursor-pointer"
+            className="group text-left hover:text-muted-foreground text-foreground py-2  text-[1rem]  transition-all duration-200 flex items-center gap-2 cursor-pointer"
             title={suggestion.reasoning}
           >
-            <Search size={14} className="opacity-60 group-hover:opacity-100" />
+            <Search size={16} className="opacity-60 group-hover:opacity-100" />
             <span>{suggestion.query}</span>
           </button>
         ))}
