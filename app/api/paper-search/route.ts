@@ -446,6 +446,9 @@ Research topic: "${topic}"
       host_venue: work.host_venue, // <-- include this field
       journal_name: work.primary_location?.source?.display_name,
       publisher: work.primary_location?.source?.host_organization_name,
+      referenced_works: work.referenced_works || [],
+      referenced_works_count: work.referenced_works_count || 0,
+      related_works: work.related_works || [],
     }));
 
     // console.log("Formatted Results:", formattedResults);

@@ -595,7 +595,13 @@ const Page = () => {
               })
               .slice(0, visibleCount)
               .map((paper) => (
-                <div key={paper.id} className="">
+                <div
+                  key={paper.id}
+                  className=""
+                  onClick={() => {
+                    console.log("paper", paper);
+                  }}
+                >
                   <h4 className="text-[1.5rem] font-medium mb-2 flex flex-row justify-between items-center gap-[2rem]">
                     {paper.title}
                   </h4>
@@ -725,7 +731,7 @@ const Page = () => {
                                       size={16}
                                       className="mr-2 text-[1rem]"
                                     />
-                                  pdf link
+                                    pdf link
                                   </a>
                                 ))}
                               {(!paper.links ||
