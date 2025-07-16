@@ -10,6 +10,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  Asterisk,
+  BookOpen,
+  GraduationCap,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 
 // Types for paper analysis
 type PaperAnalysisResult = {
@@ -81,6 +88,16 @@ const PaperResult = ({
   batchSize,
   onStartAnalysis,
 }: PaperResultProps) => {
+  const [expandedCards, setExpandedCards] = useState<{
+    [paperId: string]: boolean;
+  }>({});
+
+  const toggleCardExpansion = (paperId: string) => {
+    setExpandedCards((prev) => ({
+      ...prev,
+      [paperId]: !prev[paperId],
+    }));
+  };
   const getAnalysisMethodBadge = (method?: string) => {
     if (!method) return null;
 
@@ -109,7 +126,7 @@ const PaperResult = ({
     };
 
     return (
-      <Badge variant="outline" className={config.color}>
+      <Badge variant="outline" className={`${config.color} rounded-none`}>
         {config.label}
       </Badge>
     );
@@ -140,91 +157,73 @@ const PaperResult = ({
     };
 
     return (
-      <Badge variant="outline" className={config.color}>
+      <Badge variant="outline" className={`${config.color} rounded-none`}>
         {config.label}
       </Badge>
     );
   };
 
-  const formatStructuredAnalysis = (analysis: any) => {
+  const formatStructuredAnalysis = (analysis: any, paperId: string) => {
+    const isExpanded = expandedCards[paperId];
+
     return (
       <div className="space-y-4">
         <div>
-          <strong className="text-gray-800">Summary:</strong>
-          <p className="text-gray-700 mt-1">{analysis.summary}</p>
+          <p className="text-gray-700">{analysis.summary}</p>
         </div>
-
-        <div>
-          <strong className="text-gray-800">Confidence:</strong>
-          <div className="flex items-center gap-2 mt-1">
-            <div className="flex-1 bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-blue-600 h-2 rounded-full"
-                style={{ width: `${analysis.confidence}%` }}
-              />
-            </div>
-            <span className="text-sm text-gray-600">
-              {analysis.confidence}%
-            </span>
-          </div>
-        </div>
-
-        {analysis.key_findings.length > 0 && (
-          <div>
-            <strong className="text-gray-800">Key Findings:</strong>
-            <ul className="list-disc list-inside mt-1 space-y-1">
-              {analysis.key_findings.map((finding: string, index: number) => (
-                <li key={index} className="text-gray-700">
-                  {finding}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
 
         {analysis.relevant_sections.length > 0 && (
-          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-            <strong className="text-blue-900 text-lg">Key Evidence:</strong>
-            <div className="space-y-3 mt-2">
-              {analysis.relevant_sections.map((section: any, index: number) => (
-                <div
-                  key={index}
-                  className="bg-white p-4 rounded-lg border-l-4 border-blue-400 shadow-sm"
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    {section.section_title && (
-                      <div className="font-semibold text-blue-900 text-base">
-                        {section.section_title}
-                      </div>
-                    )}
-                    {section.page_number && (
-                      <div className="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded">
-                        Page {section.page_number}
-                      </div>
-                    )}
-                  </div>
-                  <blockquote className="text-gray-800 italic mb-3 text-base leading-relaxed border-l-2 border-gray-300 pl-3">
-                    "{section.text_snippet}"
-                  </blockquote>
-                  <div className="text-sm text-gray-700 bg-gray-50 p-2 rounded">
-                    <strong>Relevance:</strong> {section.reasoning}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+          <div className="">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => toggleCardExpansion(paperId)}
+              className="flex justify-between items-center gap-2 mb-3 w-full border border-foreground rounded-none py-5 cursor-pointer"
+            >
+              {isExpanded ? (
+                <>
+                  Hide Details
+                  <ChevronUp size={16} />
+                </>
+              ) : (
+                <>
+                  Show Details ({analysis.relevant_sections.length} sections)
+                  <ChevronDown size={16} />
+                </>
+              )}
+            </Button>
 
-        {analysis.limitations.length > 0 && (
-          <div>
-            <strong className="text-gray-800">Study Limitations:</strong>
-            <ul className="list-disc list-inside mt-1 space-y-1">
-              {analysis.limitations.map((limitation: string, index: number) => (
-                <li key={index} className="text-gray-700">
-                  {limitation}
-                </li>
-              ))}
-            </ul>
+            {isExpanded && (
+              <div className="space-y-3 mt-2">
+                {analysis.relevant_sections.map(
+                  (section: any, index: number) => (
+                    <div
+                      key={index}
+                      className="bg-muted p-4 rounded-sm shadow-sm"
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        {section.section_title && (
+                          <div className="font-semibold text-foreground text-base">
+                            {section.section_title}
+                          </div>
+                        )}
+                      </div>
+                      <blockquote className="text-muted-foreground italic mb-3 leading-relaxed border-l-2 border-gray-300 pl-3">
+                        "{section.text_snippet}"
+                      </blockquote>
+                      {section.page_number && (
+                        <div className="text-sm text-muted-foreground rounded">
+                          Page {section.page_number}
+                        </div>
+                      )}
+                      <div className="text-sm text-foreground pt-2 rounded">
+                        {section.reasoning}
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -233,38 +232,60 @@ const PaperResult = ({
 
   // Render original paper card
   const renderOriginalPaperCard = (paper: FactCheckResult) => (
-    <Card key={paper.id} className="hover:shadow-lg transition-shadow">
+    <Card
+      key={paper.id}
+      className="hover:shadow-lg transition-shadow rounded-sm border-foreground"
+    >
       <CardHeader>
         <CardTitle className="text-lg leading-tight">{paper.title}</CardTitle>
         <CardDescription>
-          <div className="space-y-2">
-            <div>
-              <strong>Authors:</strong> {paper.authors.join(", ")}
-            </div>
-            {paper.journal_name && (
-              <div>
-                <strong>Journal:</strong> {paper.journal_name}
-              </div>
-            )}
-            <div className="flex gap-4 text-sm">
-              {paper.published && (
-                <span>
-                  <strong>Published:</strong>{" "}
-                  {new Date(paper.published).getFullYear()}
-                </span>
-              )}
+          <div className="space-y-3">
+            <div>{paper.authors.join(", ")}</div>
+
+            {/* Publication and Citation Cards */}
+            <div className="flex gap-3 flex-wrap">
               {paper.cited_by_count && (
-                <span>
-                  <strong>Citations:</strong> {paper.cited_by_count}
-                </span>
+                <div className="flex items-center gap-2 px-3 py-2 border border-foreground  bg-white">
+                  <Asterisk size={24} className="text-foreground" />
+                  <span className="text-sm font-medium text-foreground">
+                    {paper.cited_by_count} Citations
+                  </span>
+                </div>
               )}
-              {paper.relevance_score && (
-                <span>
-                  <strong>Relevance:</strong>{" "}
-                  {(paper.relevance_score * 100).toFixed(1)}%
-                </span>
+
+              {paper.journal_name && (
+                <div className="flex items-center gap-2 px-3 py-2 border border-foreground  bg-white">
+                  <BookOpen size={16} className="text-foreground" />
+                  <span className="text-sm font-medium text-foreground">
+                    {paper.journal_name}
+                  </span>
+                </div>
+              )}
+
+              {paper.publisher && (
+                <div className="flex items-center gap-2 px-3 py-2 border border-foreground  bg-white">
+                  <GraduationCap size={16} className="text-foreground" />
+                  <span className="text-sm font-medium text-foreground">
+                    {paper.publisher}
+                  </span>
+                </div>
+              )}
+
+              {paper.published && (
+                <div className="flex items-center gap-2 px-3 py-2 border border-foreground  bg-white">
+                  <span className="text-sm font-medium text-foreground">
+                    {new Date(paper.published).getFullYear()}
+                  </span>
+                </div>
               )}
             </div>
+
+            {/* {paper.relevance_score && (
+              <div className="text-sm">
+                <strong>Relevance:</strong>{" "}
+                {(paper.relevance_score * 100).toFixed(1)}%
+              </div>
+            )} */}
           </div>
         </CardDescription>
       </CardHeader>
@@ -302,10 +323,10 @@ const PaperResult = ({
     paper: FactCheckResult,
     analysis: PaperAnalysisResult
   ) => (
-    <Card key={paper.id} className="border-l-4 border-l-blue-500 shadow-lg">
+    <Card key={paper.id} className=" border-foreground rounded-sm">
       <CardHeader>
         <div className="flex justify-between items-start gap-4">
-          <CardTitle className="text-lg leading-tight flex-1">
+          <CardTitle className="text-[1.25rem] leading-tight flex-1">
             {paper.title}
           </CardTitle>
           <div className="flex gap-2 flex-wrap">
@@ -316,15 +337,46 @@ const PaperResult = ({
           </div>
         </div>
         <CardDescription>
-          <div className="space-y-1">
+          <div className="space-y-3">
             <div>
               <strong>Authors:</strong> {paper.authors.join(", ")}
             </div>
-            {paper.journal_name && (
-              <div>
-                <strong>Journal:</strong> {paper.journal_name}
-              </div>
-            )}
+
+            {/* Publication and Citation Cards */}
+            <div className="flex gap-3 flex-wrap">
+              {paper.cited_by_count && (
+                <div className="flex items-center gap-2 px-3 py-2 border border-foreground rounded-sm bg-white">
+                  <Asterisk size={16} className="text-foreground" />
+                  <span className="text-sm font-medium">
+                    {paper.cited_by_count} Citations
+                  </span>
+                </div>
+              )}
+
+              {paper.journal_name && (
+                <div className="flex items-center gap-2 px-3 py-2 border border-foreground rounded-sm bg-white">
+                  <BookOpen size={16} className="text-foreground" />
+                  <span className="text-sm font-medium">
+                    {paper.journal_name}
+                  </span>
+                </div>
+              )}
+
+              {paper.publisher && (
+                <div className="flex items-center gap-2 px-3 py-2 border border-foreground rounded-sm bg-white">
+                  <GraduationCap size={16} className="text-foreground" />
+                  <span className="text-sm font-medium">{paper.publisher}</span>
+                </div>
+              )}
+
+              {paper.published && (
+                <div className="flex items-center gap-2 px-3 py-2 border border-foreground rounded-sm bg-white">
+                  <span className="text-sm font-medium">
+                    Published: {new Date(paper.published).getFullYear()}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
         </CardDescription>
       </CardHeader>
@@ -344,9 +396,8 @@ const PaperResult = ({
         ) : analysis.analysis ? (
           <div className="space-y-4">
             <div>
-              <h4 className="font-semibold text-gray-800 mb-2">AI Analysis:</h4>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                {formatStructuredAnalysis(analysis.analysis)}
+              <div className="">
+                {formatStructuredAnalysis(analysis.analysis, paper.id)}
               </div>
             </div>
 
