@@ -3,6 +3,20 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
+  Search,
+  Globe,
+  CheckCircle,
+  ArrowUp,
+  ArrowUpRight,
+  ArrowUpLeft,
+  ArrowDownRight,
+  ArrowDownLeft,
+  Share2,
+  ArrowUpFromLine,
+  TextSearch,
+  Gavel,
+} from "lucide-react";
+import {
   Card,
   CardContent,
   CardDescription,
@@ -256,50 +270,114 @@ const FactCheckPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white text-black p-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8 mt-16">
-          <h1 className="text-4xl font-bold mb-4">
-            Fact Check with Academic Papers
-          </h1>
-          <p className="text-gray-600 text-lg">
-            Enter a statement to find relevant academic papers for fact-checking
-          </p>
+    <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center">
+      <div className="container w-2xl max-w-[90%] mx-auto ">
+        <div className="text-center mb-8 mt-[10rem] mx-auto">
+          <h1 className="text-[2.5rem] mb-4 ">Is this true?</h1>
         </div>
 
         {/* Input Form */}
-        <Card className="mb-8">
-          <CardHeader>
+        <Card className="mb-8 rounded-sm shadow-none w-full border-foreground p-4">
+          {/* <CardHeader>
             <CardTitle>Enter Statement to Fact-Check</CardTitle>
             <CardDescription>
               Provide any claim, statement, or assertion you want to verify with
               academic literature
             </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <textarea
-                value={statement}
-                onChange={(e) => setStatement(e.target.value)}
-                placeholder="e.g., 'Vitamin D deficiency is linked to increased risk of depression' or 'Climate change is causing more frequent extreme weather events'"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px] resize-y"
-                disabled={loading}
-              />
+          </CardHeader> */}
 
-              {error && <div className="text-red-500 text-sm">{error}</div>}
+          <div className="space-y-4">
+            <textarea
+              value={statement}
+              onChange={(e) => setStatement(e.target.value)}
+              placeholder="e.g., 'Vitamin D deficiency is linked to increased risk of depression' or 'Climate change is causing more frequent extreme weather events'"
+              className="w-full focus:outline-none  min-h-[160px] resize-y"
+              disabled={loading}
+            />
 
-              <Button
-                onClick={handleFactCheck}
-                disabled={loading || !statement.trim()}
-                className="w-full py-3 text-lg"
-              >
-                {loading
-                  ? "Searching Academic Papers..."
-                  : "Fact-Check Statement"}
-              </Button>
-            </div>
-          </CardContent>
+            {error && <div className="text-red-500 text-sm">{error}</div>}
+
+            <Button
+              onClick={handleFactCheck}
+              className="w-full py-3 text-[1rem] rounded-none border border-foreground bg-foreground text-background flex items-center gap-2 cursor-pointer"
+            >
+              {loading ? (
+                <>
+                  <Search size={16} className="animate-spin" />
+                  Searching Academic Papers...
+                </>
+              ) : (
+                <>
+                  fact check
+                  <Globe size={16} />
+                </>
+              )}
+            </Button>
+          </div>
         </Card>
+
+        {/* Three-Step Process */}
+        <div className="flex flex-wrap gap-4 justify-start mb-8">
+          {/* Step 1 */}
+          <div className="flex-1 min-w-[280px] md:max-w-[350px] bg-[#C5C8FF] p-6 rounded-sm border border-foreground">
+            <div className="flex flex-col items-start gap-3">
+              <div className="bg-[#C5C8FF] rounded-sm">
+                <ArrowUpFromLine size={24} className="text-foreground" />
+              </div>
+              <div>
+                <h3 className="text-[1.5rem] font-medium text-foreground mb-2">
+                  Step 1
+                </h3>
+                <p className="text-foreground text-sm">
+                  Upload a post, paste a quote, or just type out the thing that
+                  made your brain twitch.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Step 2 */}
+          <div className="flex-1 min-w-[280px] md:max-w-[350px] bg-[#AEFFD9] p-6 rounded-sm border border-foreground">
+            <div className="flex flex-col items-start gap-3">
+              <div className="bg-[#AEFFD9]  rounded-sm">
+                <div className="relative">
+                  <TextSearch
+                    size={24}
+                    className="text-foreground"
+                  />
+                
+                </div>
+              </div>
+              <div>
+                <h3 className="text-[1.5rem] font-medium text-foreground mb-2">
+                  Step 2
+                </h3>
+                <p className="text-foreground text-sm">
+                  Let us search through over 200m+ papers to find real evidence
+                  backing or debunking the claim.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Step 3 */}
+          <div className="flex-1 min-w-[280px] w-full bg-[#FFBAD8] p-6 rounded-sm border border-foreground">
+            <div className="flex flex-col items-start gap-3">
+              <div className="bg-[#FFBAD8] rounded-sm">
+                <Gavel size={24} className="text-foreground" />
+              </div>
+              <div>
+                <h3 className="text-[1.5rem] font-medium text-foreground mb-2">
+                  Step 3
+                </h3>
+                <p className="text-foreground text-sm">
+                  Get a science-backed verdict and share it where the nonsense
+                  started.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Loading State */}
         {loading && (
@@ -312,7 +390,7 @@ const FactCheckPage = () => {
         )}
 
         {/* Keywords Display */}
-        {keywords.length > 0 && !loading && (
+        {/* {keywords.length > 0 && !loading && (
           <Card className="mb-6">
             <CardHeader>
               <CardTitle className="text-lg">Search Keywords</CardTitle>
@@ -330,7 +408,7 @@ const FactCheckPage = () => {
               </div>
             </CardContent>
           </Card>
-        )}
+        )} */}
 
         {/* Results and Deep Analysis */}
         {results.length > 0 && !loading && (
