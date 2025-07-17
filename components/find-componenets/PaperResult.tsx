@@ -138,9 +138,9 @@ const PaperResult = ({
         label: "Strongly Supports",
         color: "bg-green-100 text-green-800",
       },
-      supports: { label: "Supports", color: "bg-green-100 text-green-700" },
+      supports: { label: "Supports", color: "bg-green-100 text-foreground" },
       neutral: { label: "Neutral", color: "bg-gray-100 text-gray-800" },
-      contradicts: { label: "Contradicts", color: "bg-red-100 text-red-700" },
+      contradicts: { label: "Contradicts", color: "bg-red-100 text-" },
       strongly_contradicts: {
         label: "Strongly Contradicts",
         color: "bg-red-100 text-red-800",
@@ -230,8 +230,28 @@ const PaperResult = ({
     );
   };
 
+  // Helper for pre-evaluation badge
+  const getPreEvalBadge = (verdict: string) => {
+    const map: Record<string, { label: string; color: string }> = {
+      supports: { label: "Supports", color: "bg-[#AEFFD9] text-foreground" },
+      contradicts: {
+        label: "Contradicts",
+        color: "bg-[#FFBAD8] text-foreground",
+      },
+      neutral: { label: "Neutral", color: "bg-[#C5C8FF] text-foreground" },
+    };
+    const config = map[verdict] || map["neutral"];
+    return (
+      <span
+        className={`inline-block px-3 py-1 rounded-none font-medium text-sm border border-foreground ${config.color}`}
+      >
+        {config.label}
+      </span>
+    );
+  };
+
   // Render original paper card
-  const renderOriginalPaperCard = (paper: FactCheckResult) => (
+  const renderOriginalPaperCard = (paper: any) => (
     <Card
       key={paper.id}
       className="hover:shadow-lg transition-shadow rounded-sm border-foreground"
@@ -241,6 +261,27 @@ const PaperResult = ({
         <CardDescription>
           <div className="space-y-3">
             <div>{paper.authors.join(", ")}</div>
+
+            {/* Pre-evaluation verdict, summary, and snippet */}
+            {paper.pre_evaluation && (
+              <div className="flex flex-col gap-2 my-2">
+                <div className="flex items-center gap-2">
+                  {getPreEvalBadge(paper.pre_evaluation.verdict)}
+                </div>
+                <div className="text-sm text-foreground">
+                  {paper.pre_evaluation.summary}
+                </div>
+                <div className="text-xs text-muted-foreground italic border-l-2 border-gray-300 pl-2">
+                  {paper.pre_evaluation.snippet &&
+                  paper.pre_evaluation.snippet.trim() !== ""
+                    ? `"${paper.pre_evaluation.snippet}"`
+                    : (paper.summary?.slice(0, 200) || "") +
+                      (paper.summary && paper.summary.length > 200
+                        ? "..."
+                        : "")}
+                </div>
+              </div>
+            )}
 
             {/* Publication and Citation Cards */}
             <div className="flex gap-3 flex-wrap">
@@ -289,32 +330,33 @@ const PaperResult = ({
           </div>
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          <div>
-            <strong>Abstract:</strong>
-            <p className="text-gray-700 mt-1">{paper.summary}</p>
-          </div>
-
+    
+        <div className="space-y-0 px-6">
           <div className="flex gap-2 flex-wrap">
-            {paper.links.map((link, linkIndex) => (
-              <a
-                key={linkIndex}
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`px-3 py-1 rounded text-sm ${
-                  link.type === "application/pdf"
-                    ? "bg-red-100 text-red-700 hover:bg-red-200"
-                    : "bg-blue-100 text-blue-700 hover:bg-blue-200"
-                }`}
-              >
-                {link.type === "application/pdf" ? "📄 PDF" : "🔗 View Paper"}
-              </a>
-            ))}
+            {/* Show only one PDF link */}
+            {(() => {
+              const pdfLink = paper.links.find(
+                (link: any) => link.type === "application/pdf"
+              );
+
+              return (
+                <>
+                  {pdfLink && (
+                    <a
+                      href={pdfLink.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-2 w-full border border-foreground rounded-none text-sm text-center"
+                    >
+                      View PDF
+                    </a>
+                  )}
+                </>
+              );
+            })()}
           </div>
         </div>
-      </CardContent>
+     
     </Card>
   );
 
@@ -338,41 +380,41 @@ const PaperResult = ({
         </div>
         <CardDescription>
           <div className="space-y-3">
-            <div>
-              <strong>Authors:</strong> {paper.authors.join(", ")}
-            </div>
+            <div>{paper.authors.join(", ")}</div>
 
             {/* Publication and Citation Cards */}
             <div className="flex gap-3 flex-wrap">
               {paper.cited_by_count && (
-                <div className="flex items-center gap-2 px-3 py-2 border border-foreground rounded-sm bg-white">
+                <div className="flex items-center gap-2 px-3 py-2 border border-foreground bg-white">
                   <Asterisk size={16} className="text-foreground" />
-                  <span className="text-sm font-medium">
+                  <span className="text-sm font-medium text-foreground">
                     {paper.cited_by_count} Citations
                   </span>
                 </div>
               )}
 
               {paper.journal_name && (
-                <div className="flex items-center gap-2 px-3 py-2 border border-foreground rounded-sm bg-white">
+                <div className="flex items-center gap-2 px-3 py-2 border border-foreground bg-white">
                   <BookOpen size={16} className="text-foreground" />
-                  <span className="text-sm font-medium">
+                  <span className="text-sm font-medium text-foreground">
                     {paper.journal_name}
                   </span>
                 </div>
               )}
 
               {paper.publisher && (
-                <div className="flex items-center gap-2 px-3 py-2 border border-foreground rounded-sm bg-white">
+                <div className="flex items-center gap-2 px-3 py-2 border border-foreground bg-white">
                   <GraduationCap size={16} className="text-foreground" />
-                  <span className="text-sm font-medium">{paper.publisher}</span>
+                  <span className="text-sm font-medium text-foreground">
+                    {paper.publisher}
+                  </span>
                 </div>
               )}
 
               {paper.published && (
-                <div className="flex items-center gap-2 px-3 py-2 border border-foreground rounded-sm bg-white">
-                  <span className="text-sm font-medium">
-                    Published: {new Date(paper.published).getFullYear()}
+                <div className="flex items-center gap-2 px-3 py-2 border border-foreground bg-white">
+                  <span className="text-sm font-medium text-foreground">
+                    {new Date(paper.published).getFullYear()}
                   </span>
                 </div>
               )}
@@ -422,128 +464,8 @@ const PaperResult = ({
 
   return (
     <>
-      {/* Floating Analysis Control - Absolute positioned */}
-      <div className="fixed top-24 right-4 z-50 w-70 max-w-[90vw]">
-        <Card className="shadow-lg border-2 border-blue-200 bg-white">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Deep Paper Analysis</CardTitle>
-            <CardDescription className="text-sm">
-              Analyze papers in batches of {batchSize} to determine if they
-              support or contradict your statement. We'll analyze full PDFs when
-              available, or use abstracts as a fallback.
-              {currentBatch * batchSize < results.length && (
-                <div className="mt-2 text-blue-600 font-medium">
-                  Ready to analyze papers {currentBatch * batchSize + 1}-
-                  {Math.min((currentBatch + 1) * batchSize, results.length)}
-                </div>
-              )}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {/* Batch Information */}
-              <div className="text-xs text-gray-600 bg-blue-50 p-2 rounded-lg">
-                <div className="space-y-1">
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">Current Batch:</span>
-                    <span>
-                      {currentBatch + 1} of{" "}
-                      {Math.ceil(results.length / batchSize)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Papers:</span>
-                    <span>
-                      {Math.min(currentBatch * batchSize + 1, results.length)} -{" "}
-                      {Math.min((currentBatch + 1) * batchSize, results.length)}{" "}
-                      of {results.length}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <Button
-                onClick={onStartAnalysis}
-                disabled={
-                  analyzing ||
-                  results.length === 0 ||
-                  currentBatch * batchSize >= results.length
-                }
-                className="w-full py-2 text-sm"
-                size="sm"
-              >
-                {analyzing
-                  ? "Analyzing..."
-                  : currentBatch * batchSize >= results.length
-                  ? "✅ All Analyzed"
-                  : currentBatch === 0
-                  ? "🔬 Start Analysis"
-                  : `🔬 Next ${Math.min(
-                      batchSize,
-                      results.length - currentBatch * batchSize
-                    )} Papers`}
-              </Button>
-
-              {analyzing && (
-                <div className="space-y-2">
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                      style={{
-                        width: `${
-                          analysisProgress.total > 0
-                            ? (analysisProgress.current /
-                                analysisProgress.total) *
-                              100
-                            : 0
-                        }%`,
-                      }}
-                    />
-                  </div>
-                  {currentlyAnalyzing && (
-                    <div className="text-xs text-gray-600 text-center">
-                      <span
-                        className="font-medium block truncate"
-                        title={currentlyAnalyzing}
-                      >
-                        {currentlyAnalyzing.length > 40
-                          ? currentlyAnalyzing.substring(0, 40) + "..."
-                          : currentlyAnalyzing}
-                      </span>
-                    </div>
-                  )}
-                  <div className="text-xs text-gray-600 text-center">
-                    {analysisProgress.current} of {analysisProgress.total}
-                  </div>
-                </div>
-              )}
-
-              {!analyzing && Object.keys(analysisResults).length > 0 && (
-                <div className="text-xs text-green-600 text-center font-medium">
-                  ✅ {Object.keys(analysisResults).length} analyzed
-                  {currentBatch * batchSize < results.length && (
-                    <div className="mt-1 text-blue-600">
-                      {results.length - Object.keys(analysisResults).length}{" "}
-                      remaining
-                    </div>
-                  )}
-                  {Object.values(analysisResults).some((r) =>
-                    r.analysisMethod?.includes("abstract")
-                  ) && (
-                    <div className="mt-1 text-yellow-600">
-                      <span className="inline-block w-2 h-2 rounded-full bg-yellow-400 mr-1"></span>
-                      Some abstract-only
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Main Content - Papers */}
-      <div className="space-y-4 pr-0">
+      {/* Paper Cards */}
+      <div className="space-y-6">
         {results.map((paper) => {
           const analysis = analysisResults[paper.id];
 

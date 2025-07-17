@@ -24,6 +24,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import PaperResult from "@/components/find-componenets/PaperResult";
+import FinalVerdictCard from "@/components/FinalVerdictCard";
 
 // Types for our fact-check results
 type FactCheckResult = {
@@ -94,6 +95,10 @@ const FactCheckPage = () => {
   const [currentBatch, setCurrentBatch] = useState(0);
   const BATCH_SIZE = 10;
 
+  // Final verdict state
+  const [finalVerdict, setFinalVerdict] = useState<any>(null);
+  const [generatingVerdict, setGeneratingVerdict] = useState(false);
+
   const handleFactCheck = async () => {
     if (!statement.trim()) {
       setError("Please enter a statement to fact-check");
@@ -108,6 +113,8 @@ const FactCheckPage = () => {
     setAnalysisResults({});
     setAnalyzing(false);
     setCurrentBatch(0);
+    // Reset final verdict
+    setFinalVerdict(null);
 
     try {
       const response = await fetch("/api/fact-check/open-alex", {
@@ -269,6 +276,36 @@ const FactCheckPage = () => {
     setAnalyzing(false);
   };
 
+  const generateFinalVerdict = async () => {
+    if (results.length === 0) return;
+
+    setGeneratingVerdict(true);
+    try {
+      const response = await fetch("/api/fact-check/final-verdict", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          statement,
+          papers: results,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate final verdict");
+      }
+
+      const verdict = await response.json();
+      setFinalVerdict(verdict);
+    } catch (error) {
+      console.error("Error generating final verdict:", error);
+      setError("Failed to generate final verdict");
+    } finally {
+      setGeneratingVerdict(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center">
       <div className="container w-2xl max-w-[90%] mx-auto ">
@@ -317,67 +354,65 @@ const FactCheckPage = () => {
         </Card>
 
         {/* Three-Step Process */}
-        <div className="flex flex-wrap gap-4 justify-start mb-8">
-          {/* Step 1 */}
-          <div className="flex-1 min-w-[280px] md:max-w-[350px] bg-[#C5C8FF] p-6 rounded-sm border border-foreground">
-            <div className="flex flex-col items-start gap-3">
-              <div className="bg-[#C5C8FF] rounded-sm">
-                <ArrowUpFromLine size={24} className="text-foreground" />
-              </div>
-              <div>
-                <h3 className="text-[1.5rem] font-medium text-foreground mb-2">
-                  Step 1
-                </h3>
-                <p className="text-foreground text-sm">
-                  Upload a post, paste a quote, or just type out the thing that
-                  made your brain twitch.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Step 2 */}
-          <div className="flex-1 min-w-[280px] md:max-w-[350px] bg-[#AEFFD9] p-6 rounded-sm border border-foreground">
-            <div className="flex flex-col items-start gap-3">
-              <div className="bg-[#AEFFD9]  rounded-sm">
-                <div className="relative">
-                  <TextSearch
-                    size={24}
-                    className="text-foreground"
-                  />
-                
+        {results.length === 0 && !loading && (
+          <div className="flex flex-wrap gap-4 justify-start mb-8">
+            {/* Step 1 */}
+            <div className="flex-1 min-w-[280px] md:max-w-[350px] bg-[#C5C8FF] p-6 rounded-sm border border-foreground">
+              <div className="flex flex-col items-start gap-3">
+                <div className="bg-[#C5C8FF] rounded-sm">
+                  <ArrowUpFromLine size={24} className="text-foreground" />
+                </div>
+                <div>
+                  <h3 className="text-[1.5rem] font-medium text-foreground mb-2">
+                    Step 1
+                  </h3>
+                  <p className="text-foreground text-sm">
+                    Upload a post, paste a quote, or just type out the thing
+                    that made your brain twitch.
+                  </p>
                 </div>
               </div>
-              <div>
-                <h3 className="text-[1.5rem] font-medium text-foreground mb-2">
-                  Step 2
-                </h3>
-                <p className="text-foreground text-sm">
-                  Let us search through over 200m+ papers to find real evidence
-                  backing or debunking the claim.
-                </p>
-              </div>
             </div>
-          </div>
 
-          {/* Step 3 */}
-          <div className="flex-1 min-w-[280px] w-full bg-[#FFBAD8] p-6 rounded-sm border border-foreground">
-            <div className="flex flex-col items-start gap-3">
-              <div className="bg-[#FFBAD8] rounded-sm">
-                <Gavel size={24} className="text-foreground" />
+            {/* Step 2 */}
+            <div className="flex-1 min-w-[280px] md:max-w-[350px] bg-[#AEFFD9] p-6 rounded-sm border border-foreground">
+              <div className="flex flex-col items-start gap-3">
+                <div className="bg-[#AEFFD9]  rounded-sm">
+                  <div className="relative">
+                    <TextSearch size={24} className="text-foreground" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-[1.5rem] font-medium text-foreground mb-2">
+                    Step 2
+                  </h3>
+                  <p className="text-foreground text-sm">
+                    Let us search through over 200m+ papers to find real
+                    evidence backing or debunking the claim.
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-[1.5rem] font-medium text-foreground mb-2">
-                  Step 3
-                </h3>
-                <p className="text-foreground text-sm">
-                  Get a science-backed verdict and share it where the nonsense
-                  started.
-                </p>
+            </div>
+
+            {/* Step 3 */}
+            <div className="flex-1 min-w-[280px] w-full bg-[#FFBAD8] p-6 rounded-sm border border-foreground">
+              <div className="flex flex-col items-start gap-3">
+                <div className="bg-[#FFBAD8] rounded-sm">
+                  <Gavel size={24} className="text-foreground" />
+                </div>
+                <div>
+                  <h3 className="text-[1.5rem] font-medium text-foreground mb-2">
+                    Step 3
+                  </h3>
+                  <p className="text-foreground text-sm">
+                    Get a science-backed verdict and share it where the nonsense
+                    started.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Loading State */}
         {loading && (
@@ -413,6 +448,43 @@ const FactCheckPage = () => {
         {/* Results and Deep Analysis */}
         {results.length > 0 && !loading && (
           <div className="space-y-6">
+            {/* Final Verdict Section */}
+            {!finalVerdict && (
+              <div className="text-center py-8">
+                <Button
+                  onClick={generateFinalVerdict}
+                  disabled={generatingVerdict}
+                  className="px-8 py-3 text-lg rounded-none border border-foreground bg-foreground text-background hover:bg-background hover:text-foreground transition-colors"
+                >
+                  {generatingVerdict ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                      Generating Final Verdict...
+                    </>
+                  ) : (
+                    <>
+                      <Gavel size={20} className="mr-2" />
+                      Generate Final Verdict
+                    </>
+                  )}
+                </Button>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Get an AI-powered final verdict based on all pre-evaluation
+                  results
+                </p>
+              </div>
+            )}
+
+            {/* Final Verdict Display */}
+            {finalVerdict && (
+              <div className="mb-8">
+                <FinalVerdictCard
+                  verdict={finalVerdict}
+                  statement={statement}
+                />
+              </div>
+            )}
+
             {/* Papers Display */}
             <div className="space-y-4">
               <h2 className="text-2xl font-bold mb-4">
