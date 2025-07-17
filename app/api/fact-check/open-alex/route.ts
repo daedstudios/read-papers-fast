@@ -12,13 +12,15 @@ const FactCheckQuerySchema = z.object({
     .describe("OpenAlex API search query string for the fact-check statement"),
   keywords: z
     .array(z.string())
-    .describe("List of keywords extracted from the statement for academic paper search"),
+    .describe(
+      "List of keywords extracted from the statement for academic paper search"
+    ),
   researchAreas: z
     .array(z.string())
     .describe("Specific research areas or fields relevant to the statement"),
   searchTerms: z
     .array(z.string())
-    .describe("Alternative search terms and synonyms to broaden the search")
+    .describe("Alternative search terms and synonyms to broaden the search"),
 });
 
 // Function to reconstruct abstract from inverted index
@@ -51,7 +53,10 @@ export async function POST(req: NextRequest) {
   const { statement } = await req.json();
 
   if (!statement) {
-    return NextResponse.json({ error: "Statement is required" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Statement is required" },
+      { status: 400 }
+    );
   }
 
   // Prompt to generate keywords and search terms for fact-checking
@@ -152,7 +157,11 @@ Return only the search query string, nothing else.`;
     const queryOptimization = await generateObject({
       model: google("gemini-2.0-flash-001"),
       schema: z.object({
-        optimizedQuery: z.string().describe("The optimized OpenAlex search query using Boolean operators")
+        optimizedQuery: z
+          .string()
+          .describe(
+            "The optimized OpenAlex search query using Boolean operators"
+          ),
       }),
       prompt: queryOptimizationPrompt,
     });
@@ -174,12 +183,14 @@ Return only the search query string, nothing else.`;
 
     // Fallback: if no results with optimized query, try simpler approaches
     if (results.length === 0) {
-      console.log("No results with optimized query, trying keyword OR fallback...");
+      console.log(
+        "No results with optimized query, trying keyword OR fallback..."
+      );
       const keywordQuery = keywords.slice(0, 5).join(" OR ");
       const fallbackUrl = `https://api.openalex.org/works?search=${encodeURIComponent(
         keywordQuery
       )}&per_page=50&sort=relevance_score:desc`;
-      
+
       console.log("Fallback search with keywords OR:", fallbackUrl);
       response = await fetch(fallbackUrl);
       data = await response.json();
@@ -193,7 +204,7 @@ Return only the search query string, nothing else.`;
       const secondFallbackUrl = `https://api.openalex.org/works?search=${encodeURIComponent(
         focusedQuery
       )}&per_page=50&sort=relevance_score:desc`;
-      
+
       console.log("Fallback search with focused keywords:", secondFallbackUrl);
       response = await fetch(secondFallbackUrl);
       data = await response.json();
@@ -206,7 +217,7 @@ Return only the search query string, nothing else.`;
       const simpleUrl = `https://api.openalex.org/works?search=${encodeURIComponent(
         queryString
       )}&per_page=50&sort=relevance_score:desc`;
-      
+
       response = await fetch(simpleUrl);
       data = await response.json();
       results = data.results || [];
@@ -266,6 +277,76 @@ Return only the search query string, nothing else.`;
       related_works: work.related_works || [],
     }));
 
+    // Pre-evaluate each paper's abstract using the new endpoint
+    async function preEvaluatePaper(paper: any): Promise<any> {
+      if (!paper.summary || paper.summary === "No abstract available") {
+        console.log(`[PreEval] Skipping paper (no abstract): ${paper.title}`);
+        return { verdict: "neutral", summary: "No abstract available." };
+      }
+      try {
+        const base = process.env.VERCEL_URL
+          ? `https://${process.env.VERCEL_URL}`
+          : process.env.NEXT_PUBLIC_BASE_URL
+          ? process.env.NEXT_PUBLIC_BASE_URL
+          : "http://localhost:3000";
+        const url = `${base}/api/fact-check/pre-evaluate`;
+        const body = {
+          statement,
+          abstract: paper.summary,
+          title: paper.title,
+        };
+        console.log(`[PreEval] Calling: ${url}`);
+        console.log(`[PreEval] Body:`, body);
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        console.log(`[PreEval] Response status: ${res.status}`);
+        if (!res.ok) {
+          const text = await res.text();
+          console.error(`[PreEval] Error response:`, text);
+          throw new Error(`Pre-evaluation failed: ${res.status}`);
+        }
+        const json = await res.json();
+        console.log(`[PreEval] Success:`, json);
+        return json;
+      } catch (e) {
+        console.error(`[PreEval] Exception:`, e);
+        return { verdict: "neutral", summary: "Pre-evaluation error." };
+      }
+    }
+
+    // Limit concurrency to 5 at a time
+    async function mapWithConcurrencyLimit<T, R>(
+      arr: T[],
+      fn: (item: T, idx: number, arr: T[]) => Promise<R>,
+      limit = 5
+    ): Promise<R[]> {
+      const ret: R[] = [];
+      let i = 0;
+      async function next() {
+        if (i >= arr.length) return;
+        const idx = i++;
+        ret[idx] = await fn(arr[idx], idx, arr);
+        return next();
+      }
+      await Promise.all(Array(Math.min(limit, arr.length)).fill(0).map(next));
+      return ret;
+    }
+
+    const preEvaluations = await mapWithConcurrencyLimit<any, any>(
+      formattedResults,
+      preEvaluatePaper,
+      5
+    );
+
+    // Attach pre-evaluation to each paper
+    const papersWithPreEval = formattedResults.map((paper: any, i: number) => ({
+      ...paper,
+      pre_evaluation: preEvaluations[i],
+    }));
+
     return NextResponse.json({
       statement: statement,
       originalQuery: queryString,
@@ -274,7 +355,7 @@ Return only the search query string, nothing else.`;
       searchTerms: searchTerms,
       researchAreas: researchAreas,
       totalResults: data.meta?.count || results.length,
-      papers: formattedResults,
+      papers: papersWithPreEval,
     });
   } catch (error) {
     console.error("Error in fact-check:", error);

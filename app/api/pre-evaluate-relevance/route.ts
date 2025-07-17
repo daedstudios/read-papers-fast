@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
- const prompt = `
+  const prompt = `
 Given the following research topic and paper, classify the paper's relevance to the topic based on its title and abstract only.
 
 Assign one of these categories:
