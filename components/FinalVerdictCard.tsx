@@ -31,9 +31,18 @@ type FinalVerdictData = {
 interface FinalVerdictCardProps {
   verdict: FinalVerdictData;
   statement: string;
+  onFilterChange?: (
+    filter: "contradicting" | "neutral" | "supporting" | null
+  ) => void;
+  currentFilter?: "contradicting" | "neutral" | "supporting" | null;
 }
 
-const FinalVerdictCard = ({ verdict, statement }: FinalVerdictCardProps) => {
+const FinalVerdictCard = ({
+  verdict,
+  statement,
+  onFilterChange,
+  currentFilter,
+}: FinalVerdictCardProps) => {
   const getVerdictConfig = (verdictType: string) => {
     const configs = {
       true: {
@@ -101,6 +110,9 @@ const FinalVerdictCard = ({ verdict, statement }: FinalVerdictCardProps) => {
   const config = getVerdictConfig(verdict.final_verdict);
   const IconComponent = config.icon;
 
+  // Helper to determine if a card is active
+  const isActive = (filter: string) => currentFilter === filter;
+
   return (
     <Card
       className={` hover:shadow-lg transition-all duration-300 border-foreground rounded-sm`}
@@ -146,40 +158,22 @@ const FinalVerdictCard = ({ verdict, statement }: FinalVerdictCardProps) => {
           </p>
         </div>
 
-        {/* Confidence Score */}
-        {/* <div className="flex items-center justify-between bg-white p-4 rounded-sm border border-foreground">
-          <div>
-            <h3 className="font-semibold text-foreground">Confidence Score:</h3>
-            <p className="text-sm text-muted-foreground">
-              Based on evidence quality and consistency
-            </p>
-          </div>
-          <div className="text-right">
-            <div
-              className={`text-2xl font-bold ${getConfidenceColor(
-                verdict.confidence_score
-              )}`}
-            >
-              {verdict.confidence_score}%
-            </div>
-            <div className="text-xs text-muted-foreground">
-              {verdict.confidence_score >= 80
-                ? "Very High"
-                : verdict.confidence_score >= 60
-                ? "High"
-                : verdict.confidence_score >= 40
-                ? "Moderate"
-                : verdict.confidence_score >= 20
-                ? "Low"
-                : "Very Low"}{" "}
-              Confidence
-            </div>
-          </div>
-        </div> */}
-
         {/* Evidence Breakdown */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-[#FFBAD8] p-4 rounded-sm border border-foreground">
+          <div
+            className={`bg-[#FFBAD8] p-4 rounded-sm border border-foreground cursor-pointer transition-all duration-200 hover:scale-105 ${
+              isActive("contradicting")
+                ? "ring-1 ring-foreground"
+                : "hover:shadow-md"
+            }`}
+            onClick={() => {
+              if (onFilterChange) {
+                onFilterChange(
+                  isActive("contradicting") ? null : "contradicting"
+                );
+              }
+            }}
+          >
             <div className="flex items-center gap-2 mb-2">
               <TrendingDown size={16} className="text-foreground" />
               <span className="font-semibold text-foreground">
@@ -191,8 +185,16 @@ const FinalVerdictCard = ({ verdict, statement }: FinalVerdictCardProps) => {
             </div>
             <div className="text-xs text-foreground">papers</div>
           </div>
-
-          <div className="bg-[#C5C8FF] p-4 rounded-sm border border-foreground">
+          <div
+            className={`bg-[#C5C8FF] p-4 rounded-sm border border-foreground cursor-pointer transition-all duration-200 hover:scale-105 ${
+              isActive("neutral") ? "ring-1 ring-foreground" : "hover:shadow-md"
+            }`}
+            onClick={() => {
+              if (onFilterChange) {
+                onFilterChange(isActive("neutral") ? null : "neutral");
+              }
+            }}
+          >
             <div className="flex items-center gap-2 mb-2">
               <HelpCircle size={16} className="text-foreground" />
               <span className="font-semibold text-foreground">Neutral</span>
@@ -202,7 +204,18 @@ const FinalVerdictCard = ({ verdict, statement }: FinalVerdictCardProps) => {
             </div>
             <div className="text-xs text-foreground">papers</div>
           </div>
-          <div className="bg-[#AEFFD9] p-4 rounded-sm border border-foreground">
+          <div
+            className={`bg-[#AEFFD9] p-4 rounded-sm border border-foreground cursor-pointer transition-all duration-200 hover:scale-105 ${
+              isActive("supporting")
+                ? "ring-1 ring-foreground"
+                : "hover:shadow-md"
+            }`}
+            onClick={() => {
+              if (onFilterChange) {
+                onFilterChange(isActive("supporting") ? null : "supporting");
+              }
+            }}
+          >
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp size={16} className="text-foreground" />
               <span className="font-semibold text-foreground">Supporting</span>
@@ -213,6 +226,17 @@ const FinalVerdictCard = ({ verdict, statement }: FinalVerdictCardProps) => {
             <div className="text-xs text-foreground">papers</div>
           </div>
         </div>
+        {/* Show All button if a filter is active */}
+        {/* {currentFilter && onFilterChange && (
+          <div className="mt-2 text-center">
+            <button
+              className="underline text-foreground text-sm hover:text-blue-700"
+              onClick={() => onFilterChange(null)}
+            >
+              Show All Papers
+            </button>
+          </div>
+        )} */}
 
         {/* Key Findings */}
         {verdict.key_findings.length > 0 && (
