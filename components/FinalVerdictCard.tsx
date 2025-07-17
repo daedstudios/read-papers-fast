@@ -158,7 +158,6 @@ const FinalVerdictCard = ({
           </p>
         </div>
 
-       
         {/* Evidence Breakdown */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div
@@ -168,11 +167,11 @@ const FinalVerdictCard = ({
                 : "hover:shadow-md"
             }`}
             onClick={() => {
-            
-              onFilterChange &&
+              if (onFilterChange) {
                 onFilterChange(
                   isActive("contradicting") ? null : "contradicting"
                 );
+              }
             }}
           >
             <div className="flex items-center gap-2 mb-2">
@@ -185,16 +184,15 @@ const FinalVerdictCard = ({
               {verdict.contradicting_evidence_count}
             </div>
             <div className="text-xs text-foreground">papers</div>
-           
           </div>
           <div
             className={`bg-[#C5C8FF] p-4 rounded-sm border border-foreground cursor-pointer transition-all duration-200 hover:scale-105 ${
               isActive("neutral") ? "ring-1 ring-foreground" : "hover:shadow-md"
             }`}
             onClick={() => {
-            
-              onFilterChange &&
+              if (onFilterChange) {
                 onFilterChange(isActive("neutral") ? null : "neutral");
+              }
             }}
           >
             <div className="flex items-center gap-2 mb-2">
@@ -205,7 +203,6 @@ const FinalVerdictCard = ({
               {verdict.neutral_evidence_count}
             </div>
             <div className="text-xs text-foreground">papers</div>
-          
           </div>
           <div
             className={`bg-[#AEFFD9] p-4 rounded-sm border border-foreground cursor-pointer transition-all duration-200 hover:scale-105 ${
@@ -214,9 +211,9 @@ const FinalVerdictCard = ({
                 : "hover:shadow-md"
             }`}
             onClick={() => {
-          
-              onFilterChange &&
+              if (onFilterChange) {
                 onFilterChange(isActive("supporting") ? null : "supporting");
+              }
             }}
           >
             <div className="flex items-center gap-2 mb-2">
@@ -227,7 +224,6 @@ const FinalVerdictCard = ({
               {verdict.supporting_evidence_count}
             </div>
             <div className="text-xs text-foreground">papers</div>
-           
           </div>
         </div>
         {/* Show All button if a filter is active */}
