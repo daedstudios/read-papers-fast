@@ -132,6 +132,11 @@ const FactCheckPage = () => {
       const data = await response.json();
       setResults(data.papers);
       setKeywords(data.keywords);
+
+      // Automatically generate final verdict
+      if (data.papers && data.papers.length > 0) {
+        generateFinalVerdict(data.papers);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
@@ -276,8 +281,8 @@ const FactCheckPage = () => {
     setAnalyzing(false);
   };
 
-  const generateFinalVerdict = async () => {
-    if (results.length === 0) return;
+  const generateFinalVerdict = async (papers: FactCheckResult[]) => {
+    if (papers.length === 0) return;
 
     setGeneratingVerdict(true);
     try {
@@ -288,7 +293,7 @@ const FactCheckPage = () => {
         },
         body: JSON.stringify({
           statement,
-          papers: results,
+          papers: papers,
         }),
       });
 
@@ -415,14 +420,7 @@ const FactCheckPage = () => {
         )}
 
         {/* Loading State */}
-        {loading && (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">
-              Searching through academic papers...
-            </p>
-          </div>
-        )}
+      
 
         {/* Keywords Display */}
         {/* {keywords.length > 0 && !loading && (
@@ -448,30 +446,11 @@ const FactCheckPage = () => {
         {/* Results and Deep Analysis */}
         {results.length > 0 && !loading && (
           <div className="space-y-6">
-            {/* Final Verdict Section */}
-            {!finalVerdict && (
-              <div className="text-center py-8">
-                <Button
-                  onClick={generateFinalVerdict}
-                  disabled={generatingVerdict}
-                  className="px-8 py-3 text-lg rounded-none border border-foreground bg-foreground text-background hover:bg-background hover:text-foreground transition-colors"
-                >
-                  {generatingVerdict ? (
-                    <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                      Generating Final Verdict...
-                    </>
-                  ) : (
-                    <>
-                      <Gavel size={20} className="mr-2" />
-                      Generate Final Verdict
-                    </>
-                  )}
-                </Button>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Get an AI-powered final verdict based on all pre-evaluation
-                  results
-                </p>
+            {/* Final Verdict Loading State */}
+            {generatingVerdict && (
+              <div className="text-center py-8 mb-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-foreground mx-auto mb-4"></div>
+                <p className="text-foreground">Generating final verdict...</p>
               </div>
             )}
 

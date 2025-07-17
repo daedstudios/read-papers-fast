@@ -20,8 +20,7 @@ type FinalVerdictData = {
     | "false"
     | "insufficient_evidence";
   confidence_score: number;
-  summary: string;
-  reasoning: string;
+  explanation: string;
   supporting_evidence_count: number;
   contradicting_evidence_count: number;
   neutral_evidence_count: number;
@@ -43,6 +42,7 @@ const FinalVerdictCard = ({ verdict, statement }: FinalVerdictCardProps) => {
         icon: CheckCircle,
         bgColor: "bg-green-50",
         sliderPosition: 95,
+        sliderColor: "bg-[#AEFFD9]",
       },
       mostly_true: {
         label: "MOSTLY TRUE",
@@ -50,6 +50,7 @@ const FinalVerdictCard = ({ verdict, statement }: FinalVerdictCardProps) => {
         icon: CheckCircle,
         bgColor: "bg-green-50",
         sliderPosition: 80,
+        sliderColor: "bg-[#AEFFD9]",
       },
       mixed_evidence: {
         label: "MIXED EVIDENCE",
@@ -57,6 +58,7 @@ const FinalVerdictCard = ({ verdict, statement }: FinalVerdictCardProps) => {
         icon: AlertTriangle,
         bgColor: "bg-yellow-50",
         sliderPosition: 50,
+        sliderColor: "bg-[#C5C8FF]",
       },
       mostly_false: {
         label: "MOSTLY FALSE",
@@ -64,6 +66,7 @@ const FinalVerdictCard = ({ verdict, statement }: FinalVerdictCardProps) => {
         icon: XCircle,
         bgColor: "bg-red-50",
         sliderPosition: 25,
+        sliderColor: "bg-[#FFBAD8]",
       },
       false: {
         label: "FALSE",
@@ -71,6 +74,7 @@ const FinalVerdictCard = ({ verdict, statement }: FinalVerdictCardProps) => {
         icon: XCircle,
         bgColor: "bg-red-50",
         sliderPosition: 5,
+        sliderColor: "bg-[#FFBAD8]",
       },
       insufficient_evidence: {
         label: "INSUFFICIENT EVIDENCE",
@@ -78,6 +82,7 @@ const FinalVerdictCard = ({ verdict, statement }: FinalVerdictCardProps) => {
         icon: HelpCircle,
         bgColor: "bg-gray-50",
         sliderPosition: 50,
+        sliderColor: "bg-[#C5C8FF]",
       },
     };
     return (
@@ -97,7 +102,9 @@ const FinalVerdictCard = ({ verdict, statement }: FinalVerdictCardProps) => {
   const IconComponent = config.icon;
 
   return (
-    <Card className={`  border-foreground rounded-sm`}>
+    <Card
+      className={` hover:shadow-lg transition-all duration-300 border-foreground rounded-sm`}
+    >
       <CardHeader className="pb-4">
         <CardTitle className="text-xl font-bold text-foreground">
           Final Verdict
@@ -117,7 +124,7 @@ const FinalVerdictCard = ({ verdict, statement }: FinalVerdictCardProps) => {
         <div className="mb-4">
           <div className="relative h-4 bg-background  overflow-hidden border-1 border-foreground">
             <div
-              className="absolute top-0 left-0 h-full  bg-[#FFBAD8]  transition-all duration-1000 ease-out"
+              className={`absolute top-0 left-0 h-full ${config.sliderColor} transition-all duration-1000 ease-out`}
               style={{ width: `${config.sliderPosition}%` }}
             ></div>
           </div>
@@ -132,9 +139,11 @@ const FinalVerdictCard = ({ verdict, statement }: FinalVerdictCardProps) => {
 
         {/* Score Bar */}
 
-        {/* Summary */}
+        {/* Explanation */}
         <div>
-          <p className="text-foreground">{verdict.summary}</p>
+          <p className="text-foreground text-lg leading-relaxed">
+            {verdict.explanation}
+          </p>
         </div>
 
         {/* Confidence Score */}
@@ -170,21 +179,12 @@ const FinalVerdictCard = ({ verdict, statement }: FinalVerdictCardProps) => {
 
         {/* Evidence Breakdown */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-[#AEFFD9] p-4 rounded-sm border border-foreground">
-            <div className="flex items-center gap-2 mb-2">
-              <TrendingUp size={16} className="text-foreground" />
-              <span className="font-semibold text-foreground">Supporting</span>
-            </div>
-            <div className="text-2xl font-bold text-foreground">
-              {verdict.supporting_evidence_count}
-            </div>
-            <div className="text-xs text-foreground">papers</div>
-          </div>
-
           <div className="bg-[#FFBAD8] p-4 rounded-sm border border-foreground">
             <div className="flex items-center gap-2 mb-2">
               <TrendingDown size={16} className="text-foreground" />
-              <span className="font-semibold text-foreground">Contradicting</span>
+              <span className="font-semibold text-foreground">
+                Contradicting
+              </span>
             </div>
             <div className="text-2xl font-bold text-foreground">
               {verdict.contradicting_evidence_count}
@@ -202,31 +202,31 @@ const FinalVerdictCard = ({ verdict, statement }: FinalVerdictCardProps) => {
             </div>
             <div className="text-xs text-foreground">papers</div>
           </div>
+          <div className="bg-[#AEFFD9] p-4 rounded-sm border border-foreground">
+            <div className="flex items-center gap-2 mb-2">
+              <TrendingUp size={16} className="text-foreground" />
+              <span className="font-semibold text-foreground">Supporting</span>
+            </div>
+            <div className="text-2xl font-bold text-foreground">
+              {verdict.supporting_evidence_count}
+            </div>
+            <div className="text-xs text-foreground">papers</div>
+          </div>
         </div>
 
-        {/* Reasoning */}
-        {/* <div>
-          <h3 className="font-semibold text-foreground mb-2">
-            Detailed Reasoning:
-          </h3>
-          <p className="text-foreground text-sm leading-relaxed">
-            {verdict.reasoning}
-          </p>
-        </div> */}
-
         {/* Key Findings */}
-        {/* {verdict.key_findings.length > 0 && (
+        {verdict.key_findings.length > 0 && (
           <div>
             <h3 className="font-semibold text-foreground mb-2">
               Key Findings:
             </h3>
-            <ul className="list-disc list-inside space-y-1 text-sm text-foreground">
+            <ul className="list-disc list-inside space-y-1 text-[1rem] text-foreground">
               {verdict.key_findings.map((finding, index) => (
                 <li key={index}>{finding}</li>
               ))}
             </ul>
           </div>
-        )} */}
+        )}
 
         {/* Limitations */}
         {/* {verdict.limitations.length > 0 && (
