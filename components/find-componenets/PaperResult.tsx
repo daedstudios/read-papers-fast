@@ -63,6 +63,11 @@ type FactCheckResult = {
   cited_by_count?: number;
   journal_name?: string;
   publisher?: string;
+  pre_evaluation?: {
+    verdict: "supports" | "contradicts" | "neutral";
+    summary: string;
+    snippet: string;
+  };
 };
 
 interface PaperResultProps {
@@ -75,6 +80,7 @@ interface PaperResultProps {
   currentBatch: number;
   batchSize: number;
   onStartAnalysis: () => void;
+  paperFilter?: "contradicting" | "neutral" | "supporting" | null;
 }
 
 const PaperResult = ({
@@ -87,6 +93,7 @@ const PaperResult = ({
   currentBatch,
   batchSize,
   onStartAnalysis,
+  paperFilter,
 }: PaperResultProps) => {
   const [expandedCards, setExpandedCards] = useState<{
     [paperId: string]: boolean;
@@ -330,33 +337,32 @@ const PaperResult = ({
           </div>
         </CardDescription>
       </CardHeader>
-    
-        <div className="space-y-0 px-6">
-          <div className="flex gap-2 flex-wrap">
-            {/* Show only one PDF link */}
-            {(() => {
-              const pdfLink = paper.links.find(
-                (link: any) => link.type === "application/pdf"
-              );
 
-              return (
-                <>
-                  {pdfLink && (
-                    <a
-                      href={pdfLink.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-3 py-2 w-full border border-foreground rounded-none text-sm text-center"
-                    >
-                      View PDF
-                    </a>
-                  )}
-                </>
-              );
-            })()}
-          </div>
+      <div className="space-y-0 px-6">
+        <div className="flex gap-2 flex-wrap">
+          {/* Show only one PDF link */}
+          {(() => {
+            const pdfLink = paper.links.find(
+              (link: any) => link.type === "application/pdf"
+            );
+
+            return (
+              <>
+                {pdfLink && (
+                  <a
+                    href={pdfLink.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-2 w-full border border-foreground rounded-none text-sm text-center"
+                  >
+                    View PDF
+                  </a>
+                )}
+              </>
+            );
+          })()}
         </div>
-     
+      </div>
     </Card>
   );
 
@@ -462,11 +468,32 @@ const PaperResult = ({
     </Card>
   );
 
+  // Filter results based on paperFilter
+  console.log("PaperFilter:", paperFilter);
+  console.log("Total results:", results.length);
+  console.log(
+    "Results with pre_evaluation:",
+    results.filter((p) => p.pre_evaluation).length
+  );
+
+  const filteredResults = paperFilter
+    ? results.filter((paper) => {
+        const verdict = paper.pre_evaluation?.verdict;
+        console.log(`Paper ${paper.title}: verdict = ${verdict}`);
+        if (paperFilter === "contradicting") return verdict === "contradicts";
+        if (paperFilter === "supporting") return verdict === "supports";
+        if (paperFilter === "neutral") return verdict === "neutral";
+        return true;
+      })
+    : results;
+
+  console.log("Filtered results:", filteredResults.length);
+
   return (
     <>
       {/* Paper Cards */}
       <div className="space-y-6">
-        {results.map((paper) => {
+        {filteredResults.map((paper) => {
           const analysis = analysisResults[paper.id];
 
           // If analysis is available, show analysis card, otherwise show original paper card

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Search,
@@ -98,6 +98,17 @@ const FactCheckPage = () => {
   // Final verdict state
   const [finalVerdict, setFinalVerdict] = useState<any>(null);
   const [generatingVerdict, setGeneratingVerdict] = useState(false);
+  const [paperFilter, setPaperFilter] = useState<
+    "contradicting" | "neutral" | "supporting" | null
+  >(null);
+
+  // Debug function to log filter changes
+  const handleFilterChange = (
+    filter: "contradicting" | "neutral" | "supporting" | null
+  ) => {
+    console.log("Filter changed to:", filter);
+    setPaperFilter(filter);
+  };
 
   const handleFactCheck = async () => {
     if (!statement.trim()) {
@@ -311,6 +322,30 @@ const FactCheckPage = () => {
     }
   };
 
+  // Progress bar state
+  const [progress, setProgress] = useState(0);
+  const progressRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Animate progress bar with a fixed timer when loading
+  useEffect(() => {
+    if (loading) {
+      setProgress(0);
+      if (progressRef.current) clearInterval(progressRef.current);
+      progressRef.current = setInterval(() => {
+        setProgress((prev) => {
+          if (prev < 100) return prev + 0.2;
+          return 100;
+        });
+      }, 50);
+    } else {
+      setProgress(100);
+      if (progressRef.current) clearInterval(progressRef.current);
+    }
+    return () => {
+      if (progressRef.current) clearInterval(progressRef.current);
+    };
+  }, [loading]);
+
   return (
     <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center">
       <div className="container w-2xl max-w-[90%] mx-auto ">
@@ -339,27 +374,30 @@ const FactCheckPage = () => {
 
             {error && <div className="text-red-500 text-sm">{error}</div>}
 
-            <Button
-              onClick={handleFactCheck}
-              className="w-full py-3 text-[1rem] rounded-none border border-foreground bg-foreground text-background flex items-center gap-2 cursor-pointer"
-            >
-              {loading ? (
-                <>
-                  <Search size={16} className="animate-spin" />
-                  Searching Academic Papers...
-                </>
-              ) : (
-                <>
-                  fact check
-                  <Globe size={16} />
-                </>
-              )}
-            </Button>
+            {/* Button or Progress Bar */}
+            {loading ? (
+              <div className="w-full flex flex-col items-center justify-center">
+                <div className="w-full bg-white border border-foreground h-8 flex items-center relative overflow-hidden">
+                  <div
+                    className="absolute left-0 top-0 inset-0 w-full bg-[#C5C8FF] transition-all duration-200"
+                    style={{ width: `${progress}%` }}
+                  ></div>
+                </div>
+              </div>
+            ) : (
+              <Button
+                onClick={handleFactCheck}
+                className="w-full py-3 text-[1rem] rounded-none border border-foreground bg-foreground text-background flex items-center gap-2 cursor-pointer"
+              >
+                fact check
+                <Globe size={16} />
+              </Button>
+            )}
           </div>
         </Card>
 
         {/* Three-Step Process */}
-        {results.length === 0 && !loading && (
+        {results.length === 0 && (
           <div className="flex flex-wrap gap-4 justify-start mb-8">
             {/* Step 1 */}
             <div className="flex-1 min-w-[280px] md:max-w-[350px] bg-[#C5C8FF] p-6 rounded-sm border border-foreground">
@@ -420,7 +458,6 @@ const FactCheckPage = () => {
         )}
 
         {/* Loading State */}
-      
 
         {/* Keywords Display */}
         {/* {keywords.length > 0 && !loading && (
@@ -460,12 +497,14 @@ const FactCheckPage = () => {
                 <FinalVerdictCard
                   verdict={finalVerdict}
                   statement={statement}
+                  onFilterChange={handleFilterChange}
+                  currentFilter={paperFilter}
                 />
               </div>
             )}
 
             {/* Papers Display */}
-            <div className="space-y-4">
+            <div className="space-y-4 mb-4">
               <h2 className="text-2xl font-bold mb-4">
                 Found {results.length} Relevant Papers
               </h2>
@@ -480,6 +519,7 @@ const FactCheckPage = () => {
                 currentBatch={currentBatch}
                 batchSize={BATCH_SIZE}
                 onStartAnalysis={handleDeepAnalysis}
+                paperFilter={paperFilter}
               />
             </div>
           </div>
