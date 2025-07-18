@@ -18,15 +18,13 @@ import Script from "next/script";
 import { PostHogProvider } from "@/components/Posthog";
 import SurveyPopup from "@/components/survey-popup";
 
+import TopLeftBrand from "@/components/TopLeftBrand";
+
 function LayoutContent({ children }: { children: React.ReactNode }) {
   return (
     <>
       <header className="flex flex-row absolute p-[1rem] w-screen justify-between bg-transparent z-100">
-        <Link href="/" passHref>
-          <button className="text-[1.25rem] pt-1 cursor-pointer text-foreground font-medium">
-            FindPapersFast
-          </button>
-        </Link>
+        <TopLeftBrand />
         <div className="flex flex-row gap-2">
           <SignedOut>
             <SignInButton>
