@@ -118,7 +118,7 @@ const FinalVerdictCard = ({
       className={` hover:shadow-lg transition-all duration-300 border-foreground rounded-sm`}
     >
       <CardHeader className="pb-4">
-        <CardTitle className="text-xl font-bold text-foreground">
+        <CardTitle className="text-[1.5rem] font-bold text-foreground">
           Final Verdict
         </CardTitle>
 
@@ -139,6 +139,11 @@ const FinalVerdictCard = ({
               className={`absolute top-0 left-0 h-full ${config.sliderColor} transition-all duration-1000 ease-out`}
               style={{ width: `${config.sliderPosition}%` }}
             ></div>
+            {/* Black marker line */}
+            <div
+              className="absolute top-0 h-[3rem] w-[4px] bg-black z-20"
+              style={{ left: `calc(${config.sliderPosition}% - 1px)` }}
+            ></div>
           </div>
           <div className=" flex items-center justify-between mt-2">
             <span className="text-sm font-bold text-foreground z-10">
@@ -153,7 +158,7 @@ const FinalVerdictCard = ({
 
         {/* Explanation */}
         <div>
-          <p className="text-foreground text-lg leading-relaxed">
+          <p className="text-foreground text-[1rem] leading-relaxed">
             {verdict.explanation}
           </p>
         </div>
