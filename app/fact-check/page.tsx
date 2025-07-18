@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/card";
 import PaperResult from "@/components/find-componenets/PaperResult";
 import FinalVerdictCard from "@/components/FinalVerdictCard";
+import { getShareableUrl, copyToClipboard } from "@/lib/factCheckUtils";
 
 // Types for our fact-check results
 type FactCheckResult = {
@@ -102,6 +103,11 @@ const FactCheckPage = () => {
     "contradicting" | "neutral" | "supporting" | null
   >(null);
 
+  // Database save state
+  const [savingToDb, setSavingToDb] = useState(false);
+  const [shareableId, setShareableId] = useState<string | null>(null);
+  const [dbSaveError, setDbSaveError] = useState<string | null>(null);
+
   // Debug function to log filter changes
   const handleFilterChange = (
     filter: "contradicting" | "neutral" | "supporting" | null
@@ -126,6 +132,10 @@ const FactCheckPage = () => {
     setCurrentBatch(0);
     // Reset final verdict
     setFinalVerdict(null);
+    // Reset database save state
+    setSavingToDb(false);
+    setShareableId(null);
+    setDbSaveError(null);
 
     try {
       const response = await fetch("/api/fact-check/open-alex", {
@@ -314,11 +324,48 @@ const FactCheckPage = () => {
 
       const verdict = await response.json();
       setFinalVerdict(verdict);
+
+      // Automatically save to database after final verdict is generated
+      await saveToDatabase(papers, verdict);
     } catch (error) {
       console.error("Error generating final verdict:", error);
       setError("Failed to generate final verdict");
     } finally {
       setGeneratingVerdict(false);
+    }
+  };
+
+  const saveToDatabase = async (papers: FactCheckResult[], verdict: any) => {
+    setSavingToDb(true);
+    setDbSaveError(null);
+
+    try {
+      const response = await fetch("/api/fact-check/db-save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          statement,
+          keywords,
+          finalVerdict: verdict,
+          papers: papers,
+          analysisResults: analysisResults,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save to database");
+      }
+
+      const result = await response.json();
+      setShareableId(result.shareableId);
+      console.log("Data saved to database successfully:", result);
+    } catch (error) {
+      console.error("Error saving to database:", error);
+      setDbSaveError("Failed to save data for sharing");
+    } finally {
+      setSavingToDb(false);
     }
   };
 
@@ -500,6 +547,48 @@ const FactCheckPage = () => {
                   onFilterChange={handleFilterChange}
                   currentFilter={paperFilter}
                 />
+
+                {/* Database Save Status */}
+                {savingToDb && (
+                  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                      <span className="text-blue-700">
+                        Saving for sharing...
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {shareableId && (
+                  <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="text-green-700">
+                        ✓ Saved! Ready to share
+                      </span>
+                      <button
+                        onClick={async () => {
+                          const shareUrl = getShareableUrl(shareableId);
+                          const success = await copyToClipboard(shareUrl);
+                          if (success) {
+                            alert("Share link copied to clipboard!");
+                          } else {
+                            alert("Failed to copy link. Please try again.");
+                          }
+                        }}
+                        className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                      >
+                        Copy Share Link
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {dbSaveError && (
+                  <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-sm">
+                    <span className="text-red-700">⚠ {dbSaveError}</span>
+                  </div>
+                )}
               </div>
             )}
 

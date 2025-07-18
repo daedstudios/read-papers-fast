@@ -48,3 +48,69 @@ Respond in this JSON format:
     throw new Error(`Failed to pre-evaluate fact-check: ${error}`);
   }
 }
+
+// Utility functions for fact-check data handling
+
+export const getShareableUrl = (shareableId: string, baseUrl?: string): string => {
+  const base = baseUrl || (typeof window !== 'undefined' ? window.location.origin : '');
+  return `${base}/fact-check/shared/${shareableId}`;
+};
+
+export const copyToClipboard = async (text: string): Promise<boolean> => {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch (err) {
+    console.error('Failed to copy to clipboard:', err);
+    return false;
+  }
+};
+
+export const formatDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
+
+export const getSupportLevelColor = (supportLevel: string): string => {
+  switch (supportLevel) {
+    case 'strongly_supports':
+      return 'bg-green-100 text-green-800';
+    case 'supports':
+      return 'bg-green-50 text-green-700';
+    case 'neutral':
+      return 'bg-gray-100 text-gray-800';
+    case 'contradicts':
+      return 'bg-red-50 text-red-700';
+    case 'strongly_contradicts':
+      return 'bg-red-100 text-red-800';
+    case 'insufficient_data':
+      return 'bg-yellow-100 text-yellow-800';
+    default:
+      return 'bg-gray-100 text-gray-800';
+  }
+};
+
+export const getSupportLevelText = (supportLevel: string): string => {
+  switch (supportLevel) {
+    case 'strongly_supports':
+      return 'Strongly Supports';
+    case 'supports':
+      return 'Supports';
+    case 'neutral':
+      return 'Neutral';
+    case 'contradicts':
+      return 'Contradicts';
+    case 'strongly_contradicts':
+      return 'Strongly Contradicts';
+    case 'insufficient_data':
+      return 'Insufficient Data';
+    default:
+      return 'Unknown';
+  }
+};

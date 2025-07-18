@@ -236,3 +236,61 @@ model SearchQuery {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model FactCheckSession {
+  id           String   @id @default(cuid())
+  statement    String
+  keywords     String[]
+  finalVerdict Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  shareableId  String   @unique @default(cuid())
+
+  // Relations
+  papers FactCheckPaper[]
+
+  @@index([shareableId])
+}
+
+model FactCheckPaper {
+  id                 String   @id @default(cuid())
+  factCheckSessionId String
+  externalId         String // Original paper ID from OpenAlex
+  title              String
+  authors            String[]
+  summary            String?
+  published          String?
+  doi                String?
+  journalName        String?
+  publisher          String?
+  relevanceScore     Float?
+  citedByCount       Int?
+  links              Json? // Store as JSON array
+  createdAt          DateTime @default(now())
+
+  // Relations
+  factCheckSession FactCheckSession   @relation(fields: [factCheckSessionId], references: [id], onDelete: Cascade)
+  analysis         FactCheckAnalysis?
+
+  @@index([factCheckSessionId])
+}
+
+model FactCheckAnalysis {
+  id               String   @id @default(cuid())
+  factCheckPaperId String   @unique
+  pdfUrl           String?
+  analysisMethod   String?
+  supportLevel     String? // strongly_supports, supports, neutral, contradicts, strongly_contradicts, insufficient_data
+  confidence       Float?
+  summary          String?
+  relevantSections Json? // Array of relevant sections
+  keyFindings      String[]
+  limitations      String[]
+  error            String?
+  createdAt        DateTime @default(now())
+
+  // Relations
+  factCheckPaper FactCheckPaper @relation(fields: [factCheckPaperId], references: [id], onDelete: Cascade)
+
+  @@index([factCheckPaperId])
+}
