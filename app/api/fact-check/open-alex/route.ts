@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { generateObject } from "ai";
 import { google } from "@ai-sdk/google";
 import { z } from "zod";
+import { preEvaluateAbstract } from "@/lib/factCheckUtils";
 
 export const runtime = "nodejs";
 
@@ -277,40 +278,21 @@ Return only the search query string, nothing else.`;
       related_works: work.related_works || [],
     }));
 
-    // Pre-evaluate each paper's abstract using the new endpoint
+    // Pre-evaluate each paper's abstract using the shared utility
     async function preEvaluatePaper(paper: any): Promise<any> {
       if (!paper.summary || paper.summary === "No abstract available") {
         console.log(`[PreEval] Skipping paper (no abstract): ${paper.title}`);
         return { verdict: "neutral", summary: "No abstract available." };
       }
       try {
-        const base = process.env.VERCEL_URL
-          ? `https://${process.env.VERCEL_URL}`
-          : process.env.NEXT_PUBLIC_BASE_URL
-          ? process.env.NEXT_PUBLIC_BASE_URL
-          : "http://localhost:3000";
-        const url = `${base}/api/fact-check/pre-evaluate`;
-        const body = {
+        console.log(`[PreEval] Evaluating: ${paper.title}`);
+        const result = await preEvaluateAbstract(
           statement,
-          abstract: paper.summary,
-          title: paper.title,
-        };
-        console.log(`[PreEval] Calling: ${url}`);
-        console.log(`[PreEval] Body:`, body);
-        const res = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        });
-        console.log(`[PreEval] Response status: ${res.status}`);
-        if (!res.ok) {
-          const text = await res.text();
-          console.error(`[PreEval] Error response:`, text);
-          throw new Error(`Pre-evaluation failed: ${res.status}`);
-        }
-        const json = await res.json();
-        console.log(`[PreEval] Success:`, json);
-        return json;
+          paper.summary,
+          paper.title
+        );
+        console.log(`[PreEval] Success:`, result);
+        return result;
       } catch (e) {
         console.error(`[PreEval] Exception:`, e);
         return { verdict: "neutral", summary: "Pre-evaluation error." };
