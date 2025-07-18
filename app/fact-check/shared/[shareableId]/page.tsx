@@ -13,8 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import FinalVerdictCard from "@/components/FinalVerdictCard";
 import PaperResult from "@/components/find-componenets/PaperResult";
-import { ExternalLink, Share2, ArrowLeft } from "lucide-react";
+import { ExternalLink, Share2, ArrowLeft, Globe } from "lucide-react";
 import Link from "next/link";
+import { SignInButton, useUser } from "@clerk/nextjs";
 
 // Types (same as in the main fact-check page)
 type FactCheckResult = {
@@ -100,6 +101,7 @@ type SharedFactCheckData = {
 const SharedFactCheckPage = () => {
   const params = useParams();
   const shareableId = params.shareableId as string;
+  const { isSignedIn, user, isLoaded } = useUser();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -108,6 +110,14 @@ const SharedFactCheckPage = () => {
   const [paperFilter, setPaperFilter] = useState<
     "contradicting" | "neutral" | "supporting" | null
   >(null);
+  const [showPapers, setShowPapers] = useState(false);
+
+  // Show papers if user is signed in
+  useEffect(() => {
+    if (isSignedIn) {
+      setShowPapers(true);
+    }
+  }, [isSignedIn]);
 
   useEffect(() => {
     const fetchSharedData = async () => {
@@ -222,41 +232,10 @@ const SharedFactCheckPage = () => {
   const { papers, analysisResults } = convertToDisplayFormat(factCheckData);
 
   return (
-    <div className="min-h-screen bg-white text-black">
-      <div className="container max-w-6xl mx-auto px-4 py-28">
+    <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center">
+      <div className="container mt-[10rem] w-2xl max-w-[90%] mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <Link href="/fact-check">
-              <Button variant="outline" className="flex items-center gap-2">
-                <ArrowLeft size={16} />
-                Back to Fact-Check
-              </Button>
-            </Link>
-            <Button onClick={handleShare} className="flex items-center gap-2">
-              <Share2 size={16} />
-              Share
-            </Button>
-          </div>
-
-          <div className="flex items-center gap-2 mb-4">
-            <Badge variant="secondary">Shared Fact-Check</Badge>
-            <span className="text-sm text-gray-500">
-              Created {new Date(factCheckData.createdAt).toLocaleDateString()}
-            </span>
-          </div>
-
-          <h1 className="text-3xl font-bold mb-4">Fact-Check Results</h1>
-
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle>Statement</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-lg">{factCheckData.statement}</p>
-            </CardContent>
-          </Card>
-        </div>
+       
 
         {/* Final Verdict */}
         {factCheckData.finalVerdict && (
@@ -266,46 +245,48 @@ const SharedFactCheckPage = () => {
               statement={factCheckData.statement}
               onFilterChange={handleFilterChange}
               currentFilter={paperFilter}
+              shareableId={shareableId}
             />
+         
           </div>
         )}
 
-        {/* Papers Display */}
-        <div className="space-y-4 mb-4">
-          <h2 className="text-2xl font-bold mb-4">
-            Found {papers.length} Relevant Papers
-          </h2>
+        {/* Show Papers Button - Only show if not signed in */}
+        {!isSignedIn && !showPapers && (
+          <div className="text-center mb-8 flex flex-col items-center justify-center gap-2">
+            <SignInButton mode="modal">
+              <Button className="w-full py-6 text-[1rem] rounded-none border border-foreground bg-foreground text-background flex items-center gap-2 cursor-pointer">
+                Show detailed results
+              </Button>
+            </SignInButton>
+            <Button
+              className="w-full py-6 text-[1rem] hover:bg-[#C5C8FF] rounded-none border border-foreground bg-background text-foreground flex items-center gap-2 cursor-pointer"
+            >
+              <Link href="/fact-check">Run a new fact-check</Link>
+            </Button>
+          </div>
+        )}
 
-          <PaperResult
-            results={papers}
-            statement={factCheckData.statement}
-            analysisResults={analysisResults}
-            analyzing={false}
-            currentlyAnalyzing={null}
-            analysisProgress={{ current: 0, total: 0 }}
-            currentBatch={0}
-            batchSize={10}
-            onStartAnalysis={() => {}} // No-op for shared view
-            paperFilter={paperFilter}
-          />
-        </div>
+        {/* Papers Display - Show if signed in or if showPapers is true */}
+        {(isSignedIn || showPapers) && (
+          <div className="space-y-4 mb-4">
+            <h2 className="text-2xl font-bold mb-4">
+              Found {papers.length} Relevant Papers
+            </h2>
 
-        {/* Keywords */}
-        {factCheckData.keywords.length > 0 && (
-          <Card className="mt-8">
-            <CardHeader>
-              <CardTitle>Search Keywords</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {factCheckData.keywords.map((keyword, index) => (
-                  <Badge key={index} variant="outline">
-                    {keyword}
-                  </Badge>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+            <PaperResult
+              results={papers}
+              statement={factCheckData.statement}
+              analysisResults={analysisResults}
+              analyzing={false}
+              currentlyAnalyzing={null}
+              analysisProgress={{ current: 0, total: 0 }}
+              currentBatch={0}
+              batchSize={10}
+              onStartAnalysis={() => {}} // No-op for shared view
+              paperFilter={paperFilter}
+            />
+          </div>
         )}
       </div>
     </div>

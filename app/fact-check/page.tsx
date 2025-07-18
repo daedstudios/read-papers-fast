@@ -549,43 +549,10 @@ const FactCheckPage = () => {
                   statement={statement}
                   onFilterChange={handleFilterChange}
                   currentFilter={paperFilter}
+                  shareableId={shareableId}
                 />
 
-                {/* Database Save Status */}
-                {savingToDb && (
-                  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
-                      <span className="text-blue-700">
-                        Saving for sharing...
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {shareableId && (
-                  <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="text-green-700">
-                        ✓ Saved! Ready to share
-                      </span>
-                      <button
-                        onClick={async () => {
-                          const shareUrl = getShareableUrl(shareableId);
-                          const success = await copyToClipboard(shareUrl);
-                          if (success) {
-                            alert("Share link copied to clipboard!");
-                          } else {
-                            alert("Failed to copy link. Please try again.");
-                          }
-                        }}
-                        className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
-                      >
-                        Copy Share Link
-                      </button>
-                    </div>
-                  </div>
-                )}
+              
 
                 {dbSaveError && (
                   <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-sm">
