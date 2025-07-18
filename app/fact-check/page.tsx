@@ -401,7 +401,7 @@ const FactCheckPage = () => {
         </div>
 
         {/* Input Form */}
-        <Card className="mb-8 rounded-sm shadow-none w-full border-foreground p-4">
+        <Card className="mb-[1rem] rounded-sm shadow-none w-full border-foreground p-4">
           {/* <CardHeader>
             <CardTitle>Enter Statement to Fact-Check</CardTitle>
             <CardDescription>
@@ -442,6 +442,9 @@ const FactCheckPage = () => {
             )}
           </div>
         </Card>
+        <div className="mb-[3rem] text-[1rem] mx-auto w-full text-center text-foreground ">
+          Fact-check viral claims using peer-reviewed papers.
+        </div>
 
         {/* Three-Step Process */}
         {results.length === 0 && (

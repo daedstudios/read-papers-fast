@@ -424,6 +424,13 @@ const Page = () => {
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               rows={1}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleSearch();
+                }
+              }}
             />
           </div>
           <div className="flex items-end justify-end mt-[0.5rem]">

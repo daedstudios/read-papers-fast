@@ -64,7 +64,7 @@ type FactCheckResult = {
   journal_name?: string;
   publisher?: string;
   pre_evaluation?: {
-    verdict: "supports" | "contradicts" | "neutral";
+    verdict: "supports" | "contradicts" | "neutral" | "not_relevant";
     summary: string;
     snippet: string;
   };
@@ -479,13 +479,15 @@ const PaperResult = ({
   const filteredResults = paperFilter
     ? results.filter((paper) => {
         const verdict = paper.pre_evaluation?.verdict;
-        console.log(`Paper ${paper.title}: verdict = ${verdict}`);
+        if (verdict === "not_relevant") return false;
         if (paperFilter === "contradicting") return verdict === "contradicts";
         if (paperFilter === "supporting") return verdict === "supports";
         if (paperFilter === "neutral") return verdict === "neutral";
         return true;
       })
-    : results;
+    : results.filter(
+        (paper) => paper.pre_evaluation?.verdict !== "not_relevant"
+      );
 
   console.log("Filtered results:", filteredResults.length);
 
