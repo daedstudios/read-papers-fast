@@ -9,7 +9,9 @@ import {
   HelpCircle,
   TrendingUp,
   TrendingDown,
+  Share,
 } from "lucide-react";
+import { useState } from "react";
 
 type FinalVerdictData = {
   final_verdict:
@@ -35,6 +37,7 @@ interface FinalVerdictCardProps {
     filter: "contradicting" | "neutral" | "supporting" | null
   ) => void;
   currentFilter?: "contradicting" | "neutral" | "supporting" | null;
+  shareableId?: string | null;
 }
 
 const FinalVerdictCard = ({
@@ -42,7 +45,32 @@ const FinalVerdictCard = ({
   statement,
   onFilterChange,
   currentFilter,
+  shareableId,
 }: FinalVerdictCardProps) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async () => {
+    try {
+      let urlToCopy;
+      if (shareableId) {
+        // Use the shareable URL if available
+        urlToCopy = `${window.location.origin}/fact-check/shared/${shareableId}`;
+      } else {
+        // Fallback to current URL if no shareableId
+        urlToCopy = window.location.href;
+      }
+
+      // Create a custom share message
+      const shareMessage = `Shit-Check evidence shows the statement "${statement}" Is: ${config.label}\nCheck out the full analysis with peer-reviewed papers:\n${urlToCopy}`;
+
+      await navigator.clipboard.writeText(shareMessage);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy link:", err);
+    }
+  };
+
   const getVerdictConfig = (verdictType: string) => {
     const configs = {
       true: {
@@ -115,19 +143,24 @@ const FinalVerdictCard = ({
 
   return (
     <Card
-      className={` hover:shadow-lg transition-all duration-300 border-foreground rounded-sm`}
+      className={` hover:shadow-lg transition-all duration-300 border-foreground rounded-sm relative`}
     >
       <CardHeader className="pb-4">
-        <CardTitle className="text-[1.5rem] font-bold text-foreground">
-          Final Verdict
-        </CardTitle>
-
-        {/* <Badge
-            className={`${config.color} text-sm font-bold px-3 py-1 rounded-none border`}
+        <div className="flex justify-between items-start">
+          <CardTitle className="text-[1.5rem] font-bold text-foreground">
+            Final Verdict
+          </CardTitle>
+          <button
+            onClick={handleShare}
+            className="p-2  border bg-background border-foreground hover:bg-[#C5C8FF] transition-colors flex items-center gap-2 cursor-pointer"
+            title="Copy share link"
           >
-            <IconComponent size={16} className="mr-1" />
-            {config.label}
-          </Badge> */}
+            <span className="text-[1rem] text-foreground font-medium">
+              {copied ? "Copied!" : "Share"}
+            </span>
+            <Share size={16} className="text-foreground" />
+          </button>
+        </div>
       </CardHeader>
 
       <CardContent className="space-y-6">
@@ -231,17 +264,6 @@ const FinalVerdictCard = ({
             <div className="text-xs text-foreground">papers</div>
           </div>
         </div>
-        {/* Show All button if a filter is active */}
-        {/* {currentFilter && onFilterChange && (
-          <div className="mt-2 text-center">
-            <button
-              className="underline text-foreground text-sm hover:text-blue-700"
-              onClick={() => onFilterChange(null)}
-            >
-              Show All Papers
-            </button>
-          </div>
-        )} */}
 
         {/* Key Findings */}
         {verdict.key_findings.length > 0 && (
@@ -256,18 +278,6 @@ const FinalVerdictCard = ({
             </ul>
           </div>
         )}
-
-        {/* Limitations */}
-        {/* {verdict.limitations.length > 0 && (
-          <div>
-            <h3 className="font-semibold text-foreground mb-2">Limitations:</h3>
-            <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-              {verdict.limitations.map((limitation, index) => (
-                <li key={index}>{limitation}</li>
-              ))}
-            </ul>
-          </div>
-        )} */}
       </CardContent>
     </Card>
   );
