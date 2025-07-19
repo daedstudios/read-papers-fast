@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/card";
 import PaperResult from "@/components/find-componenets/PaperResult";
 import FinalVerdictCard from "@/components/FinalVerdictCard";
+import { ChatDrawer } from "@/components/ChatDrawer";
 import { getShareableUrl, copyToClipboard } from "@/lib/factCheckUtils";
 import posthog from "posthog-js";
 
@@ -611,9 +612,50 @@ const FactCheckPage = () => {
 
             {/* Papers Display */}
             <div className="space-y-4 mb-4">
-              <h2 className="text-2xl font-bold mb-4">
-                Found {results.length} Relevant Papers
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-bold">
+                  Found {results.length} Relevant Papers
+                </h2>
+                {(shareableId || (results.length > 0 && finalVerdict)) && (
+                  <ChatDrawer
+                    shareableId={shareableId || undefined}
+                    directData={{
+                      statement,
+                      keywords,
+                      finalVerdict,
+                      papersCount: results.length,
+                      papers: results.map((paper) => ({
+                        title: paper.title,
+                        authors: paper.authors,
+                        summary: paper.summary,
+                        published: paper.published,
+                        journalName: paper.journal_name,
+                        relevanceScore: paper.relevance_score,
+                        citedByCount: paper.cited_by_count,
+                        analysis: analysisResults[paper.id]
+                          ? {
+                              supportLevel:
+                                analysisResults[paper.id].analysis
+                                  ?.support_level,
+                              confidence:
+                                analysisResults[paper.id].analysis?.confidence,
+                              summary:
+                                analysisResults[paper.id].analysis?.summary,
+                              keyFindings:
+                                analysisResults[paper.id].analysis
+                                  ?.key_findings || [],
+                              limitations:
+                                analysisResults[paper.id].analysis
+                                  ?.limitations || [],
+                            }
+                          : null,
+                      })),
+                    }}
+                    triggerText="Ask Questions"
+                    variant="outline"
+                  />
+                )}
+              </div>
 
               <PaperResult
                 results={results}

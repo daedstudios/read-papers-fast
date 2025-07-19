@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import FinalVerdictCard from "@/components/FinalVerdictCard";
 import PaperResult from "@/components/find-componenets/PaperResult";
+import { ChatDrawer } from "@/components/ChatDrawer";
 import { ExternalLink, Share2, ArrowLeft, Globe } from "lucide-react";
 import Link from "next/link";
 import { SignInButton, useUser } from "@clerk/nextjs";
@@ -280,9 +281,46 @@ const SharedFactCheckPage = () => {
         {/* Papers Display - Show if signed in or if showPapers is true */}
         {(isSignedIn || showPapers) && (
           <div className="space-y-4 mb-4">
-            <h2 className="text-2xl font-bold mb-4">
-              Found {papers.length} Relevant Papers
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold">
+                Found {papers.length} Relevant Papers
+              </h2>
+              <ChatDrawer
+                shareableId={shareableId}
+                directData={{
+                  statement: factCheckData.statement,
+                  keywords: factCheckData.keywords,
+                  finalVerdict: factCheckData.finalVerdict,
+                  papersCount: papers.length,
+                  papers: papers.map((paper) => ({
+                    title: paper.title,
+                    authors: paper.authors,
+                    summary: paper.summary,
+                    published: paper.published,
+                    journalName: paper.journal_name,
+                    relevanceScore: paper.relevance_score,
+                    citedByCount: paper.cited_by_count,
+                    analysis: analysisResults[paper.id]
+                      ? {
+                          supportLevel:
+                            analysisResults[paper.id].analysis?.support_level,
+                          confidence:
+                            analysisResults[paper.id].analysis?.confidence,
+                          summary: analysisResults[paper.id].analysis?.summary,
+                          keyFindings:
+                            analysisResults[paper.id].analysis?.key_findings ||
+                            [],
+                          limitations:
+                            analysisResults[paper.id].analysis?.limitations ||
+                            [],
+                        }
+                      : null,
+                  })),
+                }}
+                triggerText="Ask Questions"
+                variant="outline"
+              />
+            </div>
 
             <PaperResult
               results={papers}
