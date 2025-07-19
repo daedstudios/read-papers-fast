@@ -132,6 +132,7 @@ const SharedFactCheckPage = () => {
 
         const result = await response.json();
         setFactCheckData(result.data);
+        console.log("Shared Fact-Check Data:", result.data);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
@@ -235,7 +236,19 @@ const SharedFactCheckPage = () => {
     <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center">
       <div className="container mt-[10rem] w-2xl max-w-[90%] mx-auto">
         {/* Header */}
-       
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <Link href="/fact-check">
+              <Button
+                variant="outline"
+                className="flex items-center gap-2 rounded-none border border-foreground"
+              >
+                <ArrowLeft size={16} />
+                Back to Fact-Check
+              </Button>
+            </Link>
+          </div>
+        </div>
 
         {/* Final Verdict */}
         {factCheckData.finalVerdict && (
@@ -247,7 +260,6 @@ const SharedFactCheckPage = () => {
               currentFilter={paperFilter}
               shareableId={shareableId}
             />
-         
           </div>
         )}
 
@@ -259,9 +271,7 @@ const SharedFactCheckPage = () => {
                 Show detailed results
               </Button>
             </SignInButton>
-            <Button
-              className="w-full py-6 text-[1rem] hover:bg-[#C5C8FF] rounded-none border border-foreground bg-background text-foreground flex items-center gap-2 cursor-pointer"
-            >
+            <Button className="w-full py-6 text-[1rem] hover:bg-[#C5C8FF] rounded-none border border-foreground bg-background text-foreground flex items-center gap-2 cursor-pointer">
               <Link href="/fact-check">Run a new fact-check</Link>
             </Button>
           </div>
