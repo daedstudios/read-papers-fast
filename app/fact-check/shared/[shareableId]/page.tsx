@@ -239,7 +239,7 @@ const SharedFactCheckPage = () => {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <Link href="/fact-check">
+            <Link href="/">
               <Button
                 variant="outline"
                 className="flex items-center gap-2 rounded-none border border-foreground"
