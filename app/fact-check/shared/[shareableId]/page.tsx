@@ -2,10 +2,11 @@ import { Suspense } from "react";
 import SharedFactCheckClient from "./SharedFactCheckClient";
 
 type Props = {
-  params: { shareableId: string };
+  params: Promise<{ shareableId: string }>;
 };
 
-export default function SharedFactCheckPage({ params }: Props) {
+export default async function SharedFactCheckPage({ params }: Props) {
+  const { shareableId } = await params;
   return (
     <Suspense
       fallback={
@@ -14,7 +15,7 @@ export default function SharedFactCheckPage({ params }: Props) {
         </div>
       }
     >
-      <SharedFactCheckClient shareableId={params.shareableId} />
+      <SharedFactCheckClient shareableId={shareableId} />
     </Suspense>
   );
 }

@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@/lib/generated/prisma';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/SingletonPrismaClient';
 
 export async function POST(request: NextRequest) {
   try {

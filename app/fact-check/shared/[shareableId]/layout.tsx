@@ -2,7 +2,7 @@ import { Metadata } from "next";
 
 type Props = {
   children: React.ReactNode;
-  params: { shareableId: string };
+  params: Promise<{ shareableId: string }>;
 };
 
 async function getFactCheckData(shareableId: string) {
@@ -33,7 +33,8 @@ async function getFactCheckData(shareableId: string) {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const factCheckData = await getFactCheckData(params.shareableId);
+  const { shareableId } = await params;
+  const factCheckData = await getFactCheckData(shareableId);
 
   if (!factCheckData) {
     return {
@@ -75,7 +76,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: `"${statement}" - ${verdictText}`,
       description: `Shit-Check evidence shows: ${verdictText} (${confidence}% confidence). Check the full analysis with peer-reviewed papers.`,
       type: "website",
-      url: `${baseUrl}/fact-check/shared/${params.shareableId}`,
+      url: `${baseUrl}/fact-check/shared/${shareableId}`,
       images: [
         {
           url: ogImageUrl,
@@ -101,6 +102,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default function SharedFactCheckLayout({ children }: Props) {
+export default async function SharedFactCheckLayout({ children }: Props) {
   return children;
 }
