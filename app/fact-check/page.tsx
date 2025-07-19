@@ -26,6 +26,7 @@ import {
 import PaperResult from "@/components/find-componenets/PaperResult";
 import FinalVerdictCard from "@/components/FinalVerdictCard";
 import { getShareableUrl, copyToClipboard } from "@/lib/factCheckUtils";
+import posthog from "posthog-js";
 
 // Types for our fact-check results
 type FactCheckResult = {
@@ -122,6 +123,14 @@ const FactCheckPage = () => {
       return;
     }
 
+    // PostHog event tracking for fact-check search
+    posthog.capture("fact_check_search", {
+      statement_length: statement.length,
+      statement_words: statement.split(" ").length,
+      location: "fact_check_page",
+      timestamp: new Date().toISOString(),
+    });
+
     setLoading(true);
     setError(null);
     setResults([]);
@@ -154,6 +163,16 @@ const FactCheckPage = () => {
       setResults(data.papers);
       setKeywords(data.keywords);
 
+      // PostHog event tracking for successful search results
+      posthog.capture("fact_check_results", {
+        papers_found: data.papers.length,
+        keywords_count: data.keywords.length,
+        statement_length: statement.length,
+        statement_words: statement.split(" ").length,
+        location: "fact_check_page",
+        timestamp: new Date().toISOString(),
+      });
+
       // Automatically generate final verdict
       if (data.papers && data.papers.length > 0) {
         generateFinalVerdict(data.papers);
@@ -174,6 +193,16 @@ const FactCheckPage = () => {
 
   const handleDeepAnalysis = async () => {
     setAnalyzing(true);
+
+    // PostHog event tracking for deep analysis start
+    posthog.capture("fact_check_deep_analysis_started", {
+      papers_count: results.length,
+      batch_number: currentBatch + 1,
+      batch_size: BATCH_SIZE,
+      statement_length: statement.length,
+      location: "fact_check_page",
+      timestamp: new Date().toISOString(),
+    });
 
     // Calculate which papers to analyze in this batch
     const startIndex = currentBatch * BATCH_SIZE;
@@ -325,6 +354,16 @@ const FactCheckPage = () => {
       const verdict = await response.json();
       setFinalVerdict(verdict);
 
+      // PostHog event tracking for final verdict generation
+      posthog.capture("fact_check_verdict_generated", {
+        verdict_type: verdict.verdict,
+        confidence_score: verdict.confidence_score,
+        papers_analyzed: papers.length,
+        statement_length: statement.length,
+        location: "fact_check_page",
+        timestamp: new Date().toISOString(),
+      });
+
       // Automatically save to database after final verdict is generated
       await saveToDatabase(papers, verdict);
     } catch (error) {
@@ -361,6 +400,16 @@ const FactCheckPage = () => {
       const result = await response.json();
       setShareableId(result.shareableId);
       console.log("Data saved to database successfully:", result);
+
+      // PostHog event tracking for successful database save
+      posthog.capture("fact_check_saved", {
+        shareable_id: result.shareableId,
+        papers_count: papers.length,
+        has_analysis: Object.keys(analysisResults).length > 0,
+        statement_length: statement.length,
+        location: "fact_check_page",
+        timestamp: new Date().toISOString(),
+      });
     } catch (error) {
       console.error("Error saving to database:", error);
       setDbSaveError("Failed to save data for sharing");
@@ -551,8 +600,6 @@ const FactCheckPage = () => {
                   currentFilter={paperFilter}
                   shareableId={shareableId}
                 />
-
-              
 
                 {dbSaveError && (
                   <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-sm">

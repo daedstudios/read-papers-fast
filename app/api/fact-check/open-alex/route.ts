@@ -281,17 +281,16 @@ Return only the search query string, nothing else.`;
     // Pre-evaluate each paper's abstract using the shared utility
     async function preEvaluatePaper(paper: any): Promise<any> {
       if (!paper.summary || paper.summary === "No abstract available") {
-        console.log(`[PreEval] Skipping paper (no abstract): ${paper.title}`);
+        // console.log(`[PreEval] Skipping paper (no abstract): ${paper.title}`);
         return { verdict: "neutral", summary: "No abstract available." };
       }
       try {
-        console.log(`[PreEval] Evaluating: ${paper.title}`);
         const result = await preEvaluateAbstract(
           statement,
           paper.summary,
           paper.title
         );
-        console.log(`[PreEval] Success:`, result);
+        // console.log(`[PreEval] Success:`, result);
         return result;
       } catch (e) {
         console.error(`[PreEval] Exception:`, e);

@@ -12,6 +12,7 @@ import {
   Share,
 } from "lucide-react";
 import { useState } from "react";
+import posthog from "posthog-js";
 
 type FinalVerdictData = {
   final_verdict:
@@ -49,28 +50,6 @@ const FinalVerdictCard = ({
 }: FinalVerdictCardProps) => {
   const [copied, setCopied] = useState(false);
 
-  const handleShare = async () => {
-    try {
-      let urlToCopy;
-      if (shareableId) {
-        // Use the shareable URL if available
-        urlToCopy = `${window.location.origin}/fact-check/shared/${shareableId}`;
-      } else {
-        // Fallback to current URL if no shareableId
-        urlToCopy = window.location.href;
-      }
-
-      // Create a custom share message
-      const shareMessage = `Shit-Check evidence shows the statement "${statement}" Is: ${config.label}\nCheck out the full analysis with peer-reviewed papers:\n${urlToCopy}`;
-
-      await navigator.clipboard.writeText(shareMessage);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy link:", err);
-    }
-  };
-
   const getVerdictConfig = (verdictType: string) => {
     const configs = {
       true: {
@@ -86,7 +65,7 @@ const FinalVerdictCard = ({
         color: "bg-green-100 text-green-700 border-green-300",
         icon: CheckCircle,
         bgColor: "bg-green-50",
-        sliderPosition: 80,
+        sliderPosition: 75,
         sliderColor: "bg-[#AEFFD9]",
       },
       mixed_evidence: {
@@ -95,7 +74,7 @@ const FinalVerdictCard = ({
         icon: AlertTriangle,
         bgColor: "bg-yellow-50",
         sliderPosition: 50,
-        sliderColor: "bg-[#C5C8FF]",
+        sliderColor: "bg-[#FFE17D]",
       },
       mostly_false: {
         label: "MOSTLY FALSE",
@@ -119,13 +98,50 @@ const FinalVerdictCard = ({
         icon: HelpCircle,
         bgColor: "bg-gray-50",
         sliderPosition: 50,
-        sliderColor: "bg-[#C5C8FF]",
+        sliderColor: "bg-gray-300",
       },
     };
+
     return (
       configs[verdictType as keyof typeof configs] ||
       configs.insufficient_evidence
     );
+  };
+
+  const config = getVerdictConfig(verdict.final_verdict);
+
+  const handleShare = async () => {
+    try {
+      let urlToCopy;
+      if (shareableId) {
+        // Use the shareable URL if available
+        urlToCopy = `${window.location.origin}/fact-check/shared/${shareableId}`;
+      } else {
+        // Fallback to current URL if no shareableId
+        urlToCopy = window.location.href;
+      }
+
+      // Create a custom share message
+      const shareMessage = `Shit-Check evidence shows the statement "${statement}" Is: ${config.label}\nCheck out the full analysis with peer-reviewed papers:\n${urlToCopy}`;
+
+      await navigator.clipboard.writeText(shareMessage);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+
+      // PostHog event tracking for share link copied
+      posthog.capture("fact_check_shared", {
+        verdict_type: verdict.final_verdict,
+        confidence_score: verdict.confidence_score,
+        has_shareable_id: !!shareableId,
+        shareable_id: shareableId,
+        statement_length: statement.length,
+        statement_words: statement.split(" ").length,
+        location: "final_verdict_card",
+        timestamp: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.error("Failed to copy link:", err);
+    }
   };
 
   const getConfidenceColor = (score: number) => {
@@ -135,7 +151,6 @@ const FinalVerdictCard = ({
     return "text-red-600";
   };
 
-  const config = getVerdictConfig(verdict.final_verdict);
   const IconComponent = config.icon;
 
   // Helper to determine if a card is active
