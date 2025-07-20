@@ -493,7 +493,7 @@ const FactCheckPage = () => {
           </div>
         </Card>
         <div className="mb-[3rem] text-[1rem] mx-auto w-full text-center text-foreground ">
-          Fact-check viral claims using peer-reviewed papers.
+          Fact-check viral claims using 200m+ peer-reviewed papers.
         </div>
 
         {/* Three-Step Process */}
