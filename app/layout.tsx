@@ -52,8 +52,9 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
 }
 
 export const metadata: Metadata = {
-  title: "FindPapersFast",
-  description: "Find research papers 10x faster",
+  title: "shitcheck.com",
+  description:
+    "A funny way to check if something is legit or just shit, based on research.",
 };
 
 export default function RootLayout({
