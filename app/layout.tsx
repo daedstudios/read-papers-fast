@@ -52,9 +52,8 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
 }
 
 export const metadata: Metadata = {
-  title: "shitcheck.com",
-  description:
-    "A funny way to check if something is legit or just shit, based on research.",
+  title: "shitcheck",
+  description: "Fact-check viral claims using real peer-reviewed science.",
 };
 
 export default function RootLayout({
