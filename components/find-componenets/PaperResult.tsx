@@ -72,27 +72,13 @@ type FactCheckResult = {
 
 interface PaperResultProps {
   results: FactCheckResult[];
-  statement: string;
   analysisResults: { [paperId: string]: PaperAnalysisResult };
-  analyzing: boolean;
-  currentlyAnalyzing: string | null;
-  analysisProgress: { current: number; total: number };
-  currentBatch: number;
-  batchSize: number;
-  onStartAnalysis: () => void;
   paperFilter?: "contradicting" | "neutral" | "supporting" | null;
 }
 
 const PaperResult = ({
   results,
-  statement,
   analysisResults,
-  analyzing,
-  currentlyAnalyzing,
-  analysisProgress,
-  currentBatch,
-  batchSize,
-  onStartAnalysis,
   paperFilter,
 }: PaperResultProps) => {
   const [expandedCards, setExpandedCards] = useState<{
@@ -366,108 +352,6 @@ const PaperResult = ({
     </Card>
   );
 
-  // Render analysis result card
-  const renderAnalysisCard = (
-    paper: FactCheckResult,
-    analysis: PaperAnalysisResult
-  ) => (
-    <Card key={paper.id} className=" border-foreground rounded-sm">
-      <CardHeader>
-        <div className="flex justify-between items-start gap-4">
-          <CardTitle className="text-[1.25rem] leading-tight flex-1">
-            {paper.title}
-          </CardTitle>
-          <div className="flex gap-2 flex-wrap">
-            {analysis.analysisMethod &&
-              getAnalysisMethodBadge(analysis.analysisMethod)}
-            {analysis.analysis &&
-              getSupportBadge(analysis.analysis.support_level)}
-          </div>
-        </div>
-        <CardDescription>
-          <div className="space-y-3">
-            <div>{paper.authors.join(", ")}</div>
-
-            {/* Publication and Citation Cards */}
-            <div className="flex gap-3 flex-wrap">
-              {paper.cited_by_count && (
-                <div className="flex items-center gap-2 px-3 py-2 border border-foreground bg-white">
-                  <Asterisk size={16} className="text-foreground" />
-                  <span className="text-sm font-medium text-foreground">
-                    {paper.cited_by_count} Citations
-                  </span>
-                </div>
-              )}
-
-              {paper.journal_name && (
-                <div className="flex items-center gap-2 px-3 py-2 border border-foreground bg-white">
-                  <BookOpen size={16} className="text-foreground" />
-                  <span className="text-sm font-medium text-foreground">
-                    {paper.journal_name}
-                  </span>
-                </div>
-              )}
-
-              {paper.publisher && (
-                <div className="flex items-center gap-2 px-3 py-2 border border-foreground bg-white">
-                  <GraduationCap size={16} className="text-foreground" />
-                  <span className="text-sm font-medium text-foreground">
-                    {paper.publisher}
-                  </span>
-                </div>
-              )}
-
-              {paper.published && (
-                <div className="flex items-center gap-2 px-3 py-2 border border-foreground bg-white">
-                  <span className="text-sm font-medium text-foreground">
-                    {new Date(paper.published).getFullYear()}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent>
-        {analysis.error ? (
-          <div className="text-red-600 bg-red-50 p-4 rounded-lg border border-red-200">
-            <strong>Analysis Error:</strong>
-            <div className="mt-1">{analysis.error}</div>
-            {analysis.error.includes("Unable to analyze paper") && (
-              <div className="mt-2 text-sm text-red-700">
-                This paper could not be analyzed because neither the PDF nor
-                abstract was accessible.
-              </div>
-            )}
-          </div>
-        ) : analysis.analysis ? (
-          <div className="space-y-4">
-            <div>
-              <div className="">
-                {formatStructuredAnalysis(analysis.analysis, paper.id)}
-              </div>
-            </div>
-
-            <div className="flex justify-between items-center text-xs text-gray-500">
-              <span>
-                Analyzed:{" "}
-                {new Date(analysis.analysis.timestamp).toLocaleString()}
-              </span>
-              {analysis.analysisMethod?.includes("abstract") && (
-                <span className="text-yellow-600 font-medium">
-                  ⚠ Based on abstract only
-                </span>
-              )}
-            </div>
-          </div>
-        ) : (
-          <div className="text-gray-500">No analysis available</div>
-        )}
-      </CardContent>
-    </Card>
-  );
-
   // Filter results based on paperFilter
   console.log("PaperFilter:", paperFilter);
   console.log("Total results:", results.length);
@@ -498,12 +382,7 @@ const PaperResult = ({
         {filteredResults.map((paper) => {
           const analysis = analysisResults[paper.id];
 
-          // If analysis is available, show analysis card, otherwise show original paper card
-          if (analysis) {
-            return renderAnalysisCard(paper, analysis);
-          } else {
-            return renderOriginalPaperCard(paper);
-          }
+          return renderOriginalPaperCard(paper);
         })}
       </div>
     </>

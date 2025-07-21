@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/card";
 import PaperResult from "@/components/find-componenets/PaperResult";
 import FinalVerdictCard from "@/components/FinalVerdictCard";
+import FeedbackToast from "@/components/fact-check-components/Feddback";
 import { ChatDrawer } from "@/components/ChatDrawer";
 import { getShareableUrl, copyToClipboard } from "@/lib/factCheckUtils";
 import posthog from "posthog-js";
@@ -110,12 +111,40 @@ const FactCheckPage = () => {
   const [shareableId, setShareableId] = useState<string | null>(null);
   const [dbSaveError, setDbSaveError] = useState<string | null>(null);
 
+  // Feedback state
+  const [showFeedbackToast, setShowFeedbackToast] = useState(false);
+
   // Debug function to log filter changes
   const handleFilterChange = (
     filter: "contradicting" | "neutral" | "supporting" | null
   ) => {
     console.log("Filter changed to:", filter);
     setPaperFilter(filter);
+  };
+
+  // Handle feedback submission
+  const handleFeedbackSubmit = async (feedback: {
+    type: "positive" | "negative" | null;
+    text: string;
+    suggestions: string;
+  }) => {
+    try {
+      // Send to analytics service
+      posthog.capture("fact_check_feedback", {
+        feedback_type: feedback.type,
+        feedback_text: feedback.text,
+        feedback_suggestions: feedback.suggestions,
+        statement_length: statement.length,
+        papers_count: results.length,
+        has_analysis: Object.keys(analysisResults).length > 0,
+        location: "fact_check_page",
+        timestamp: new Date().toISOString(),
+      });
+
+      console.log("Feedback submitted successfully:", feedback);
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+    }
   };
 
   const handleFactCheck = async () => {
@@ -146,6 +175,8 @@ const FactCheckPage = () => {
     setSavingToDb(false);
     setShareableId(null);
     setDbSaveError(null);
+    // Reset feedback state
+    setShowFeedbackToast(false);
 
     try {
       const response = await fetch("/api/fact-check/open-alex", {
@@ -177,159 +208,16 @@ const FactCheckPage = () => {
       // Automatically generate final verdict
       if (data.papers && data.papers.length > 0) {
         generateFinalVerdict(data.papers);
+        // Show feedback toast after results are loaded
+        setTimeout(() => {
+          setShowFeedbackToast(true);
+        }, 1000); // Small delay to let user see the results first
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
-  };
-
-  // Get PDF links from papers
-  const getPdfLinks = (paper: FactCheckResult): string[] => {
-    return paper.links
-      .filter((link) => link.type === "application/pdf" && link.href)
-      .map((link) => link.href);
-  };
-
-  const handleDeepAnalysis = async () => {
-    setAnalyzing(true);
-
-    // PostHog event tracking for deep analysis start
-    posthog.capture("fact_check_deep_analysis_started", {
-      papers_count: results.length,
-      batch_number: currentBatch + 1,
-      batch_size: BATCH_SIZE,
-      statement_length: statement.length,
-      location: "fact_check_page",
-      timestamp: new Date().toISOString(),
-    });
-
-    // Calculate which papers to analyze in this batch
-    const startIndex = currentBatch * BATCH_SIZE;
-    const endIndex = Math.min(startIndex + BATCH_SIZE, results.length);
-    const papersToAnalyze = results.slice(startIndex, endIndex);
-
-    console.log(
-      `Analyzing batch ${currentBatch + 1}: papers ${
-        startIndex + 1
-      }-${endIndex} of ${results.length}`
-    );
-
-    // Set progress for current batch
-    setAnalysisProgress({
-      current: startIndex,
-      total: results.length,
-    });
-
-    let currentIndex = startIndex;
-
-    for (const paper of papersToAnalyze) {
-      const pdfLinks = getPdfLinks(paper);
-      setCurrentlyAnalyzing(paper.title);
-      currentIndex++;
-      setAnalysisProgress({
-        current: currentIndex,
-        total: results.length,
-      });
-
-      let analysisSuccess = false;
-
-      // First, try PDF analysis if PDFs are available
-      if (pdfLinks.length > 0) {
-        for (const pdfUrl of pdfLinks) {
-          try {
-            console.log(
-              `Analyzing paper ${currentIndex}/${results.length}: ${paper.title} (PDF)`
-            );
-
-            const response = await fetch("/api/fact-check/paper-query", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                pdfUrl: pdfUrl,
-                statement: statement,
-                paperTitle: paper.title,
-                abstract: paper.summary,
-                authors: paper.authors,
-                journal: paper.journal_name,
-              }),
-            });
-
-            const result = await response.json();
-
-            setAnalysisResults((prev) => ({
-              ...prev,
-              [paper.id]: result,
-            }));
-
-            analysisSuccess = true;
-            break; // Successfully analyzed, no need to try other PDF links
-          } catch (error) {
-            console.error(`Error analyzing ${paper.title} with PDF:`, error);
-            // Continue to next PDF link
-          }
-        }
-      }
-
-      // If PDF analysis failed or no PDFs available, try abstract-based analysis
-      if (!analysisSuccess && paper.summary) {
-        try {
-          console.log(
-            `Analyzing paper ${currentIndex}/${results.length}: ${paper.title} (Abstract)`
-          );
-
-          const response = await fetch("/api/fact-check/paper-query", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              statement: statement,
-              paperTitle: paper.title,
-              abstract: paper.summary,
-              authors: paper.authors,
-              journal: paper.journal_name,
-            }),
-          });
-
-          const result = await response.json();
-
-          setAnalysisResults((prev) => ({
-            ...prev,
-            [paper.id]: result,
-          }));
-
-          analysisSuccess = true;
-        } catch (error) {
-          console.error(`Error analyzing ${paper.title} with abstract:`, error);
-        }
-      }
-
-      if (!analysisSuccess) {
-        // Neither PDF nor abstract analysis worked
-        setAnalysisResults((prev) => ({
-          ...prev,
-          [paper.id]: {
-            paperId: paper.title,
-            pdfUrl: null,
-            statement: statement,
-            analysis: null,
-            error: "Unable to analyze paper - no accessible PDF or abstract",
-          },
-        }));
-      }
-
-      // Add a small delay between requests to be respectful to APIs
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
-
-    // Update batch counter
-    setCurrentBatch((prev) => prev + 1);
-    setCurrentlyAnalyzing(null);
-    setAnalyzing(false);
   };
 
   const generateFinalVerdict = async (papers: FactCheckResult[]) => {
@@ -450,16 +338,7 @@ const FactCheckPage = () => {
           <h1 className="text-[2.5rem] mb-4 ">Is this true?</h1>
         </div>
 
-        {/* Input Form */}
         <Card className="mb-[1rem] rounded-sm shadow-none w-full border-foreground p-4">
-          {/* <CardHeader>
-            <CardTitle>Enter Statement to Fact-Check</CardTitle>
-            <CardDescription>
-              Provide any claim, statement, or assertion you want to verify with
-              academic literature
-            </CardDescription>
-          </CardHeader> */}
-
           <div className="space-y-4">
             <textarea
               value={statement}
@@ -557,29 +436,6 @@ const FactCheckPage = () => {
           </div>
         )}
 
-        {/* Loading State */}
-
-        {/* Keywords Display */}
-        {/* {keywords.length > 0 && !loading && (
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="text-lg">Search Keywords</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {keywords.map((keyword, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
-                  >
-                    {keyword}
-                  </span>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )} */}
-
         {/* Results and Deep Analysis */}
         {results.length > 0 && !loading && (
           <div className="space-y-6">
@@ -659,14 +515,7 @@ const FactCheckPage = () => {
 
               <PaperResult
                 results={results}
-                statement={statement}
                 analysisResults={analysisResults}
-                analyzing={analyzing}
-                currentlyAnalyzing={currentlyAnalyzing}
-                analysisProgress={analysisProgress}
-                currentBatch={currentBatch}
-                batchSize={BATCH_SIZE}
-                onStartAnalysis={handleDeepAnalysis}
                 paperFilter={paperFilter}
               />
             </div>
@@ -685,6 +534,13 @@ const FactCheckPage = () => {
           </Card>
         )}
       </div>
+
+      {/* Feedback Toast */}
+      <FeedbackToast
+        isVisible={showFeedbackToast}
+        onClose={() => setShowFeedbackToast(false)}
+        onSubmit={handleFeedbackSubmit}
+      />
     </div>
   );
 };
