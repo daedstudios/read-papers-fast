@@ -57,9 +57,9 @@ export default function FeedbackToast({
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 max-w-sm w-full">
-      <Card className="shadow-lg border border-foreground bg-white">
-        <CardContent className="p-4">
+    <div className="fixed bottom-4 right-4 z-50 max-w-[300px] w-full">
+      <Card className="shadow-lg rounded-sm  border border-foreground bg-white">
+        <CardContent className="px-4">
           {!isSubmitted ? (
             <div className="space-y-3">
               {/* Header */}
@@ -89,7 +89,7 @@ export default function FeedbackToast({
                     onClick={() => handleThumbsClick("positive")}
                     className={`flex items-center gap-1 h-8 ${
                       feedbackType === "positive"
-                        ? "bg-green-50 border-green-300 text-green-700"
+                        ? "bg-green-50 border-C5C8FF text-C5C8FF"
                         : "hover:bg-green-50"
                     }`}
                   >
@@ -101,7 +101,7 @@ export default function FeedbackToast({
                     onClick={() => handleThumbsClick("negative")}
                     className={`flex items-center gap-1 h-8 ${
                       feedbackType === "negative"
-                        ? "bg-red-50 border-red-300 text-red-700"
+                        ? "bg-red-50 border-[#FFBAD8] text-[#FFBAD8]"
                         : "hover:bg-red-50"
                     }`}
                   >
@@ -120,9 +120,9 @@ export default function FeedbackToast({
                         : "Thanks for letting us know."}
                     </span>
                     {feedbackType === "positive" ? (
-                      <ThumbsUp size={14} className="text-green-600" />
+                      <ThumbsUp size={14} className="text-foreground" />
                     ) : (
-                      <ThumbsDown size={14} className="text-red-600" />
+                      <ThumbsDown size={14} className="text-foreground" />
                     )}
                   </div>
 
@@ -139,7 +139,7 @@ export default function FeedbackToast({
                     />
                   </div>
 
-                  <div className="space-y-2">
+                  {/* <div className="space-y-2">
                     <label className="text-xs font-medium text-gray-700">
                       Suggestions for improvement:
                     </label>
@@ -150,13 +150,13 @@ export default function FeedbackToast({
                       className="w-full text-xs border border-gray-200 rounded p-2 min-h-[60px] resize-none focus:outline-none focus:border-gray-400"
                       rows={3}
                     />
-                  </div>
+                  </div> */}
 
                   <div className="flex gap-2">
                     <Button
                       onClick={handleSubmit}
                       size="sm"
-                      className="flex-1 h-8 text-xs bg-foreground text-background hover:bg-gray-800"
+                      className="flex-1 h-8 text-xs border text-foreground rounded-sm border-foreground bg-[#C5C8FF]  hover:bg-gray-800"
                     >
                       Submit Feedback
                     </Button>
@@ -167,7 +167,7 @@ export default function FeedbackToast({
           ) : (
             /* Thank you message */
             <div className="text-center py-2">
-              <div className="text-green-600 font-medium text-sm mb-1">
+              <div className="text-[#C] font-medium text-sm mb-1">
                 Thank you for your feedback!
               </div>
               <div className="text-xs text-gray-500">
