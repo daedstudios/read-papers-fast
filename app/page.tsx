@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/card";
 import PaperResult from "@/components/find-componenets/PaperResult";
 import FinalVerdictCard from "@/components/FinalVerdictCard";
+import FeedbackToast from "@/components/fact-check-components/Feddback";
 import { ChatDrawer } from "@/components/ChatDrawer";
 import { getShareableUrl, copyToClipboard } from "@/lib/factCheckUtils";
 import posthog from "posthog-js";
@@ -110,12 +111,40 @@ const FactCheckPage = () => {
   const [shareableId, setShareableId] = useState<string | null>(null);
   const [dbSaveError, setDbSaveError] = useState<string | null>(null);
 
+  // Feedback state
+  const [showFeedbackToast, setShowFeedbackToast] = useState(false);
+
   // Debug function to log filter changes
   const handleFilterChange = (
     filter: "contradicting" | "neutral" | "supporting" | null
   ) => {
     console.log("Filter changed to:", filter);
     setPaperFilter(filter);
+  };
+
+  // Handle feedback submission
+  const handleFeedbackSubmit = async (feedback: {
+    type: "positive" | "negative" | null;
+    text: string;
+    suggestions: string;
+  }) => {
+    try {
+      // Send to analytics service
+      posthog.capture("fact_check_feedback", {
+        feedback_type: feedback.type,
+        feedback_text: feedback.text,
+        feedback_suggestions: feedback.suggestions,
+        statement_length: statement.length,
+        papers_count: results.length,
+        has_analysis: Object.keys(analysisResults).length > 0,
+        location: "fact_check_page",
+        timestamp: new Date().toISOString(),
+      });
+
+      console.log("Feedback submitted successfully:", feedback);
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+    }
   };
 
   const handleFactCheck = async () => {
@@ -146,6 +175,8 @@ const FactCheckPage = () => {
     setSavingToDb(false);
     setShareableId(null);
     setDbSaveError(null);
+    // Reset feedback state
+    setShowFeedbackToast(false);
 
     try {
       const response = await fetch("/api/fact-check/open-alex", {
@@ -177,6 +208,10 @@ const FactCheckPage = () => {
       // Automatically generate final verdict
       if (data.papers && data.papers.length > 0) {
         generateFinalVerdict(data.papers);
+        // Show feedback toast after results are loaded
+        setTimeout(() => {
+          setShowFeedbackToast(true);
+        }, 1000); // Small delay to let user see the results first
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
@@ -450,16 +485,7 @@ const FactCheckPage = () => {
           <h1 className="text-[2.5rem] mb-4 ">Is this true?</h1>
         </div>
 
-        {/* Input Form */}
         <Card className="mb-[1rem] rounded-sm shadow-none w-full border-foreground p-4">
-          {/* <CardHeader>
-            <CardTitle>Enter Statement to Fact-Check</CardTitle>
-            <CardDescription>
-              Provide any claim, statement, or assertion you want to verify with
-              academic literature
-            </CardDescription>
-          </CardHeader> */}
-
           <div className="space-y-4">
             <textarea
               value={statement}
@@ -556,29 +582,6 @@ const FactCheckPage = () => {
             </div>
           </div>
         )}
-
-        {/* Loading State */}
-
-        {/* Keywords Display */}
-        {/* {keywords.length > 0 && !loading && (
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="text-lg">Search Keywords</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {keywords.map((keyword, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
-                  >
-                    {keyword}
-                  </span>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )} */}
 
         {/* Results and Deep Analysis */}
         {results.length > 0 && !loading && (
@@ -685,6 +688,13 @@ const FactCheckPage = () => {
           </Card>
         )}
       </div>
+
+      {/* Feedback Toast */}
+      <FeedbackToast
+        isVisible={showFeedbackToast}
+        onClose={() => setShowFeedbackToast(false)}
+        onSubmit={handleFeedbackSubmit}
+      />
     </div>
   );
 };
