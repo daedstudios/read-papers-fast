@@ -324,14 +324,7 @@ const SharedFactCheckPage = () => {
 
             <PaperResult
               results={papers}
-              statement={factCheckData.statement}
               analysisResults={analysisResults}
-              analyzing={false}
-              currentlyAnalyzing={null}
-              analysisProgress={{ current: 0, total: 0 }}
-              currentBatch={0}
-              batchSize={10}
-              onStartAnalysis={() => {}} // No-op for shared view
               paperFilter={paperFilter}
             />
           </div>
