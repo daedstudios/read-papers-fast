@@ -371,8 +371,11 @@ const FactCheckPage = () => {
             )}
           </div>
         </Card>
-        <div className="mb-[3rem] text-[1rem] mx-auto w-full text-center text-foreground ">
-          Fact-check viral claims using peer-reviewed papers.
+
+        <div className="text-center text-sm text-foreground/70 mb-[3rem]">
+          We use OpenAlex, a nonprofit scientific catalogue, to surface
+          peer-reviewed research from reputable journals and institutions to
+          fact check your claim.
         </div>
 
         {/* Three-Step Process */}
