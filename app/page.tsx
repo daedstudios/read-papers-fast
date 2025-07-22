@@ -310,7 +310,7 @@ const FactCheckPage = () => {
     <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center">
       <div className="container w-2xl max-w-[90%] mx-auto ">
         <div className="text-center mb-8 mt-[10rem] mx-auto">
-          <h1 className="text-[2.5rem] mb-4 ">Is this true?</h1>
+          <h1 className="text-[2.5rem] mb-4 ">Check your claim</h1>
         </div>
 
         <Card className="mb-[1rem] rounded-sm shadow-none w-full border-foreground p-4">
@@ -346,8 +346,18 @@ const FactCheckPage = () => {
             )}
           </div>
         </Card>
-        <div className="mb-[3rem] text-[1rem] mx-auto w-full text-center text-foreground ">
-          Fact-check viral claims using peer-reviewed papers.
+        <div className="mb-[3rem] text-sm mx-auto w-full text-center text-muted-foreground ">
+          Fact-check against research from{" "}
+          <a
+            href="https://openalex.org"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground underline"
+          >
+            openalex.org
+          </a>
+          , with peer-reviewed research from reputable journals and
+          institutions. Each source is fully cited with metadata.
         </div>
 
         {/* Three-Step Process */}
