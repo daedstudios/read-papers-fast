@@ -16,6 +16,7 @@ import {
   GraduationCap,
   ChevronDown,
   ChevronUp,
+  Flame, // Add Flame icon for hot badge
 } from "lucide-react";
 
 // Types for paper analysis
@@ -244,113 +245,127 @@ const PaperResult = ({
   };
 
   // Render original paper card
-  const renderOriginalPaperCard = (paper: any) => (
-    <Card
-      key={paper.id}
-      className="hover:shadow-lg transition-shadow rounded-sm border-foreground"
-    >
-      <CardHeader>
-        <CardTitle className="text-lg leading-tight">{paper.title}</CardTitle>
-        <CardDescription>
-          <div className="space-y-3">
-            <div>{paper.authors.join(", ")}</div>
+  const renderOriginalPaperCard = (paper: any) => {
+    // Determine if paper is new (published within last 2 years) and highly cited
+    let isHot = false;
+    if (paper.published && paper.cited_by_count !== undefined) {
+      const publishedYear = new Date(paper.published).getFullYear();
+      const currentYear = new Date().getFullYear();
+      isHot = publishedYear >= currentYear - 2 && paper.cited_by_count > 100;
+    }
+    return (
+      <Card
+        key={paper.id}
+        className="hover:shadow-lg transition-shadow rounded-sm border-foreground"
+      >
+        <CardHeader>
+          <CardTitle className="text-lg leading-tight">{paper.title}</CardTitle>
+          <CardDescription>
+            <div className="space-y-3">
+              <div>{paper.authors.join(", ")}</div>
 
-            {/* Pre-evaluation verdict, summary, and snippet */}
-            {paper.pre_evaluation && (
-              <div className="flex flex-col gap-2 my-2">
-                <div className="flex items-center gap-2">
-                  {getPreEvalBadge(paper.pre_evaluation.verdict)}
-                </div>
-                <div className="text-sm text-foreground">
-                  {paper.pre_evaluation.summary}
-                </div>
-                <div className="text-xs text-muted-foreground italic border-l-2 border-gray-300 pl-2">
-                  {paper.pre_evaluation.snippet &&
-                  paper.pre_evaluation.snippet.trim() !== ""
-                    ? `"${paper.pre_evaluation.snippet}"`
-                    : (paper.summary?.slice(0, 200) || "") +
-                      (paper.summary && paper.summary.length > 200
-                        ? "..."
-                        : "")}
-                </div>
-              </div>
-            )}
-
-            {/* Publication and Citation Cards */}
-            <div className="flex gap-3 flex-wrap">
-              {paper.cited_by_count && (
-                <div className="flex items-center gap-2 px-3 py-2 border border-foreground  bg-white">
-                  <Asterisk size={24} className="text-foreground" />
-                  <span className="text-sm font-medium text-foreground">
-                    {paper.cited_by_count} Citations
-                  </span>
+              {/* Pre-evaluation verdict, summary, and snippet */}
+              {paper.pre_evaluation && (
+                <div className="flex flex-col gap-2 my-2">
+                  <div className="flex items-center gap-2">
+                    {getPreEvalBadge(paper.pre_evaluation.verdict)}
+                  </div>
+                  <div className="text-sm text-foreground">
+                    {paper.pre_evaluation.summary}
+                  </div>
+                  <div className="text-xs text-muted-foreground italic border-l-2 border-gray-300 pl-2">
+                    {paper.pre_evaluation.snippet &&
+                    paper.pre_evaluation.snippet.trim() !== ""
+                      ? `"${paper.pre_evaluation.snippet}"`
+                      : (paper.summary?.slice(0, 200) || "") +
+                        (paper.summary && paper.summary.length > 200
+                          ? "..."
+                          : "")}
+                  </div>
                 </div>
               )}
 
-              {paper.journal_name && (
-                <div className="flex items-center gap-2 px-3 py-2 border border-foreground  bg-white">
-                  <BookOpen size={16} className="text-foreground" />
-                  <span className="text-sm font-medium text-foreground">
-                    {paper.journal_name}
-                  </span>
-                </div>
-              )}
-
-              {paper.publisher && (
-                <div className="flex items-center gap-2 px-3 py-2 border border-foreground  bg-white">
-                  <GraduationCap size={16} className="text-foreground" />
-                  <span className="text-sm font-medium text-foreground">
-                    {paper.publisher}
-                  </span>
-                </div>
-              )}
-
-              {paper.published && (
-                <div className="flex items-center gap-2 px-3 py-2 border border-foreground  bg-white">
-                  <span className="text-sm font-medium text-foreground">
-                    {new Date(paper.published).getFullYear()}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* {paper.relevance_score && (
-              <div className="text-sm">
-                <strong>Relevance:</strong>{" "}
-                {(paper.relevance_score * 100).toFixed(1)}%
-              </div>
-            )} */}
-          </div>
-        </CardDescription>
-      </CardHeader>
-
-      <div className="space-y-0 px-6">
-        <div className="flex gap-2 flex-wrap">
-          {/* Show only one PDF link */}
-          {(() => {
-            const pdfLink = paper.links.find(
-              (link: any) => link.type === "application/pdf"
-            );
-
-            return (
-              <>
-                {pdfLink && (
-                  <a
-                    href={pdfLink.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-3 py-2 w-full border border-foreground rounded-none text-sm text-center"
-                  >
-                    View PDF
-                  </a>
+              {/* Publication and Citation Cards */}
+              <div className="flex gap-3 flex-wrap">
+                {paper.cited_by_count && (
+                  <div className="flex items-center gap-2 px-3 py-2 border border-foreground bg-white relative">
+                    <Asterisk size={24} className="text-foreground" />
+                    <span className="text-sm font-medium text-foreground">
+                      {paper.cited_by_count} Citations
+                    </span>
+                    {isHot && (
+                      <span className="flex items-center gap-1 ml-2 px-2 py-1 border border-[#FFA600] text-[#FFA600] rounded-full text-xs font-semibold bg-white">
+                        <Flame size={16} /> hot
+                      </span>
+                    )}
+                  </div>
                 )}
-              </>
-            );
-          })()}
+
+                {paper.journal_name && (
+                  <div className="flex items-center gap-2 px-3 py-2 border border-foreground  bg-white">
+                    <BookOpen size={16} className="text-foreground" />
+                    <span className="text-sm font-medium text-foreground">
+                      {paper.journal_name}
+                    </span>
+                  </div>
+                )}
+
+                {paper.publisher && (
+                  <div className="flex items-center gap-2 px-3 py-2 border border-foreground  bg-white">
+                    <GraduationCap size={16} className="text-foreground" />
+                    <span className="text-sm font-medium text-foreground">
+                      {paper.publisher}
+                    </span>
+                  </div>
+                )}
+
+                {paper.published && (
+                  <div className="flex items-center gap-2 px-3 py-2 border border-foreground  bg-white">
+                    <span className="text-sm font-medium text-foreground">
+                      {new Date(paper.published).getFullYear()}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* {paper.relevance_score && (
+                <div className="text-sm">
+                  <strong>Relevance:</strong>{" "}
+                  {(paper.relevance_score * 100).toFixed(1)}%
+                </div>
+              )} */}
+            </div>
+          </CardDescription>
+        </CardHeader>
+
+        <div className="space-y-0 px-6">
+          <div className="flex gap-2 flex-wrap">
+            {/* Show only one PDF link */}
+            {(() => {
+              const pdfLink = paper.links.find(
+                (link: any) => link.type === "application/pdf"
+              );
+
+              return (
+                <>
+                  {pdfLink && (
+                    <a
+                      href={pdfLink.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-2 w-full border border-foreground rounded-none text-sm text-center"
+                    >
+                      View PDF
+                    </a>
+                  )}
+                </>
+              );
+            })()}
+          </div>
         </div>
-      </div>
-    </Card>
-  );
+      </Card>
+    );
+  };
 
   // Filter results based on paperFilter
   console.log("PaperFilter:", paperFilter);
