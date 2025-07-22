@@ -286,14 +286,17 @@ const FactCheckPage = () => {
   const [progress, setProgress] = useState(0);
   const progressRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Animate progress bar with a fixed timer when loading
+  // Combine all busy states for UI feedback
+  const isBusy = loading || generatingVerdict || savingToDb;
+
+  // Animate progress bar with a fixed timer when busy
   useEffect(() => {
-    if (loading) {
+    if (isBusy) {
       setProgress(0);
       if (progressRef.current) clearInterval(progressRef.current);
       progressRef.current = setInterval(() => {
         setProgress((prev) => {
-          if (prev < 100) return prev + 0.2;
+          if (prev < 100) return prev + 0.143;
           return 100;
         });
       }, 50);
@@ -304,7 +307,7 @@ const FactCheckPage = () => {
     return () => {
       if (progressRef.current) clearInterval(progressRef.current);
     };
-  }, [loading]);
+  }, [isBusy]);
 
   return (
     <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center">
@@ -320,13 +323,13 @@ const FactCheckPage = () => {
               onChange={(e) => setStatement(e.target.value)}
               placeholder="e.g., 'Vitamin D deficiency is linked to increased risk of depression' or 'Climate change is causing more frequent extreme weather events'"
               className="w-full focus:outline-none  min-h-[160px] resize-y"
-              disabled={loading}
+              disabled={isBusy}
             />
 
             {error && <div className="text-red-500 text-sm">{error}</div>}
 
             {/* Button or Progress Bar */}
-            {loading ? (
+            {isBusy ? (
               <div className="w-full flex flex-col items-center justify-center">
                 <div className="w-full bg-white border border-foreground h-8 flex items-center relative overflow-hidden">
                   <div
@@ -339,6 +342,7 @@ const FactCheckPage = () => {
               <Button
                 onClick={handleFactCheck}
                 className="w-full py-3 text-[1rem] rounded-none border border-foreground bg-foreground text-background flex items-center gap-2 cursor-pointer"
+                disabled={isBusy}
               >
                 fact check
                 <Globe size={16} />
