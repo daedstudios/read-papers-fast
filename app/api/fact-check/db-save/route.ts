@@ -33,6 +33,10 @@ export async function POST(request: NextRequest) {
             relevanceScore: paper.relevance_score || null,
             citedByCount: paper.cited_by_count || null,
             links: paper.links || null,
+            // Pre-evaluation data
+            preEvalVerdict: paper.pre_evaluation?.verdict || null,
+            preEvalSummary: paper.pre_evaluation?.summary || null,
+            preEvalSnippet: paper.pre_evaluation?.snippet || null,
             analysis: analysisResults?.[paper.id] ? {
               create: {
                 pdfUrl: analysisResults[paper.id].pdfUrl || null,

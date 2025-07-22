@@ -35,6 +35,11 @@ type FactCheckResult = {
   cited_by_count?: number;
   journal_name?: string;
   publisher?: string;
+  pre_evaluation?: {
+    verdict: "supports" | "contradicts" | "neutral" | "not_relevant";
+    summary: string;
+    snippet: string;
+  };
 };
 
 type PaperAnalysisResult = {
@@ -85,6 +90,9 @@ type SharedFactCheckData = {
     relevanceScore?: number;
     citedByCount?: number;
     links: any;
+    preEvalVerdict?: string;
+    preEvalSummary?: string;
+    preEvalSnippet?: string;
     analysis?: {
       pdfUrl?: string;
       analysisMethod?: string;
@@ -175,6 +183,18 @@ const SharedFactCheckPage = () => {
       cited_by_count: paper.citedByCount,
       journal_name: paper.journalName,
       publisher: paper.publisher,
+      // Add pre_evaluation data if available
+      pre_evaluation: paper.preEvalVerdict
+        ? {
+            verdict: paper.preEvalVerdict as
+              | "supports"
+              | "contradicts"
+              | "neutral"
+              | "not_relevant",
+            summary: paper.preEvalSummary || "",
+            snippet: paper.preEvalSnippet || "",
+          }
+        : undefined,
     }));
 
     const analysisResults: { [paperId: string]: PaperAnalysisResult } = {};
@@ -220,10 +240,10 @@ const SharedFactCheckPage = () => {
           <p className="text-gray-600 mb-4">
             {error || "The shared fact-check data could not be found."}
           </p>
-          <Link href="/fact-check">
+          <Link href="/">
             <Button className="flex items-center gap-2">
               <ArrowLeft size={16} />
-              Back to Fact-Check
+              Back to Home
             </Button>
           </Link>
         </div>
@@ -235,9 +255,9 @@ const SharedFactCheckPage = () => {
 
   return (
     <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center">
-      <div className="container mt-[10rem] w-2xl max-w-[90%] mx-auto">
+      <div className="container w-2xl max-w-[90%] mx-auto">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-8 mt-[10rem]">
           <div className="flex items-center justify-between mb-4">
             <Link href="/">
               <Button
@@ -245,7 +265,7 @@ const SharedFactCheckPage = () => {
                 className="flex items-center gap-2 rounded-none border border-foreground"
               >
                 <ArrowLeft size={16} />
-                Back to Fact-Check
+                Back to Home
               </Button>
             </Link>
           </div>
@@ -273,60 +293,64 @@ const SharedFactCheckPage = () => {
               </Button>
             </SignInButton>
             <Button className="w-full py-6 text-[1rem] hover:bg-[#C5C8FF] rounded-none border border-foreground bg-background text-foreground flex items-center gap-2 cursor-pointer">
-              <Link href="/fact-check">Run a new fact-check</Link>
+              <Link href="/">Run a new fact-check</Link>
             </Button>
           </div>
         )}
 
         {/* Papers Display - Show if signed in or if showPapers is true */}
         {(isSignedIn || showPapers) && (
-          <div className="space-y-4 mb-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold">
-                Found {papers.length} Relevant Papers
-              </h2>
-              <ChatDrawer
-                shareableId={shareableId}
-                directData={{
-                  statement: factCheckData.statement,
-                  keywords: factCheckData.keywords,
-                  finalVerdict: factCheckData.finalVerdict,
-                  papersCount: papers.length,
-                  papers: papers.map((paper) => ({
-                    title: paper.title,
-                    authors: paper.authors,
-                    summary: paper.summary,
-                    published: paper.published,
-                    journalName: paper.journal_name,
-                    relevanceScore: paper.relevance_score,
-                    citedByCount: paper.cited_by_count,
-                    analysis: analysisResults[paper.id]
-                      ? {
-                          supportLevel:
-                            analysisResults[paper.id].analysis?.support_level,
-                          confidence:
-                            analysisResults[paper.id].analysis?.confidence,
-                          summary: analysisResults[paper.id].analysis?.summary,
-                          keyFindings:
-                            analysisResults[paper.id].analysis?.key_findings ||
-                            [],
-                          limitations:
-                            analysisResults[paper.id].analysis?.limitations ||
-                            [],
-                        }
-                      : null,
-                  })),
-                }}
-                triggerText="Ask Questions"
-                variant="outline"
+          <div className="space-y-6">
+            {/* Papers Display */}
+            <div className="space-y-4 mb-4">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-bold">
+                  Found {papers.length} Relevant Papers
+                </h2>
+                <ChatDrawer
+                  shareableId={shareableId}
+                  directData={{
+                    statement: factCheckData.statement,
+                    keywords: factCheckData.keywords,
+                    finalVerdict: factCheckData.finalVerdict,
+                    papersCount: papers.length,
+                    papers: papers.map((paper) => ({
+                      title: paper.title,
+                      authors: paper.authors,
+                      summary: paper.summary,
+                      published: paper.published,
+                      journalName: paper.journal_name,
+                      relevanceScore: paper.relevance_score,
+                      citedByCount: paper.cited_by_count,
+                      analysis: analysisResults[paper.id]
+                        ? {
+                            supportLevel:
+                              analysisResults[paper.id].analysis?.support_level,
+                            confidence:
+                              analysisResults[paper.id].analysis?.confidence,
+                            summary:
+                              analysisResults[paper.id].analysis?.summary,
+                            keyFindings:
+                              analysisResults[paper.id].analysis
+                                ?.key_findings || [],
+                            limitations:
+                              analysisResults[paper.id].analysis?.limitations ||
+                              [],
+                          }
+                        : null,
+                    })),
+                  }}
+                  triggerText="Ask Questions"
+                  variant="outline"
+                />
+              </div>
+
+              <PaperResult
+                results={papers}
+                analysisResults={analysisResults}
+                paperFilter={paperFilter}
               />
             </div>
-
-            <PaperResult
-              results={papers}
-              analysisResults={analysisResults}
-              paperFilter={paperFilter}
-            />
           </div>
         )}
       </div>

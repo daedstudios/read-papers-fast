@@ -47,6 +47,11 @@ type FactCheckResult = {
   cited_by_count?: number;
   journal_name?: string;
   publisher?: string;
+  pre_evaluation?: {
+    verdict: "supports" | "contradicts" | "neutral" | "not_relevant";
+    summary: string;
+    snippet: string;
+  };
 };
 
 type PaperAnalysisResult = {
