@@ -16,7 +16,6 @@ import PaperResult from "@/components/find-componenets/PaperResult";
 import { ChatDrawer } from "@/components/ChatDrawer";
 import { ExternalLink, Share2, ArrowLeft, Globe } from "lucide-react";
 import Link from "next/link";
-import { SignInButton, useUser } from "@clerk/nextjs";
 
 // Types (same as in the main fact-check page)
 type FactCheckResult = {
@@ -110,7 +109,6 @@ type SharedFactCheckData = {
 const SharedFactCheckPage = () => {
   const params = useParams();
   const shareableId = params.shareableId as string;
-  const { isSignedIn, user, isLoaded } = useUser();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -119,14 +117,6 @@ const SharedFactCheckPage = () => {
   const [paperFilter, setPaperFilter] = useState<
     "contradicting" | "neutral" | "supporting" | null
   >(null);
-  const [showPapers, setShowPapers] = useState(false);
-
-  // Show papers if user is signed in
-  useEffect(() => {
-    if (isSignedIn) {
-      setShowPapers(true);
-    }
-  }, [isSignedIn]);
 
   useEffect(() => {
     const fetchSharedData = async () => {
@@ -284,75 +274,57 @@ const SharedFactCheckPage = () => {
           </div>
         )}
 
-        {/* Show Papers Button - Only show if not signed in */}
-        {!isSignedIn && !showPapers && (
-          <div className="text-center mb-8 flex flex-col items-center justify-center gap-2">
-            <SignInButton mode="modal">
-              <Button className="w-full py-6 text-[1rem] rounded-none border border-foreground bg-foreground text-background flex items-center gap-2 cursor-pointer">
-                Show detailed results
-              </Button>
-            </SignInButton>
-            <Button className="w-full py-6 text-[1rem] hover:bg-[#C5C8FF] rounded-none border border-foreground bg-background text-foreground flex items-center gap-2 cursor-pointer">
-              <Link href="/">Run a new fact-check</Link>
-            </Button>
-          </div>
-        )}
-
-        {/* Papers Display - Show if signed in or if showPapers is true */}
-        {(isSignedIn || showPapers) && (
-          <div className="space-y-6">
-            {/* Papers Display */}
-            <div className="space-y-4 mb-4">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold">
-                  Found {papers.length} Relevant Papers
-                </h2>
-                <ChatDrawer
-                  shareableId={shareableId}
-                  directData={{
-                    statement: factCheckData.statement,
-                    keywords: factCheckData.keywords,
-                    finalVerdict: factCheckData.finalVerdict,
-                    papersCount: papers.length,
-                    papers: papers.map((paper) => ({
-                      title: paper.title,
-                      authors: paper.authors,
-                      summary: paper.summary,
-                      published: paper.published,
-                      journalName: paper.journal_name,
-                      relevanceScore: paper.relevance_score,
-                      citedByCount: paper.cited_by_count,
-                      analysis: analysisResults[paper.id]
-                        ? {
-                            supportLevel:
-                              analysisResults[paper.id].analysis?.support_level,
-                            confidence:
-                              analysisResults[paper.id].analysis?.confidence,
-                            summary:
-                              analysisResults[paper.id].analysis?.summary,
-                            keyFindings:
-                              analysisResults[paper.id].analysis
-                                ?.key_findings || [],
-                            limitations:
-                              analysisResults[paper.id].analysis?.limitations ||
-                              [],
-                          }
-                        : null,
-                    })),
-                  }}
-                  triggerText="Ask Questions"
-                  variant="outline"
-                />
-              </div>
-
-              <PaperResult
-                results={papers}
-                analysisResults={analysisResults}
-                paperFilter={paperFilter}
+        {/* Papers Display */}
+        <div className="space-y-6">
+          <div className="space-y-4 mb-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold">
+                Found {papers.length} Relevant Papers
+              </h2>
+              <ChatDrawer
+                shareableId={shareableId}
+                directData={{
+                  statement: factCheckData.statement,
+                  keywords: factCheckData.keywords,
+                  finalVerdict: factCheckData.finalVerdict,
+                  papersCount: papers.length,
+                  papers: papers.map((paper) => ({
+                    title: paper.title,
+                    authors: paper.authors,
+                    summary: paper.summary,
+                    published: paper.published,
+                    journalName: paper.journal_name,
+                    relevanceScore: paper.relevance_score,
+                    citedByCount: paper.cited_by_count,
+                    analysis: analysisResults[paper.id]
+                      ? {
+                          supportLevel:
+                            analysisResults[paper.id].analysis?.support_level,
+                          confidence:
+                            analysisResults[paper.id].analysis?.confidence,
+                          summary: analysisResults[paper.id].analysis?.summary,
+                          keyFindings:
+                            analysisResults[paper.id].analysis?.key_findings ||
+                            [],
+                          limitations:
+                            analysisResults[paper.id].analysis?.limitations ||
+                            [],
+                        }
+                      : null,
+                  })),
+                }}
+                triggerText="Ask Questions"
+                variant="outline"
               />
             </div>
+
+            <PaperResult
+              results={papers}
+              analysisResults={analysisResults}
+              paperFilter={paperFilter}
+            />
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
