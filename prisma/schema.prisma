@@ -268,6 +268,11 @@ model FactCheckPaper {
   links              Json? // Store as JSON array
   createdAt          DateTime @default(now())
 
+  // Pre-evaluation fields
+  preEvalVerdict String? // supports, contradicts, neutral, not_relevant
+  preEvalSummary String?
+  preEvalSnippet String?
+
   // Relations
   factCheckSession FactCheckSession   @relation(fields: [factCheckSessionId], references: [id], onDelete: Cascade)
   analysis         FactCheckAnalysis?

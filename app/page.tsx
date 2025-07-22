@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Search,
@@ -25,7 +26,6 @@ import {
 } from "@/components/ui/card";
 import PaperResult from "@/components/find-componenets/PaperResult";
 import FinalVerdictCard from "@/components/FinalVerdictCard";
-import FeedbackToast from "@/components/fact-check-components/Feddback";
 import { ChatDrawer } from "@/components/ChatDrawer";
 import { getShareableUrl, copyToClipboard } from "@/lib/factCheckUtils";
 import posthog from "posthog-js";
@@ -47,6 +47,11 @@ type FactCheckResult = {
   cited_by_count?: number;
   journal_name?: string;
   publisher?: string;
+  pre_evaluation?: {
+    verdict: "supports" | "contradicts" | "neutral" | "not_relevant";
+    summary: string;
+    snippet: string;
+  };
 };
 
 type PaperAnalysisResult = {
@@ -78,6 +83,7 @@ type PaperAnalysisResult = {
 };
 
 const FactCheckPage = () => {
+  const router = useRouter();
   const [statement, setStatement] = useState("");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<FactCheckResult[]>([]);
@@ -111,40 +117,12 @@ const FactCheckPage = () => {
   const [shareableId, setShareableId] = useState<string | null>(null);
   const [dbSaveError, setDbSaveError] = useState<string | null>(null);
 
-  // Feedback state
-  const [showFeedbackToast, setShowFeedbackToast] = useState(false);
-
   // Debug function to log filter changes
   const handleFilterChange = (
     filter: "contradicting" | "neutral" | "supporting" | null
   ) => {
     console.log("Filter changed to:", filter);
     setPaperFilter(filter);
-  };
-
-  // Handle feedback submission
-  const handleFeedbackSubmit = async (feedback: {
-    type: "positive" | "negative" | null;
-    text: string;
-    suggestions: string;
-  }) => {
-    try {
-      // Send to analytics service
-      posthog.capture("fact_check_feedback", {
-        feedback_type: feedback.type,
-        feedback_text: feedback.text,
-        feedback_suggestions: feedback.suggestions,
-        statement_length: statement.length,
-        papers_count: results.length,
-        has_analysis: Object.keys(analysisResults).length > 0,
-        location: "fact_check_page",
-        timestamp: new Date().toISOString(),
-      });
-
-      console.log("Feedback submitted successfully:", feedback);
-    } catch (error) {
-      console.error("Error submitting feedback:", error);
-    }
   };
 
   const handleFactCheck = async () => {
@@ -175,8 +153,6 @@ const FactCheckPage = () => {
     setSavingToDb(false);
     setShareableId(null);
     setDbSaveError(null);
-    // Reset feedback state
-    setShowFeedbackToast(false);
 
     try {
       const response = await fetch("/api/fact-check/open-alex", {
@@ -208,10 +184,6 @@ const FactCheckPage = () => {
       // Automatically generate final verdict
       if (data.papers && data.papers.length > 0) {
         generateFinalVerdict(data.papers);
-        // Show feedback toast after results are loaded
-        setTimeout(() => {
-          setShowFeedbackToast(true);
-        }, 1000); // Small delay to let user see the results first
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
@@ -299,6 +271,9 @@ const FactCheckPage = () => {
         location: "fact_check_page",
         timestamp: new Date().toISOString(),
       });
+
+      // Redirect to shared page after successful save
+      router.push(`/fact-check/shared/${result.shareableId}`);
     } catch (error) {
       console.error("Error saving to database:", error);
       setDbSaveError("Failed to save data for sharing");
@@ -376,171 +351,64 @@ const FactCheckPage = () => {
         </div>
 
         {/* Three-Step Process */}
-        {results.length === 0 && (
-          <div className="flex flex-wrap gap-4 justify-start mb-8">
-            {/* Step 1 */}
-            <div className="flex-1 min-w-[280px] md:max-w-[350px] bg-[#C5C8FF] p-6 rounded-sm border border-foreground">
-              <div className="flex flex-col items-start gap-3">
-                <div className="bg-[#C5C8FF] rounded-sm">
-                  <ArrowUpFromLine size={24} className="text-foreground" />
-                </div>
-                <div>
-                  <h3 className="text-[1.5rem] font-medium text-foreground mb-2">
-                    Step 1
-                  </h3>
-                  <p className="text-foreground text-sm">
-                    Upload a post, paste a quote, or just type out the thing
-                    that made your brain twitch.
-                  </p>
-                </div>
+        <div className="flex flex-wrap gap-4 justify-start mb-8">
+          {/* Step 1 */}
+          <div className="flex-1 min-w-[280px] md:max-w-[350px] bg-[#C5C8FF] p-6 rounded-sm border border-foreground">
+            <div className="flex flex-col items-start gap-3">
+              <div className="bg-[#C5C8FF] rounded-sm">
+                <ArrowUpFromLine size={24} className="text-foreground" />
               </div>
-            </div>
-
-            {/* Step 2 */}
-            <div className="flex-1 min-w-[280px] md:max-w-[350px] bg-[#AEFFD9] p-6 rounded-sm border border-foreground">
-              <div className="flex flex-col items-start gap-3">
-                <div className="bg-[#AEFFD9]  rounded-sm">
-                  <div className="relative">
-                    <TextSearch size={24} className="text-foreground" />
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-[1.5rem] font-medium text-foreground mb-2">
-                    Step 2
-                  </h3>
-                  <p className="text-foreground text-sm">
-                    Let us search through over 200m+ papers to find real
-                    evidence backing or debunking the claim.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Step 3 */}
-            <div className="flex-1 min-w-[280px] w-full bg-[#FFBAD8] p-6 rounded-sm border border-foreground">
-              <div className="flex flex-col items-start gap-3">
-                <div className="bg-[#FFBAD8] rounded-sm">
-                  <Gavel size={24} className="text-foreground" />
-                </div>
-                <div>
-                  <h3 className="text-[1.5rem] font-medium text-foreground mb-2">
-                    Step 3
-                  </h3>
-                  <p className="text-foreground text-sm">
-                    Get a science-backed verdict and share it where the nonsense
-                    started.
-                  </p>
-                </div>
+              <div>
+                <h3 className="text-[1.5rem] font-medium text-foreground mb-2">
+                  Step 1
+                </h3>
+                <p className="text-foreground text-sm">
+                  Upload a post, paste a quote, or just type out the thing that
+                  made your brain twitch.
+                </p>
               </div>
             </div>
           </div>
-        )}
 
-        {/* Results and Deep Analysis */}
-        {results.length > 0 && !loading && (
-          <div className="space-y-6">
-            {/* Final Verdict Loading State */}
-            {generatingVerdict && (
-              <div className="text-center py-8 mb-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-foreground mx-auto mb-4"></div>
-                <p className="text-foreground">Generating final verdict...</p>
+          {/* Step 2 */}
+          <div className="flex-1 min-w-[280px] md:max-w-[350px] bg-[#AEFFD9] p-6 rounded-sm border border-foreground">
+            <div className="flex flex-col items-start gap-3">
+              <div className="bg-[#AEFFD9]  rounded-sm">
+                <div className="relative">
+                  <TextSearch size={24} className="text-foreground" />
+                </div>
               </div>
-            )}
-
-            {/* Final Verdict Display */}
-            {finalVerdict && (
-              <div className="mb-8">
-                <FinalVerdictCard
-                  verdict={finalVerdict}
-                  statement={statement}
-                  onFilterChange={handleFilterChange}
-                  currentFilter={paperFilter}
-                  shareableId={shareableId}
-                />
-
-                {dbSaveError && (
-                  <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-sm">
-                    <span className="text-red-700">⚠ {dbSaveError}</span>
-                  </div>
-                )}
+              <div>
+                <h3 className="text-[1.5rem] font-medium text-foreground mb-2">
+                  Step 2
+                </h3>
+                <p className="text-foreground text-sm">
+                  Let us search through over 200m+ papers to find real evidence
+                  backing or debunking the claim.
+                </p>
               </div>
-            )}
-
-            {/* Papers Display */}
-            <div className="space-y-4 mb-4">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold">
-                  Found {results.length} Relevant Papers
-                </h2>
-                {(shareableId || (results.length > 0 && finalVerdict)) && (
-                  <ChatDrawer
-                    shareableId={shareableId || undefined}
-                    directData={{
-                      statement,
-                      keywords,
-                      finalVerdict,
-                      papersCount: results.length,
-                      papers: results.map((paper) => ({
-                        title: paper.title,
-                        authors: paper.authors,
-                        summary: paper.summary,
-                        published: paper.published,
-                        journalName: paper.journal_name,
-                        relevanceScore: paper.relevance_score,
-                        citedByCount: paper.cited_by_count,
-                        analysis: analysisResults[paper.id]
-                          ? {
-                              supportLevel:
-                                analysisResults[paper.id].analysis
-                                  ?.support_level,
-                              confidence:
-                                analysisResults[paper.id].analysis?.confidence,
-                              summary:
-                                analysisResults[paper.id].analysis?.summary,
-                              keyFindings:
-                                analysisResults[paper.id].analysis
-                                  ?.key_findings || [],
-                              limitations:
-                                analysisResults[paper.id].analysis
-                                  ?.limitations || [],
-                            }
-                          : null,
-                      })),
-                    }}
-                    triggerText="Ask Questions"
-                    variant="outline"
-                  />
-                )}
-              </div>
-
-              <PaperResult
-                results={results}
-                analysisResults={analysisResults}
-                paperFilter={paperFilter}
-              />
             </div>
           </div>
-        )}
 
-        {/* No Results */}
-        {results.length === 0 && !loading && keywords.length > 0 && (
-          <Card>
-            <CardContent className="text-center py-8">
-              <p className="text-gray-600">
-                No relevant papers found for your statement. Try rephrasing or
-                using different terms.
-              </p>
-            </CardContent>
-          </Card>
-        )}
+          {/* Step 3 */}
+          <div className="flex-1 min-w-[280px] w-full bg-[#FFBAD8] p-6 rounded-sm border border-foreground">
+            <div className="flex flex-col items-start gap-3">
+              <div className="bg-[#FFBAD8] rounded-sm">
+                <Gavel size={24} className="text-foreground" />
+              </div>
+              <div>
+                <h3 className="text-[1.5rem] font-medium text-foreground mb-2">
+                  Step 3
+                </h3>
+                <p className="text-foreground text-sm">
+                  Get a science-backed verdict and share it where the nonsense
+                  started.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-
-      {/* Feedback Toast */}
-      <FeedbackToast
-        isVisible={showFeedbackToast}
-        onClose={() => setShowFeedbackToast(false)}
-        onSubmit={handleFeedbackSubmit}
-      />
     </div>
   );
 };

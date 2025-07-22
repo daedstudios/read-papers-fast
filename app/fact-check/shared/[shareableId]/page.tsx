@@ -14,9 +14,10 @@ import { Badge } from "@/components/ui/badge";
 import FinalVerdictCard from "@/components/FinalVerdictCard";
 import PaperResult from "@/components/find-componenets/PaperResult";
 import { ChatDrawer } from "@/components/ChatDrawer";
+import FeedbackToast from "@/components/fact-check-components/Feddback";
 import { ExternalLink, Share2, ArrowLeft, Globe } from "lucide-react";
 import Link from "next/link";
-import { SignInButton, useUser } from "@clerk/nextjs";
+import posthog from "posthog-js";
 
 // Types (same as in the main fact-check page)
 type FactCheckResult = {
@@ -35,6 +36,11 @@ type FactCheckResult = {
   cited_by_count?: number;
   journal_name?: string;
   publisher?: string;
+  pre_evaluation?: {
+    verdict: "supports" | "contradicts" | "neutral" | "not_relevant";
+    summary: string;
+    snippet: string;
+  };
 };
 
 type PaperAnalysisResult = {
@@ -85,6 +91,9 @@ type SharedFactCheckData = {
     relevanceScore?: number;
     citedByCount?: number;
     links: any;
+    preEvalVerdict?: string;
+    preEvalSummary?: string;
+    preEvalSnippet?: string;
     analysis?: {
       pdfUrl?: string;
       analysisMethod?: string;
@@ -102,7 +111,6 @@ type SharedFactCheckData = {
 const SharedFactCheckPage = () => {
   const params = useParams();
   const shareableId = params.shareableId as string;
-  const { isSignedIn, user, isLoaded } = useUser();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -111,14 +119,7 @@ const SharedFactCheckPage = () => {
   const [paperFilter, setPaperFilter] = useState<
     "contradicting" | "neutral" | "supporting" | null
   >(null);
-  const [showPapers, setShowPapers] = useState(false);
-
-  // Show papers if user is signed in
-  useEffect(() => {
-    if (isSignedIn) {
-      setShowPapers(true);
-    }
-  }, [isSignedIn]);
+  const [showFeedbackToast, setShowFeedbackToast] = useState(false);
 
   useEffect(() => {
     const fetchSharedData = async () => {
@@ -143,6 +144,13 @@ const SharedFactCheckPage = () => {
 
     if (shareableId) {
       fetchSharedData();
+
+      // Show feedback toast 3 seconds after page loads
+      const feedbackTimer = setTimeout(() => {
+        setShowFeedbackToast(true);
+      }, 3000);
+
+      return () => clearTimeout(feedbackTimer);
     }
   }, [shareableId]);
 
@@ -150,6 +158,31 @@ const SharedFactCheckPage = () => {
     filter: "contradicting" | "neutral" | "supporting" | null
   ) => {
     setPaperFilter(filter);
+  };
+
+  // Handle feedback submission
+  const handleFeedbackSubmit = async (feedback: {
+    type: "positive" | "negative" | null;
+    text: string;
+    suggestions: string;
+  }) => {
+    try {
+      // Send to analytics service
+      posthog.capture("fact_check_feedback", {
+        feedback_type: feedback.type,
+        feedback_text: feedback.text,
+        feedback_suggestions: feedback.suggestions,
+        statement_length: factCheckData?.statement.length || 0,
+        papers_count: factCheckData?.papers.length || 0,
+        location: "shared_fact_check_page",
+        shareable_id: shareableId,
+        timestamp: new Date().toISOString(),
+      });
+
+      console.log("Feedback submitted successfully:", feedback);
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+    }
   };
 
   const handleShare = async () => {
@@ -175,6 +208,18 @@ const SharedFactCheckPage = () => {
       cited_by_count: paper.citedByCount,
       journal_name: paper.journalName,
       publisher: paper.publisher,
+      // Add pre_evaluation data if available
+      pre_evaluation: paper.preEvalVerdict
+        ? {
+            verdict: paper.preEvalVerdict as
+              | "supports"
+              | "contradicts"
+              | "neutral"
+              | "not_relevant",
+            summary: paper.preEvalSummary || "",
+            snippet: paper.preEvalSnippet || "",
+          }
+        : undefined,
     }));
 
     const analysisResults: { [paperId: string]: PaperAnalysisResult } = {};
@@ -220,10 +265,10 @@ const SharedFactCheckPage = () => {
           <p className="text-gray-600 mb-4">
             {error || "The shared fact-check data could not be found."}
           </p>
-          <Link href="/fact-check">
+          <Link href="/">
             <Button className="flex items-center gap-2">
               <ArrowLeft size={16} />
-              Back to Fact-Check
+              Back to Home
             </Button>
           </Link>
         </div>
@@ -235,9 +280,9 @@ const SharedFactCheckPage = () => {
 
   return (
     <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center">
-      <div className="container mt-[10rem] w-2xl max-w-[90%] mx-auto">
+      <div className="container w-2xl max-w-[90%] mx-auto">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-8 mt-[10rem]">
           <div className="flex items-center justify-between mb-4">
             <Link href="/">
               <Button
@@ -245,7 +290,7 @@ const SharedFactCheckPage = () => {
                 className="flex items-center gap-2 rounded-none border border-foreground"
               >
                 <ArrowLeft size={16} />
-                Back to Fact-Check
+                Back to Home
               </Button>
             </Link>
           </div>
@@ -264,22 +309,8 @@ const SharedFactCheckPage = () => {
           </div>
         )}
 
-        {/* Show Papers Button - Only show if not signed in */}
-        {!isSignedIn && !showPapers && (
-          <div className="text-center mb-8 flex flex-col items-center justify-center gap-2">
-            <SignInButton mode="modal">
-              <Button className="w-full py-6 text-[1rem] rounded-none border border-foreground bg-foreground text-background flex items-center gap-2 cursor-pointer">
-                Show detailed results
-              </Button>
-            </SignInButton>
-            <Button className="w-full py-6 text-[1rem] hover:bg-[#C5C8FF] rounded-none border border-foreground bg-background text-foreground flex items-center gap-2 cursor-pointer">
-              <Link href="/fact-check">Run a new fact-check</Link>
-            </Button>
-          </div>
-        )}
-
-        {/* Papers Display - Show if signed in or if showPapers is true */}
-        {(isSignedIn || showPapers) && (
+        {/* Papers Display */}
+        <div className="space-y-6">
           <div className="space-y-4 mb-4">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-bold">
@@ -328,8 +359,15 @@ const SharedFactCheckPage = () => {
               paperFilter={paperFilter}
             />
           </div>
-        )}
+        </div>
       </div>
+
+      {/* Feedback Toast */}
+      <FeedbackToast
+        isVisible={showFeedbackToast}
+        onClose={() => setShowFeedbackToast(false)}
+        onSubmit={handleFeedbackSubmit}
+      />
     </div>
   );
 };
