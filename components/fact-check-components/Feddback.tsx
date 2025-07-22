@@ -156,7 +156,7 @@ export default function FeedbackToast({
                     <Button
                       onClick={handleSubmit}
                       size="sm"
-                      className="flex-1 h-8 text-xs border text-foreground rounded-sm border-foreground bg-[#C5C8FF]  hover:bg-gray-800"
+                      className="flex-1 h-8 text-xs border text-foreground rounded-sm border-foreground bg-[#C5C8FF]  hover:bg-white hover:text-foreground"
                     >
                       Submit Feedback
                     </Button>

@@ -14,8 +14,10 @@ import { Badge } from "@/components/ui/badge";
 import FinalVerdictCard from "@/components/FinalVerdictCard";
 import PaperResult from "@/components/find-componenets/PaperResult";
 import { ChatDrawer } from "@/components/ChatDrawer";
+import FeedbackToast from "@/components/fact-check-components/Feddback";
 import { ExternalLink, Share2, ArrowLeft, Globe } from "lucide-react";
 import Link from "next/link";
+import posthog from "posthog-js";
 
 // Types (same as in the main fact-check page)
 type FactCheckResult = {
@@ -117,6 +119,7 @@ const SharedFactCheckPage = () => {
   const [paperFilter, setPaperFilter] = useState<
     "contradicting" | "neutral" | "supporting" | null
   >(null);
+  const [showFeedbackToast, setShowFeedbackToast] = useState(false);
 
   useEffect(() => {
     const fetchSharedData = async () => {
@@ -141,6 +144,13 @@ const SharedFactCheckPage = () => {
 
     if (shareableId) {
       fetchSharedData();
+
+      // Show feedback toast 3 seconds after page loads
+      const feedbackTimer = setTimeout(() => {
+        setShowFeedbackToast(true);
+      }, 3000);
+
+      return () => clearTimeout(feedbackTimer);
     }
   }, [shareableId]);
 
@@ -148,6 +158,31 @@ const SharedFactCheckPage = () => {
     filter: "contradicting" | "neutral" | "supporting" | null
   ) => {
     setPaperFilter(filter);
+  };
+
+  // Handle feedback submission
+  const handleFeedbackSubmit = async (feedback: {
+    type: "positive" | "negative" | null;
+    text: string;
+    suggestions: string;
+  }) => {
+    try {
+      // Send to analytics service
+      posthog.capture("fact_check_feedback", {
+        feedback_type: feedback.type,
+        feedback_text: feedback.text,
+        feedback_suggestions: feedback.suggestions,
+        statement_length: factCheckData?.statement.length || 0,
+        papers_count: factCheckData?.papers.length || 0,
+        location: "shared_fact_check_page",
+        shareable_id: shareableId,
+        timestamp: new Date().toISOString(),
+      });
+
+      console.log("Feedback submitted successfully:", feedback);
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+    }
   };
 
   const handleShare = async () => {
@@ -326,6 +361,13 @@ const SharedFactCheckPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Feedback Toast */}
+      <FeedbackToast
+        isVisible={showFeedbackToast}
+        onClose={() => setShowFeedbackToast(false)}
+        onSubmit={handleFeedbackSubmit}
+      />
     </div>
   );
 };

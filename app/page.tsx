@@ -26,7 +26,6 @@ import {
 } from "@/components/ui/card";
 import PaperResult from "@/components/find-componenets/PaperResult";
 import FinalVerdictCard from "@/components/FinalVerdictCard";
-import FeedbackToast from "@/components/fact-check-components/Feddback";
 import { ChatDrawer } from "@/components/ChatDrawer";
 import { getShareableUrl, copyToClipboard } from "@/lib/factCheckUtils";
 import posthog from "posthog-js";
@@ -118,40 +117,12 @@ const FactCheckPage = () => {
   const [shareableId, setShareableId] = useState<string | null>(null);
   const [dbSaveError, setDbSaveError] = useState<string | null>(null);
 
-  // Feedback state
-  const [showFeedbackToast, setShowFeedbackToast] = useState(false);
-
   // Debug function to log filter changes
   const handleFilterChange = (
     filter: "contradicting" | "neutral" | "supporting" | null
   ) => {
     console.log("Filter changed to:", filter);
     setPaperFilter(filter);
-  };
-
-  // Handle feedback submission
-  const handleFeedbackSubmit = async (feedback: {
-    type: "positive" | "negative" | null;
-    text: string;
-    suggestions: string;
-  }) => {
-    try {
-      // Send to analytics service
-      posthog.capture("fact_check_feedback", {
-        feedback_type: feedback.type,
-        feedback_text: feedback.text,
-        feedback_suggestions: feedback.suggestions,
-        statement_length: statement.length,
-        papers_count: results.length,
-        has_analysis: Object.keys(analysisResults).length > 0,
-        location: "fact_check_page",
-        timestamp: new Date().toISOString(),
-      });
-
-      console.log("Feedback submitted successfully:", feedback);
-    } catch (error) {
-      console.error("Error submitting feedback:", error);
-    }
   };
 
   const handleFactCheck = async () => {
@@ -182,8 +153,6 @@ const FactCheckPage = () => {
     setSavingToDb(false);
     setShareableId(null);
     setDbSaveError(null);
-    // Reset feedback state
-    setShowFeedbackToast(false);
 
     try {
       const response = await fetch("/api/fact-check/open-alex", {
@@ -215,10 +184,6 @@ const FactCheckPage = () => {
       // Automatically generate final verdict
       if (data.papers && data.papers.length > 0) {
         generateFinalVerdict(data.papers);
-        // Show feedback toast after results are loaded
-        setTimeout(() => {
-          setShowFeedbackToast(true);
-        }, 1000); // Small delay to let user see the results first
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
@@ -444,13 +409,6 @@ const FactCheckPage = () => {
           </div>
         </div>
       </div>
-
-      {/* Feedback Toast */}
-      <FeedbackToast
-        isVisible={showFeedbackToast}
-        onClose={() => setShowFeedbackToast(false)}
-        onSubmit={handleFeedbackSubmit}
-      />
     </div>
   );
 };
