@@ -23,10 +23,10 @@ export default function SignUpForm({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0  bg-foreground/30 bg-blur-lg flex items-center justify-center z-50 p-4">
       <Card className="w-full max-w-md bg-white border border-foreground rounded-sm shadow-none">
         <CardHeader className="relative">
-          {onClose && (
+          {/* {onClose && (
             <Button
               variant="ghost"
               size="sm"
@@ -35,19 +35,18 @@ export default function SignUpForm({
             >
               <X size={16} />
             </Button>
-          )}
-          <CardTitle className="text-2xl text-center">
-            Get unlimited searches
+          )} */}
+          <CardTitle className="text-[1.5rem] font-bold text-center">
+            Keep Fact-Checking – It’s Free
           </CardTitle>
           <p className="text-sm text-muted-foreground text-center mt-2">
-            You have used {2 - remainingSearches} of 2 free searches. Sign up to
-            continue fact-checking unlimited claims.
+            Sign up for free to continue fact-checking unlimited claims.
           </p>
-          <div className="text-center mt-3 px-4 py-2 bg-green-50 rounded-sm border border-green-200">
+          {/* <div className="text-center mt-3 px-4 py-2 bg-green-50 border border-green-200">
             <p className="text-xs text-green-700 font-medium">
               🎉 No credit card required • 100% free forever
             </p>
-          </div>
+          </div> */}
         </CardHeader>
 
         <CardContent>
@@ -55,30 +54,30 @@ export default function SignUpForm({
             <div className="space-y-4">
               <div className="flex flex-col gap-2">
                 <SignUpButton>
-                  <Button className="w-full py-3 rounded-sm border border-foreground bg-foreground text-background hover:bg-foreground/90">
-                    Sign Up - Free Forever
+                  <Button className="w-full py-5 text-[1rem] rounded-none border border-foreground bg-foreground text-background hover:bg-foreground/90">
+                    Sign Up for free
                   </Button>
                 </SignUpButton>
 
                 <div className="text-center text-xs text-muted-foreground">
-                  No credit card • Takes 30 seconds
+                  No credit card required (takes 30 seconds)
                 </div>
 
-                <div className="text-center text-sm text-muted-foreground">
-                  or
-                </div>
+                <div className="text-center text-sm text-foreground">or</div>
 
                 <SignInButton>
                   <Button
                     variant="outline"
-                    className="w-full py-3 rounded-sm border border-foreground bg-background text-foreground hover:bg-muted"
+                    className="w-full py-5 text-[1rem] rounded-none border border-foreground bg-background text-foreground hover:bg-[#C5C8FF]"
                   >
-                    Log In
+                    Log in if you already have an account
                   </Button>
                 </SignInButton>
               </div>
-
-              <div className="mt-6 pt-4 border-t border-muted">
+              <div className="mt-3 text-muted-foreground text-center text-sm">
+                Trusted by hundreds of curious minds
+              </div>
+              {/* <div className="mt-6 pt-4 border-t border-muted justify-center text-center">
                 <h4 className="text-sm font-medium mb-2">
                   With your free account, you get:
                 </h4>
@@ -96,26 +95,13 @@ export default function SignUpForm({
                   <li>• Priority support</li>
                 </ul>
                 <div className="mt-3 text-xs text-center text-muted-foreground">
-                  Always free • No subscription • No hidden fees
+                  Trusted by hundreds of curious minds
                 </div>
-              </div>
+              </div> */}
             </div>
           </SignedOut>
 
-          <SignedIn>
-            <div className="text-center space-y-4">
-              <div className="text-green-600 text-lg">✅ You're signed in!</div>
-              <p className="text-sm text-muted-foreground">
-                You now have unlimited access to fact-checking searches.
-              </p>
-              <Button
-                onClick={handleSuccess}
-                className="w-full py-3 rounded-sm border border-foreground bg-foreground text-background"
-              >
-                Continue
-              </Button>
-            </div>
-          </SignedIn>
+        
         </CardContent>
       </Card>
     </div>
