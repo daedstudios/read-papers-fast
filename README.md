@@ -29,3 +29,42 @@
 ```bash
 git clone https://github.com/yourusername/find-papers-fast.git
 cd find-papers-fast
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Set up authentication with Clerk:
+   - Create a free account at [Clerk.dev](https://clerk.dev)
+   - Create a new application in your Clerk dashboard
+   - Copy your publishable key and secret key
+   - Create a `.env.local` file and add your Clerk keys:
+
+```bash
+cp .env.example .env.local
+# Edit .env.local with your actual Clerk keys
+```
+
+4. Run the development server:
+
+```bash
+npm run dev
+```
+
+---
+
+## 🔐 Authentication & Search Limits
+
+This app includes built-in search limiting for unauthenticated users:
+
+- **Free users**: 2 searches per session (stored in localStorage)
+- **Signed-in users**: Unlimited searches
+- **Smooth sign-up flow**: When users hit the limit, they're prompted to sign up via Clerk
+
+The search limiter automatically respects authentication status:
+
+- Signed-in users bypass all search limits
+- Only anonymous users are subject to the localStorage-based limiting
