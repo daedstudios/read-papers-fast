@@ -381,15 +381,7 @@ const FactCheckPage = () => {
                 className="w-full py-3 text-[1rem] rounded-none border border-foreground bg-foreground text-background flex items-center gap-2 cursor-pointer"
                 disabled={isBusy || (!isSignedIn && limiterLoading)}
               >
-                {!isSignedIn && isLimitReached
-                  ? "Sign up to fact check"
-                  : isSignedIn
-                  ? "fact check"
-                  : `fact check${
-                      !limiterLoading && remainingSearches > 0
-                        ? ` (${remainingSearches} left)`
-                        : ""
-                    }`}
+                fact check
                 <Globe size={16} />
               </Button>
             )}
