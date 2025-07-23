@@ -28,6 +28,9 @@ import PaperResult from "@/components/find-componenets/PaperResult";
 import FinalVerdictCard from "@/components/FinalVerdictCard";
 import { ChatDrawer } from "@/components/ChatDrawer";
 import { getShareableUrl, copyToClipboard } from "@/lib/factCheckUtils";
+import { useSearchLimiter } from "@/hooks/useSearchLimiter";
+import SignUpForm from "@/components/fact-check-components/signUpForm";
+import { useUser } from "@clerk/nextjs";
 import posthog from "posthog-js";
 
 // Types for our fact-check results
@@ -84,11 +87,30 @@ type PaperAnalysisResult = {
 
 const FactCheckPage = () => {
   const router = useRouter();
+  const { isSignedIn, user } = useUser();
   const [statement, setStatement] = useState("");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<FactCheckResult[]>([]);
   const [keywords, setKeywords] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  // Search limiter hook - only use if user is not signed in
+  const {
+    isLimitReached,
+    increment,
+    remainingSearches,
+    isLoading: limiterLoading,
+  } = useSearchLimiter();
+
+  // Sign-up form state
+  const [showSignUpForm, setShowSignUpForm] = useState(false);
+
+  // Close sign-up form if user signs in
+  useEffect(() => {
+    if (isSignedIn && showSignUpForm) {
+      setShowSignUpForm(false);
+    }
+  }, [isSignedIn, showSignUpForm]);
 
   // Analysis state
   const [analyzing, setAnalyzing] = useState(false);
@@ -131,6 +153,12 @@ const FactCheckPage = () => {
       return;
     }
 
+    // Check if user has reached the search limit (only for non-signed in users)
+    if (!isSignedIn && isLimitReached) {
+      setShowSignUpForm(true);
+      return;
+    }
+
     // PostHog event tracking for fact-check search
     posthog.capture("fact_check_search", {
       statement_length: statement.length,
@@ -170,6 +198,11 @@ const FactCheckPage = () => {
       const data = await response.json();
       setResults(data.papers);
       setKeywords(data.keywords);
+
+      // Increment search count on successful paper search (only for non-signed in users)
+      if (!isSignedIn) {
+        increment();
+      }
 
       // PostHog event tracking for successful search results
       posthog.capture("fact_check_results", {
@@ -287,7 +320,11 @@ const FactCheckPage = () => {
   const progressRef = useRef<NodeJS.Timeout | null>(null);
 
   // Combine all busy states for UI feedback
-  const isBusy = loading || generatingVerdict || savingToDb;
+  const isBusy =
+    loading ||
+    generatingVerdict ||
+    savingToDb ||
+    (!isSignedIn && limiterLoading);
 
   // Animate progress bar with a fixed timer when busy
   useEffect(() => {
@@ -342,9 +379,17 @@ const FactCheckPage = () => {
               <Button
                 onClick={handleFactCheck}
                 className="w-full py-3 text-[1rem] rounded-none border border-foreground bg-foreground text-background flex items-center gap-2 cursor-pointer"
-                disabled={isBusy}
+                disabled={isBusy || (!isSignedIn && limiterLoading)}
               >
-                fact check
+                {!isSignedIn && isLimitReached
+                  ? "Sign up to fact check"
+                  : isSignedIn
+                  ? "fact check"
+                  : `fact check${
+                      !limiterLoading && remainingSearches > 0
+                        ? ` (${remainingSearches} left)`
+                        : ""
+                    }`}
                 <Globe size={16} />
               </Button>
             )}
@@ -423,6 +468,19 @@ const FactCheckPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Sign-up form modal */}
+      {showSignUpForm && (
+        <SignUpForm
+          onClose={() => setShowSignUpForm(false)}
+          onSuccess={() => {
+            setShowSignUpForm(false);
+            // You could also reset the search limiter here if needed
+            // or handle the successful authentication
+          }}
+          remainingSearches={remainingSearches}
+        />
+      )}
     </div>
   );
 };
