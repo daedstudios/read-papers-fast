@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Send, MessageCircle, X } from "lucide-react";
 import { useChat } from "ai/react";
+import { usePostHog } from "posthog-js/react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -39,10 +40,17 @@ export function ChatDrawer({
   const [isLoadingData, setIsLoadingData] = React.useState(false);
   const [dataError, setDataError] = React.useState<string | null>(null);
   const scrollAreaRef = React.useRef<HTMLDivElement>(null);
+  const posthog = usePostHog();
 
   // Fetch fact-check data when component mounts or shareableId changes
   React.useEffect(() => {
     if (shareableId && isOpen) {
+      // Track chat drawer opened
+      posthog.capture("chat_drawer_opened", {
+        shareableId,
+        triggerText,
+      });
+
       setIsLoadingData(true);
       setDataError(null);
 
@@ -56,6 +64,13 @@ export function ChatDrawer({
         .then((result) => {
           if (result.success) {
             setFactCheckData(result.data);
+            // Track successful data load
+            posthog.capture("chat_data_loaded", {
+              shareableId,
+              papersCount: result.data.papers?.length || 0,
+              hasStatement: !!result.data.statement,
+              hasKeywords: !!result.data.keywords?.length,
+            });
           } else {
             throw new Error(result.error || "Unknown error");
           }
@@ -83,9 +98,26 @@ export function ChatDrawer({
     (e: React.FormEvent) => {
       e.preventDefault();
       if (!input.trim() || isLoading) return;
+
+      // Track message sent
+      posthog.capture("chat_message_sent", {
+        shareableId,
+        messageLength: input.trim().length,
+        messageNumber: messages.length + 1,
+        hasFactCheckData: !!factCheckData,
+      });
+
       handleSubmit(e);
     },
-    [input, isLoading, handleSubmit]
+    [
+      input,
+      isLoading,
+      handleSubmit,
+      posthog,
+      shareableId,
+      messages.length,
+      factCheckData,
+    ]
   );
 
   // Auto-scroll to bottom when new messages arrive
@@ -100,13 +132,45 @@ export function ChatDrawer({
     }
   }, [messages]);
 
+  // Track when assistant responds
+  React.useEffect(() => {
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.role === "assistant") {
+        posthog.capture("chat_response_received", {
+          shareableId,
+          responseLength: lastMessage.content.length,
+          conversationLength: messages.length,
+          responseTime: lastMessage.createdAt
+            ? new Date().getTime() - new Date(lastMessage.createdAt).getTime()
+            : null,
+        });
+      }
+    }
+  }, [messages, posthog, shareableId]);
+
+  // Track when drawer is closed
+  const handleDrawerChange = React.useCallback(
+    (open: boolean) => {
+      setIsOpen(open);
+      if (!open && messages.length > 0) {
+        posthog.capture("chat_drawer_closed", {
+          shareableId,
+          conversationLength: messages.length,
+          sessionDuration: null, // Could track this with a start time if needed
+        });
+      }
+    },
+    [messages.length, posthog, shareableId]
+  );
+
   // Show the drawer if we have shareableId
   if (!shareableId) {
     return null;
   }
 
   return (
-    <Drawer open={isOpen} onOpenChange={setIsOpen}>
+    <Drawer open={isOpen} onOpenChange={handleDrawerChange}>
       <DrawerTrigger asChild>
         <Button variant={variant} className="gap-2">
           <MessageCircle className="h-4 w-4" />
