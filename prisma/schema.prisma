@@ -299,3 +299,18 @@ model FactCheckAnalysis {
 
   @@index([factCheckPaperId])
 }
+
+model Feedback {
+  id          String   @id @default(cuid())
+  type        String? // positive, negative, or null
+  text        String? // feedback text
+  suggestions String? // suggestions for improvement
+  sessionId   String? // optional session identifier
+  userAgent   String? // browser/device info
+  url         String? // page where feedback was given
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([createdAt])
+  @@index([type])
+}
