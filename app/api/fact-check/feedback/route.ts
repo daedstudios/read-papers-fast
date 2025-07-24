@@ -8,10 +8,10 @@ export async function POST(req: NextRequest) {
     console.log('Available models:', Object.keys(prisma).filter(key => !key.startsWith('$')));
 
     const body = await req.json();
-    const { type, text, suggestions, sessionId } = body;
+    const { type, text, suggestions, age, purpose, sessionId } = body;
 
     // Validate input
-    if (!type && !text && !suggestions) {
+    if (!type && !text && !suggestions && !age && !purpose) {
       return NextResponse.json(
         { error: 'At least one feedback field is required' },
         { status: 400 }
@@ -38,6 +38,8 @@ export async function POST(req: NextRequest) {
         type: type || null,
         text: text || null,
         suggestions: suggestions || null,
+        age: age || null,
+        purpose: purpose || null,
         sessionId: sessionId || null,
         userAgent,
         url: referer,

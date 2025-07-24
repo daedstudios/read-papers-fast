@@ -12,6 +12,8 @@ interface FeedbackToastProps {
     type: "positive" | "negative" | null;
     text: string;
     suggestions: string;
+    age: string;
+    purpose: string;
   }) => void;
 }
 
@@ -67,6 +69,8 @@ export default function FeedbackToast({
           type: feedbackType,
           text: feedbackText || null,
           suggestions: suggestions || null,
+          age: feedbackAge || null,
+          purpose: feedbackPurpose || null,
           sessionId: null, // You can pass a session ID if available
         }),
       });
@@ -76,7 +80,13 @@ export default function FeedbackToast({
         console.log("Feedback saved successfully:", result);
 
         // Call the original onSubmit for any additional handling
-        onSubmit({ type: feedbackType, text: feedbackText, suggestions });
+        onSubmit({
+          type: feedbackType,
+          text: feedbackText,
+          suggestions,
+          age: feedbackAge,
+          purpose: feedbackPurpose,
+        });
         setIsSubmitted(true);
 
         // Auto close after 2 seconds

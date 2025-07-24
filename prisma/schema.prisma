@@ -305,6 +305,8 @@ model Feedback {
   type        String? // positive, negative, or null
   text        String? // feedback text
   suggestions String? // suggestions for improvement
+  age         String? // user age range
+  purpose     String? // what user is here for
   sessionId   String? // optional session identifier
   userAgent   String? // browser/device info
   url         String? // page where feedback was given
@@ -313,4 +315,5 @@ model Feedback {
 
   @@index([createdAt])
   @@index([type])
+  @@index([age])
 }
