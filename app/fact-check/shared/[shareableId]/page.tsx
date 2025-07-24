@@ -165,6 +165,8 @@ const SharedFactCheckPage = () => {
     type: "positive" | "negative" | null;
     text: string;
     suggestions: string;
+    age: string;
+    purpose: string;
   }) => {
     try {
       // Send to analytics service
@@ -172,6 +174,8 @@ const SharedFactCheckPage = () => {
         feedback_type: feedback.type,
         feedback_text: feedback.text,
         feedback_suggestions: feedback.suggestions,
+        feedback_age: feedback.age,
+        feedback_purpose: feedback.purpose,
         statement_length: factCheckData?.statement.length || 0,
         papers_count: factCheckData?.papers.length || 0,
         location: "shared_fact_check_page",
