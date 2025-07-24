@@ -316,41 +316,7 @@ const SharedFactCheckPage = () => {
               <h2 className="text-2xl font-bold">
                 Found {papers.length} Relevant Papers
               </h2>
-              <ChatDrawer
-                shareableId={shareableId}
-                directData={{
-                  statement: factCheckData.statement,
-                  keywords: factCheckData.keywords,
-                  finalVerdict: factCheckData.finalVerdict,
-                  papersCount: papers.length,
-                  papers: papers.map((paper) => ({
-                    title: paper.title,
-                    authors: paper.authors,
-                    summary: paper.summary,
-                    published: paper.published,
-                    journalName: paper.journal_name,
-                    relevanceScore: paper.relevance_score,
-                    citedByCount: paper.cited_by_count,
-                    analysis: analysisResults[paper.id]
-                      ? {
-                          supportLevel:
-                            analysisResults[paper.id].analysis?.support_level,
-                          confidence:
-                            analysisResults[paper.id].analysis?.confidence,
-                          summary: analysisResults[paper.id].analysis?.summary,
-                          keyFindings:
-                            analysisResults[paper.id].analysis?.key_findings ||
-                            [],
-                          limitations:
-                            analysisResults[paper.id].analysis?.limitations ||
-                            [],
-                        }
-                      : null,
-                  })),
-                }}
-                triggerText="Ask Questions"
-                variant="outline"
-              />
+              <ChatDrawer shareableId={shareableId} />
             </div>
 
             <PaperResult
