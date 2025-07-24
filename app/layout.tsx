@@ -23,17 +23,17 @@ import TopLeftBrand from "@/components/TopLeftBrand";
 function LayoutContent({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <header className="flex flex-row absolute p-[1rem] w-screen justify-between bg-transparent z-100">
+      <header className="flex flex-row absolute md:fixed top-0 left-0 right-0 p-[1rem] w-screen  justify-between bg-transparent z-[100]">
         <TopLeftBrand />
         <div className="flex flex-row gap-2">
           <SignedOut>
             <SignInButton>
-              <Button className="bg-background/30 w-auto p-4 text-foreground cursor-pointer rounded-[3rem] border border-muted/30 hover:bg-background/10 hover:text-background">
+              <Button className="bg-background w-auto p-4 text-foreground cursor-pointer rounded-none border border-foreground hover:bg-[#C5C8FF] shadow-none">
                 Log In
               </Button>
             </SignInButton>
             <SignUpButton>
-              <Button className="bg-foreground w-auto p-4 text-background cursor-pointer rounded-[3rem]  hover:bg-foreground/30">
+              <Button className="bg-foreground w-auto p-4 text-background cursor-pointer rounded-none  hover:bg-muted-foreground shadow-none">
                 Sign Up
               </Button>
             </SignUpButton>
