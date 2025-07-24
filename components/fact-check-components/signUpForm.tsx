@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { X } from "lucide-react";
 import { SignInButton, SignUpButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import posthog from "posthog-js";
 
 interface SignUpFormProps {
   onClose?: () => void;
@@ -17,9 +18,20 @@ export default function SignUpForm({
   remainingSearches = 0,
 }: SignUpFormProps) {
   const handleSuccess = () => {
+    posthog.capture("sign_up_completed", {
+      timestamp: new Date().toISOString(),
+      // Optionally add more user info here if available
+    });
     if (onSuccess) {
       onSuccess();
     }
+  };
+
+  const handleSignUpClick = () => {
+    posthog.capture("sign_up_clicked", {
+      timestamp: new Date().toISOString(),
+      remainingSearches,
+    });
   };
 
   return (
@@ -54,7 +66,10 @@ export default function SignUpForm({
             <div className="space-y-4">
               <div className="flex flex-col gap-2">
                 <SignUpButton>
-                  <Button className="w-full py-5 text-[1rem] rounded-none border border-foreground bg-foreground text-background hover:bg-foreground/90">
+                  <Button
+                    className="w-full py-5 text-[1rem] rounded-none border border-foreground bg-foreground text-background hover:bg-foreground/90"
+                    onClick={handleSignUpClick}
+                  >
                     Sign Up for free
                   </Button>
                 </SignUpButton>
@@ -100,8 +115,6 @@ export default function SignUpForm({
               </div> */}
             </div>
           </SignedOut>
-
-        
         </CardContent>
       </Card>
     </div>
