@@ -32,6 +32,8 @@ import { useSearchLimiter } from "@/hooks/useSearchLimiter";
 import SignUpForm from "@/components/fact-check-components/signUpForm";
 import { useUser } from "@clerk/nextjs";
 import posthog from "posthog-js";
+import TrendingShitcheckCard from "@/components/TrendingShitcheckCard";
+import { trendingClaims } from "@/data/trendingClaims";
 
 // Types for our fact-check results
 type FactCheckResult = {
@@ -404,6 +406,7 @@ const FactCheckPage = () => {
         {/* Three-Step Process */}
         <div className="flex flex-wrap gap-4 justify-start mb-8">
           {/* Step 1 */}
+          
           <div className="flex-1 min-w-[280px] md:max-w-[350px] bg-[#C5C8FF] p-6 rounded-sm border border-foreground">
             <div className="flex flex-col items-start gap-3">
               <div className="bg-[#C5C8FF] rounded-sm">
@@ -458,6 +461,14 @@ const FactCheckPage = () => {
               </div>
             </div>
           </div>
+        </div>
+        <div className="flex flex-col w-full mt-[3rem] mb-[3rem]">
+          <h1 className="text-[1.5rem] font-medium text-foreground mb-4">
+            Trending claims
+          </h1>
+          {trendingClaims.map((claim) => (
+            <TrendingShitcheckCard key={claim.id} claim={claim} />
+          ))}
         </div>
       </div>
 
