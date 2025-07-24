@@ -24,6 +24,8 @@ export default function FeedbackToast({
     "positive" | "negative" | null
   >(null);
   const [feedbackText, setFeedbackText] = useState("");
+  const [feedbackAge, setFeedbackAge] = useState("");
+  const [feedbackPurpose, setFeedbackPurpose] = useState("");
   const [suggestions, setSuggestions] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -35,6 +37,8 @@ export default function FeedbackToast({
     if (isVisible) {
       setFeedbackType(null);
       setFeedbackText("");
+      setFeedbackAge("");
+      setFeedbackPurpose("");
       setSuggestions("");
       setIsSubmitted(false);
       setIsExpanded(false);
@@ -91,6 +95,8 @@ export default function FeedbackToast({
       setIsSubmitting(false);
     }
   };
+
+  const ageOptions = ["18-24", "25-34", "35-44", "45-54", "55-64", "65+"];
 
   if (!isVisible) return null;
 
@@ -152,7 +158,7 @@ export default function FeedbackToast({
               {isExpanded && (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-muted-foreground">
                       {feedbackType === "positive"
                         ? "Great!"
                         : "Thanks for letting us know."}
@@ -165,7 +171,7 @@ export default function FeedbackToast({
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs font-medium text-gray-700">
+                    <label className="text-xs font-medium text-muted-foreground">
                       Your feedback:
                     </label>
                     <textarea
@@ -175,20 +181,35 @@ export default function FeedbackToast({
                       className="w-full text-xs border border-gray-200 rounded p-2 min-h-[60px] resize-none focus:outline-none focus:border-gray-400"
                       rows={3}
                     />
+                    <label className="text-xs font-medium text-gray-700">
+                      What is your age?
+                    </label>
+                    <select
+                      value={feedbackAge}
+                      onChange={(e) => setFeedbackAge(e.target.value)}
+                      className="w-full text-xs border border-gray-200 rounded p-2 min-h-[40px] focus:outline-none focus:border-gray-400"
+                    >
+                      <option value="">Select your age range</option>
+                      {ageOptions.map((option: string) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
-                  {/* <div className="space-y-2">
-                    <label className="text-xs font-medium text-gray-700">
-                      Suggestions for improvement:
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium text-muted-foreground">
+                      What are you here for?
                     </label>
                     <textarea
-                      value={suggestions}
-                      onChange={(e) => setSuggestions(e.target.value)}
-                      placeholder="Any suggestions for improvement?"
+                      value={feedbackPurpose}
+                      onChange={(e) => setFeedbackPurpose(e.target.value)}
+                      placeholder="Health and fitness, politics, science, etc."
                       className="w-full text-xs border border-gray-200 rounded p-2 min-h-[60px] resize-none focus:outline-none focus:border-gray-400"
                       rows={3}
                     />
-                  </div> */}
+                  </div>
 
                   {submitError && (
                     <div className="text-xs text-red-600 bg-red-50 p-2 rounded border">
@@ -201,7 +222,7 @@ export default function FeedbackToast({
                       onClick={handleSubmit}
                       disabled={isSubmitting}
                       size="sm"
-                      className="flex-1 h-8 text-xs border text-foreground rounded-sm border-foreground bg-[#C5C8FF] hover:bg-white hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 h-8 text-xs border text-foreground rounded-none border-foreground bg-[#C5C8FF] hover:bg-white hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isSubmitting ? "Submitting..." : "Submit Feedback"}
                     </Button>
