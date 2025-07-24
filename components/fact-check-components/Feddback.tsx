@@ -27,6 +27,8 @@ export default function FeedbackToast({
   const [suggestions, setSuggestions] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Reset state when toast becomes visible
   useEffect(() => {
@@ -36,6 +38,8 @@ export default function FeedbackToast({
       setSuggestions("");
       setIsSubmitted(false);
       setIsExpanded(false);
+      setIsSubmitting(false);
+      setSubmitError(null);
     }
   }, [isVisible]);
 
@@ -44,14 +48,48 @@ export default function FeedbackToast({
     setIsExpanded(true);
   };
 
-  const handleSubmit = () => {
-    onSubmit({ type: feedbackType, text: feedbackText, suggestions });
-    setIsSubmitted(true);
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    setSubmitError(null);
 
-    // Auto close after 2 seconds
-    setTimeout(() => {
-      onClose();
-    }, 2000);
+    try {
+      // Call the API to save feedback
+      const response = await fetch("/api/fact-check/feedback", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          type: feedbackType,
+          text: feedbackText || null,
+          suggestions: suggestions || null,
+          sessionId: null, // You can pass a session ID if available
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log("Feedback saved successfully:", result);
+
+        // Call the original onSubmit for any additional handling
+        onSubmit({ type: feedbackType, text: feedbackText, suggestions });
+        setIsSubmitted(true);
+
+        // Auto close after 2 seconds
+        setTimeout(() => {
+          onClose();
+        }, 2000);
+      } else {
+        const errorData = await response.json();
+        console.error("Failed to save feedback:", errorData);
+        setSubmitError("Failed to save feedback. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error saving feedback:", error);
+      setSubmitError("Network error. Please check your connection.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!isVisible) return null;
@@ -152,13 +190,20 @@ export default function FeedbackToast({
                     />
                   </div> */}
 
+                  {submitError && (
+                    <div className="text-xs text-red-600 bg-red-50 p-2 rounded border">
+                      {submitError}
+                    </div>
+                  )}
+
                   <div className="flex gap-2">
                     <Button
                       onClick={handleSubmit}
+                      disabled={isSubmitting}
                       size="sm"
-                      className="flex-1 h-8 text-xs border text-foreground rounded-sm border-foreground bg-[#C5C8FF]  hover:bg-white hover:text-foreground"
+                      className="flex-1 h-8 text-xs border text-foreground rounded-sm border-foreground bg-[#C5C8FF] hover:bg-white hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Submit Feedback
+                      {isSubmitting ? "Submitting..." : "Submit Feedback"}
                     </Button>
                   </div>
                 </div>
