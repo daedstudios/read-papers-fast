@@ -64,6 +64,10 @@ export async function POST(req: NextRequest) {
   const prompt = `
 You are an expert in academic research and fact-checking. Given a statement that needs to be fact-checked, generate appropriate search terms and keywords to find relevant academic papers.
 
+ALWAYS respond in English, regardless of the language of the statement. The output (query, keywords, research areas, search terms) must be in English.
+
+Statement to fact-check: "${statement}"
+
 Your task is to:
 
 1. **Extract Core Concepts**: Identify the main claims, topics, and concepts in the statement

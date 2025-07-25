@@ -251,7 +251,7 @@ const PaperResult = ({
     if (paper.published && paper.cited_by_count !== undefined) {
       const publishedYear = new Date(paper.published).getFullYear();
       const currentYear = new Date().getFullYear();
-      isHot = publishedYear >= currentYear - 2 && paper.cited_by_count > 100;
+      isHot = publishedYear >= currentYear - 4 && paper.cited_by_count > 30;
     }
     return (
       <Card
@@ -289,18 +289,21 @@ const PaperResult = ({
               <div className="flex gap-3 flex-wrap">
                 {paper.cited_by_count && (
                   <div className="flex items-center gap-2 px-3 py-2 border border-foreground bg-white relative">
-                    <Asterisk size={24} className="text-foreground" />
+                    <Asterisk size={16} className="text-foreground" />
                     <span className="text-sm font-medium text-foreground">
                       {paper.cited_by_count} Citations
                     </span>
-                    {isHot && (
-                      <span className="flex items-center gap-1 ml-2 px-2 py-1 border border-[#FFA600] text-[#FFA600] rounded-full text-xs font-semibold bg-white">
+                  
+                  </div>
+                )}
+  {isHot && (
+                      <span
+                        className="flex items-center gap-1 px-3 py-2 border border-[#FFA600] text-[#FFA600] rounded-none text-sm font-medium bg-white"
+                        style={{ fontWeight: 500 }}
+                      >
                         <Flame size={16} /> hot
                       </span>
                     )}
-                  </div>
-                )}
-
                 {paper.journal_name && (
                   <div className="flex items-center gap-2 px-3 py-2 border border-foreground  bg-white">
                     <BookOpen size={16} className="text-foreground" />
@@ -326,6 +329,7 @@ const PaperResult = ({
                     </span>
                   </div>
                 )}
+                
               </div>
 
               {/* {paper.relevance_score && (
