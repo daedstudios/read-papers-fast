@@ -75,14 +75,21 @@ interface PaperResultProps {
   results: FactCheckResult[];
   analysisResults: { [paperId: string]: PaperAnalysisResult };
   paperFilter?: "contradicting" | "neutral" | "supporting" | null;
+  statement?: string;
+  onDeepAnalysis?: (paperId: string) => void;
 }
 
 const PaperResult = ({
   results,
   analysisResults,
   paperFilter,
+  statement,
+  onDeepAnalysis,
 }: PaperResultProps) => {
   const [expandedCards, setExpandedCards] = useState<{
+    [paperId: string]: boolean;
+  }>({});
+  const [deepAnalysisLoading, setDeepAnalysisLoading] = useState<{
     [paperId: string]: boolean;
   }>({});
 
@@ -91,6 +98,24 @@ const PaperResult = ({
       ...prev,
       [paperId]: !prev[paperId],
     }));
+  };
+
+  const handleDeepAnalysis = async (paperId: string) => {
+    if (!statement || !onDeepAnalysis) return;
+
+    setDeepAnalysisLoading((prev) => ({
+      ...prev,
+      [paperId]: true,
+    }));
+
+    try {
+      await onDeepAnalysis(paperId);
+    } finally {
+      setDeepAnalysisLoading((prev) => ({
+        ...prev,
+        [paperId]: false,
+      }));
+    }
   };
   const getAnalysisMethodBadge = (method?: string) => {
     if (!method) return null;
@@ -103,6 +128,10 @@ const PaperResult = ({
       pdf_manual_fetch: {
         label: "Full PDF",
         color: "bg-green-100 text-green-800",
+      },
+      pdf_direct_analysis: {
+        label: "Deep Analysis",
+        color: "bg-blue-100 text-blue-800",
       },
       abstract_fallback: {
         label: "Abstract Only",
@@ -285,6 +314,27 @@ const PaperResult = ({
                 </div>
               )}
 
+              {/* Deep Analysis Results */}
+              {analysisResults[paper.id]?.analysis && (
+                <div className="border-t border-gray-200 pt-4 mt-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-sm font-semibold text-foreground">
+                      Deep Analysis:
+                    </span>
+                    {getSupportBadge(
+                      analysisResults[paper.id].analysis!.support_level
+                    )}
+                    {getAnalysisMethodBadge(
+                      analysisResults[paper.id].analysisMethod
+                    )}
+                  </div>
+                  {formatStructuredAnalysis(
+                    analysisResults[paper.id].analysis!,
+                    paper.id
+                  )}
+                </div>
+              )}
+
               {/* Publication and Citation Cards */}
               <div className="flex gap-3 flex-wrap">
                 {paper.cited_by_count && (
@@ -342,13 +392,26 @@ const PaperResult = ({
           </CardDescription>
         </CardHeader>
 
-        <div className="space-y-0 px-6">
+        <div className="space-y-0 px-6 pb-6">
           <div className="flex gap-2 flex-wrap">
             {/* Show only one PDF link */}
             {(() => {
               const pdfLink = paper.links.find(
                 (link: any) => link.type === "application/pdf"
               );
+
+              // Debug logging
+              console.log(`Paper ${paper.id}:`, {
+                hasStatement: !!statement,
+                hasOnDeepAnalysis: !!onDeepAnalysis,
+                hasPdfLink: !!pdfLink,
+                preEvalVerdict: paper.pre_evaluation?.verdict,
+                shouldShowButton:
+                  statement &&
+                  onDeepAnalysis &&
+                  pdfLink &&
+                  paper.pre_evaluation?.verdict !== "not_relevant",
+              });
 
               return (
                 <>
@@ -357,11 +420,33 @@ const PaperResult = ({
                       href={pdfLink.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-3 py-2 w-full border border-foreground rounded-none text-sm text-center"
+                      className="px-3 py-2 flex-1 border border-foreground rounded-none text-sm text-center"
                     >
                       View PDF
                     </a>
                   )}
+
+                  {/* Deep Analysis Button - only show for papers that are not "not_relevant" and have PDF */}
+                  {statement &&
+                    onDeepAnalysis &&
+                    pdfLink &&
+                    paper.pre_evaluation?.verdict !== "not_relevant" && (
+                      <Button
+                        onClick={() => handleDeepAnalysis(paper.id)}
+                        disabled={
+                          deepAnalysisLoading[paper.id] ||
+                          !!analysisResults[paper.id]?.analysis
+                        }
+                        variant="outline"
+                        className="px-3 py-2 flex-1 border border-foreground rounded-none text-sm bg-blue-50 hover:bg-blue-100"
+                      >
+                        {deepAnalysisLoading[paper.id]
+                          ? "Analyzing..."
+                          : analysisResults[paper.id]?.analysis
+                          ? "Analysis Complete"
+                          : "🔍 Deep Search"}
+                      </Button>
+                    )}
                 </>
               );
             })()}

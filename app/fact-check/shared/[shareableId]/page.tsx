@@ -120,6 +120,9 @@ const SharedFactCheckPage = () => {
     "contradicting" | "neutral" | "supporting" | null
   >(null);
   const [showFeedbackToast, setShowFeedbackToast] = useState(false);
+  const [currentAnalysisResults, setCurrentAnalysisResults] = useState<{
+    [paperId: string]: PaperAnalysisResult;
+  }>({});
 
   useEffect(() => {
     const fetchSharedData = async () => {
@@ -134,6 +137,12 @@ const SharedFactCheckPage = () => {
 
         const result = await response.json();
         setFactCheckData(result.data);
+
+        // Initialize analysis results from the shared data
+        const { papers: convertedPapers, analysisResults: convertedAnalysis } =
+          convertToDisplayFormat(result.data);
+        setCurrentAnalysisResults(convertedAnalysis);
+
         console.log("Shared Fact-Check Data:", result.data);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
@@ -195,6 +204,63 @@ const SharedFactCheckPage = () => {
       alert("Share link copied to clipboard!");
     } catch (err) {
       console.error("Failed to copy to clipboard:", err);
+    }
+  };
+
+  // Handle deep analysis for a specific paper
+  const handleDeepAnalysis = async (paperId: string) => {
+    if (!factCheckData) return;
+
+    const paper = factCheckData.papers.find((p) => p.externalId === paperId);
+    if (!paper) return;
+
+    // Find PDF link
+    const pdfLink = paper.links?.find(
+      (link: any) => link.type === "application/pdf"
+    );
+    if (!pdfLink) {
+      alert("No PDF available for this paper");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/fact-check/deep-check", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          statement: factCheckData.statement,
+          pdfUrl: pdfLink.href,
+          title: paper.title,
+          paperId: paperId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Analysis failed: ${response.statusText}`);
+      }
+
+      const analysisResult = await response.json();
+
+      // Update the analysis results state
+      setCurrentAnalysisResults((prev) => ({
+        ...prev,
+        [paperId]: analysisResult,
+      }));
+
+      console.log(
+        "Deep analysis completed for paper:",
+        paperId,
+        analysisResult
+      );
+    } catch (error) {
+      console.error("Deep analysis error:", error);
+      alert(
+        `Deep analysis failed: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     }
   };
 
@@ -282,6 +348,12 @@ const SharedFactCheckPage = () => {
 
   const { papers, analysisResults } = convertToDisplayFormat(factCheckData);
 
+  // Merge the existing analysis results with the current ones (prioritize current)
+  const mergedAnalysisResults = {
+    ...analysisResults,
+    ...currentAnalysisResults,
+  };
+
   return (
     <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center">
       <div className="container w-2xl max-w-[90%] mx-auto">
@@ -325,9 +397,38 @@ const SharedFactCheckPage = () => {
 
             <PaperResult
               results={papers}
-              analysisResults={analysisResults}
+              analysisResults={mergedAnalysisResults}
               paperFilter={paperFilter}
+              statement={factCheckData.statement}
+              onDeepAnalysis={handleDeepAnalysis}
             />
+
+            {/* Debug info */}
+            <div className="mt-4 p-4 bg-gray-100 text-sm">
+              <strong>Debug Info:</strong>
+              <div>Statement: {factCheckData.statement ? "✓" : "✗"}</div>
+              <div>Papers count: {papers.length}</div>
+              <div>
+                Papers with PDF:{" "}
+                {
+                  papers.filter((p) =>
+                    p.links.find((l) => l.type === "application/pdf")
+                  ).length
+                }
+              </div>
+              <div>
+                Papers with pre_evaluation:{" "}
+                {papers.filter((p) => p.pre_evaluation).length}
+              </div>
+              <div>
+                Papers not "not_relevant":{" "}
+                {
+                  papers.filter(
+                    (p) => p.pre_evaluation?.verdict !== "not_relevant"
+                  ).length
+                }
+              </div>
+            </div>
           </div>
         </div>
       </div>
