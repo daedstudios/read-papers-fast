@@ -49,6 +49,20 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Step 1: Detect language using Gemini
+  const detectLanguagePrompt = `Detect the language of the following statement and return only the language name (e.g., English, Chinese, German, French):\n\nStatement: "${statement}"`;
+  let detectedLanguage = "the same language as the statement";
+  try {
+    const { object: langObj } = await generateObject({
+      model: google("gemini-1.5-flash"),
+      schema: z.object({ language: z.string() }),
+      prompt: detectLanguagePrompt,
+    });
+    detectedLanguage = langObj.language || detectedLanguage;
+  } catch (e) {
+    // fallback: keep default
+  }
+
   // Filter out papers without pre-evaluation
   const papersWithPreEval = papers.filter(
     (paper: PaperData) =>
@@ -94,11 +108,19 @@ export async function POST(req: NextRequest) {
   }));
 
   const prompt = `
+IMPORTANT: Respond in ${detectedLanguage}. Do NOT use any other language.
+
 You are an expert scientific fact-checker tasked with providing a final verdict on a statement based on multiple academic paper evaluations.
+
+Statement to fact-check: "${statement}"
 
 Your tone should be **clear, direct, and slightly sarcastic**—the kind of response that calmly shuts down nonsense with evidence and a hint of “you should’ve known better.” Keep the writing sharp, readable, and punchy. No slang, no filler. Just facts with a bit of attitude.
 
-**Statement to fact-check:** "${statement}"
+IMPORTANT: Repeat: Your entire response (including explanations, summaries, and all output) must be in ${detectedLanguage}. Do NOT use English unless the statement is in English.
+
+Example:
+Statement: "氣候變遷是人為造成的"
+Response: "證據顯示氣候變遷主要是由人類活動造成的。..."
 
 **Pre-evaluation Results Summary:**
 - Total papers analyzed: ${papersWithPreEval.length}
@@ -125,6 +147,7 @@ ${index + 1}. "${paper.title}" (${paper.authors}, ${paper.year})
 
 **Your Task:**
 Based on the pre-evaluation results above, provide a final verdict on the statement. **Focus ONLY on supporting vs contradicting evidence - ignore neutral papers in your verdict calculation.**
+IMPORTANT: Always respond in the same language as the statement. If the statement is in German, respond in German. If the statement is in French, respond in French. If it is in chinese, respond in chinese. Do not use English unless the statement is in English.
 
 Consider:
 1. The balance of supporting vs contradicting evidence (${

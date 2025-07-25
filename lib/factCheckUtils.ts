@@ -18,10 +18,24 @@ export async function preEvaluateAbstract(
     throw new Error("Missing statement or abstract");
   }
 
+  // Step 1: Detect language using Gemini
+  const detectLanguagePrompt = `Detect the language of the following statement and return only the language name (e.g., English, Chinese, German, French):\n\nStatement: "${statement}"`;
+  let detectedLanguage = "the same language as the statement";
+  try {
+    const { object: langObj } = await generateObject({
+      model: google("gemini-1.5-flash"),
+      schema: z.object({ language: z.string() }),
+      prompt: detectLanguagePrompt,
+    });
+    detectedLanguage = langObj.language || detectedLanguage;
+  } catch (e) {
+    // fallback: keep default
+  }
+
   const prompt = `
+IMPORTANT: Respond in ${detectedLanguage}. Do NOT use any other language.
 
 You are an expert scientific fact-checker. Given a user statement and a paper abstract, classify whether the abstract SUPPORTS, CONTRADICTS, is NEUTRAL, or is NOT RELEVANT regarding the statement. Be strict: only mark as supports or contradicts if the abstract clearly takes a position. Mark as neutral if the abstract discusses the topic but does not support or contradict the statement. If the abstract does NOT discuss the statement or topic at all, respond with 'not_relevant' for the verdict.
-
 
 Statement: "${statement}"
 ${
@@ -29,7 +43,14 @@ ${
     ? `Paper title: "${title}"
 `
     : ""
-}Abstract: "${abstract}"
+}
+Abstract: "${abstract}"
+
+IMPORTANT: Repeat: Your entire response (including explanations, summaries, and all output) must be in ${detectedLanguage}. Do NOT use English unless the statement is in English.
+
+Example:
+Statement: "氣候變遷是人為造成的"
+Response: "證據顯示氣候變遷主要是由人類活動造成的。..."
 
 Respond in this JSON format:
 {
