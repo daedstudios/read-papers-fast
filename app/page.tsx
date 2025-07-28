@@ -116,11 +116,7 @@ const FactCheckPage = () => {
   };
 
   // Combine all busy states for UI feedback
-  const isBusy =
-    loading ||
-    generatingVerdict ||
-    savingToDb ||
-    (!isSignedIn && limiterLoading);
+  const isBusy = loading || generatingVerdict || savingToDb;
 
   return (
     <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center">

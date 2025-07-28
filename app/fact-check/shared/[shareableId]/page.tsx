@@ -16,6 +16,7 @@ import PaperResult from "@/components/find-componenets/PaperResult";
 import { ChatDrawer } from "@/components/ChatDrawer";
 import FeedbackToast from "@/components/fact-check-components/Feddback";
 import FactCheckForm from "@/components/fact-check-components/FactCheckForm";
+import SignUpForm from "@/components/fact-check-components/signUpForm";
 import { ExternalLink, Share2, ArrowLeft, Globe } from "lucide-react";
 import Link from "next/link";
 import posthog from "posthog-js";
@@ -79,6 +80,9 @@ const SharedFactCheckPage = () => {
   >(null);
   const [showFeedbackToast, setShowFeedbackToast] = useState(false);
 
+  // Sign-up form state
+  const [showSignUpForm, setShowSignUpForm] = useState(false);
+
   // New fact-check functionality
   const [newFactCheckLoading, setNewFactCheckLoading] = useState(false);
   const [newFactCheckError, setNewFactCheckError] = useState<string | null>(
@@ -104,6 +108,13 @@ const SharedFactCheckPage = () => {
     remainingSearches,
     isLoading: limiterLoading,
   } = useSearchLimiter();
+
+  // Close sign-up form if user signs in
+  useEffect(() => {
+    if (isSignedIn && showSignUpForm) {
+      setShowSignUpForm(false);
+    }
+  }, [isSignedIn, showSignUpForm]);
 
   useEffect(() => {
     const fetchSharedData = async () => {
@@ -200,6 +211,7 @@ const SharedFactCheckPage = () => {
       setSavingToDb: setNewSavingToDb,
       setShareableId: setNewShareableId,
       setDbSaveError: setNewDbSaveError,
+      setShowSignUpForm,
       increment,
       router,
     });
@@ -366,6 +378,19 @@ const SharedFactCheckPage = () => {
         onClose={() => setShowFeedbackToast(false)}
         onSubmit={handleFeedbackSubmit}
       />
+
+      {/* Sign-up form modal */}
+      {showSignUpForm && (
+        <SignUpForm
+          onClose={() => setShowSignUpForm(false)}
+          onSuccess={() => {
+            setShowSignUpForm(false);
+            // You could also reset the search limiter here if needed
+            // or handle the successful authentication
+          }}
+          remainingSearches={remainingSearches}
+        />
+      )}
     </div>
   );
 };

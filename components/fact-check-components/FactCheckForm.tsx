@@ -25,7 +25,7 @@ const FactCheckForm = ({
   const progressRef = useRef<NodeJS.Timeout | null>(null);
 
   // Combine all busy states for UI feedback
-  const isBusy = isLoading || (!isSignedIn && limiterLoading);
+  const isBusy = isLoading;
 
   // Animate progress bar with a fixed timer when busy
   useEffect(() => {
@@ -89,9 +89,7 @@ const FactCheckForm = ({
           <Button
             onClick={handleSubmit}
             className="w-full py-3 text-[1rem] rounded-none border border-foreground bg-foreground text-background flex items-center gap-2 cursor-pointer"
-            disabled={
-              isBusy || (!isSignedIn && limiterLoading) || !statement.trim()
-            }
+            disabled={isBusy || !statement.trim()}
           >
             fact check
             <Globe size={16} />
