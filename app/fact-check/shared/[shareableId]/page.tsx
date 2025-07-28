@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -15,61 +15,18 @@ import FinalVerdictCard from "@/components/FinalVerdictCard";
 import PaperResult from "@/components/find-componenets/PaperResult";
 import { ChatDrawer } from "@/components/ChatDrawer";
 import FeedbackToast from "@/components/fact-check-components/Feddback";
-import { ExternalLink, Share2, ArrowLeft, Globe } from "lucide-react";
-import Link from "next/link";
+import FactCheckForm from "@/components/fact-check-components/FactCheckForm";
+import SignUpForm from "@/components/fact-check-components/signUpForm";
+import { ExternalLink, Share2, Globe } from "lucide-react";
 import posthog from "posthog-js";
-
-// Types (same as in the main fact-check page)
-type FactCheckResult = {
-  id: string;
-  title: string;
-  authors: string[];
-  summary: string;
-  published: string;
-  doi?: string;
-  links: {
-    href: string;
-    type: string;
-    rel: string;
-  }[];
-  relevance_score?: number;
-  cited_by_count?: number;
-  journal_name?: string;
-  publisher?: string;
-  pre_evaluation?: {
-    verdict: "supports" | "contradicts" | "neutral" | "not_relevant";
-    summary: string;
-    snippet: string;
-  };
-};
-
-type PaperAnalysisResult = {
-  paperId: string;
-  pdfUrl?: string | null;
-  statement: string;
-  analysisMethod?: string;
-  analysis: {
-    support_level:
-      | "strongly_supports"
-      | "supports"
-      | "neutral"
-      | "contradicts"
-      | "strongly_contradicts"
-      | "insufficient_data";
-    confidence: number;
-    summary: string;
-    relevant_sections: Array<{
-      section_title?: string;
-      text_snippet: string;
-      page_number?: number;
-      reasoning: string;
-    }>;
-    key_findings: string[];
-    limitations: string[];
-    timestamp: string;
-  } | null;
-  error?: string;
-};
+import PaperFilterBoxes from "@/components/PaperFilterBoxes";
+import {
+  FactCheckResult,
+  PaperAnalysisResult,
+  handleFactCheck as handleFactCheckUtil,
+} from "@/utilities/HandleFactCheck";
+import { useUser } from "@clerk/nextjs";
+import { useSearchLimiter } from "@/hooks/useSearchLimiter";
 
 type SharedFactCheckData = {
   id: string;
@@ -110,7 +67,9 @@ type SharedFactCheckData = {
 
 const SharedFactCheckPage = () => {
   const params = useParams();
+  const router = useRouter();
   const shareableId = params.shareableId as string;
+  const { isSignedIn, user } = useUser();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -120,6 +79,42 @@ const SharedFactCheckPage = () => {
     "contradicting" | "neutral" | "supporting" | null
   >(null);
   const [showFeedbackToast, setShowFeedbackToast] = useState(false);
+
+  // Sign-up form state
+  const [showSignUpForm, setShowSignUpForm] = useState(false);
+
+  // New fact-check functionality
+  const [newFactCheckLoading, setNewFactCheckLoading] = useState(false);
+  const [newFactCheckError, setNewFactCheckError] = useState<string | null>(
+    null
+  );
+  const [newResults, setNewResults] = useState<FactCheckResult[]>([]);
+  const [newKeywords, setNewKeywords] = useState<string[]>([]);
+  const [newAnalysisResults, setNewAnalysisResults] = useState<{
+    [paperId: string]: PaperAnalysisResult;
+  }>({});
+  const [newAnalyzing, setNewAnalyzing] = useState(false);
+  const [newCurrentBatch, setNewCurrentBatch] = useState(0);
+  const [newFinalVerdict, setNewFinalVerdict] = useState<any>(null);
+  const [newGeneratingVerdict, setNewGeneratingVerdict] = useState(false);
+  const [newSavingToDb, setNewSavingToDb] = useState(false);
+  const [newShareableId, setNewShareableId] = useState<string | null>(null);
+  const [newDbSaveError, setNewDbSaveError] = useState<string | null>(null);
+
+  // Search limiter for non-signed-in users
+  const {
+    isLimitReached,
+    increment,
+    remainingSearches,
+    isLoading: limiterLoading,
+  } = useSearchLimiter();
+
+  // Close sign-up form if user signs in
+  useEffect(() => {
+    if (isSignedIn && showSignUpForm) {
+      setShowSignUpForm(false);
+    }
+  }, [isSignedIn, showSignUpForm]);
 
   useEffect(() => {
     const fetchSharedData = async () => {
@@ -198,6 +193,30 @@ const SharedFactCheckPage = () => {
     }
   };
 
+  // Handle new fact check from shared page
+  const handleNewFactCheck = async (statement: string) => {
+    await handleFactCheckUtil({
+      statement,
+      isSignedIn: isSignedIn ?? false,
+      isLimitReached,
+      setLoading: setNewFactCheckLoading,
+      setError: setNewFactCheckError,
+      setResults: setNewResults,
+      setKeywords: setNewKeywords,
+      setAnalysisResults: setNewAnalysisResults,
+      setAnalyzing: setNewAnalyzing,
+      setCurrentBatch: setNewCurrentBatch,
+      setFinalVerdict: setNewFinalVerdict,
+      setGeneratingVerdict: setNewGeneratingVerdict,
+      setSavingToDb: setNewSavingToDb,
+      setShareableId: setNewShareableId,
+      setDbSaveError: setNewDbSaveError,
+      setShowSignUpForm,
+      increment,
+      router,
+    });
+  };
+
   // Convert database format to component format
   const convertToDisplayFormat = (data: SharedFactCheckData) => {
     const papers: FactCheckResult[] = data.papers.map((paper) => ({
@@ -269,12 +288,6 @@ const SharedFactCheckPage = () => {
           <p className="text-gray-600 mb-4">
             {error || "The shared fact-check data could not be found."}
           </p>
-          <Link href="/">
-            <Button className="flex items-center gap-2">
-              <ArrowLeft size={16} />
-              Back to Home
-            </Button>
-          </Link>
         </div>
       </div>
     );
@@ -285,19 +298,21 @@ const SharedFactCheckPage = () => {
   return (
     <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center">
       <div className="container w-2xl max-w-[90%] mx-auto">
-        {/* Header */}
-        <div className="mb-8 mt-[10rem]">
-          <div className="flex items-center justify-between mb-4">
-            <Link href="/">
-              <Button
-                variant="outline"
-                className="flex items-center gap-2 rounded-none border border-foreground"
-              >
-                <ArrowLeft size={16} />
-                Back to Home
-              </Button>
-            </Link>
+        {/* New Fact Check Section */}
+        <div className="mb-8 mt-[10rem]  pb-8">
+          <div className="text-center mb-6">
+            <h2 className="text-[2.5rem] mb-4">Check another claim</h2>
           </div>
+
+          <FactCheckForm
+            onSubmit={handleNewFactCheck}
+            isLoading={
+              newFactCheckLoading || newGeneratingVerdict || newSavingToDb
+            }
+            error={newFactCheckError}
+            isSignedIn={isSignedIn ?? false}
+            limiterLoading={limiterLoading}
+          />
         </div>
 
         {/* Final Verdict */}
@@ -313,13 +328,24 @@ const SharedFactCheckPage = () => {
           </div>
         )}
 
+        {/* Paper Filter Boxes */}
+        {factCheckData.finalVerdict && (
+          <PaperFilterBoxes
+            supporting={factCheckData.finalVerdict.supporting_evidence_count}
+            contradicting={
+              factCheckData.finalVerdict.contradicting_evidence_count
+            }
+            neutral={factCheckData.finalVerdict.neutral_evidence_count}
+            onFilterChange={handleFilterChange}
+            currentFilter={paperFilter}
+          />
+        )}
+
         {/* Papers Display */}
         <div className="space-y-6">
           <div className="space-y-4 mb-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold">
-                Found {papers.length} Relevant Papers
-              </h2>
+            <div className="flex items-center justify-end mb-4">
+           
               <ChatDrawer shareableId={shareableId} />
             </div>
 
@@ -338,6 +364,19 @@ const SharedFactCheckPage = () => {
         onClose={() => setShowFeedbackToast(false)}
         onSubmit={handleFeedbackSubmit}
       />
+
+      {/* Sign-up form modal */}
+      {showSignUpForm && (
+        <SignUpForm
+          onClose={() => setShowSignUpForm(false)}
+          onSuccess={() => {
+            setShowSignUpForm(false);
+            // You could also reset the search limiter here if needed
+            // or handle the successful authentication
+          }}
+          remainingSearches={remainingSearches}
+        />
+      )}
     </div>
   );
 };

@@ -1,22 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import {
-  Search,
-  Globe,
-  CheckCircle,
-  ArrowUp,
-  ArrowUpRight,
-  ArrowUpLeft,
-  ArrowDownRight,
-  ArrowDownLeft,
-  Share2,
-  ArrowUpFromLine,
-  TextSearch,
-  Gavel,
-} from "lucide-react";
+import { ArrowUpFromLine, TextSearch, Gavel } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -30,67 +17,22 @@ import { ChatDrawer } from "@/components/ChatDrawer";
 import { getShareableUrl, copyToClipboard } from "@/lib/factCheckUtils";
 import { useSearchLimiter } from "@/hooks/useSearchLimiter";
 import SignUpForm from "@/components/fact-check-components/signUpForm";
+import FactCheckForm from "@/components/fact-check-components/FactCheckForm";
 import { useUser } from "@clerk/nextjs";
 import posthog from "posthog-js";
 import TrendingShitcheckCard from "@/components/TrendingShitcheckCard";
 import { trendingClaims } from "@/data/trendingClaims";
-
-// Types for our fact-check results
-type FactCheckResult = {
-  id: string;
-  title: string;
-  authors: string[];
-  summary: string;
-  published: string;
-  doi?: string;
-  links: {
-    href: string;
-    type: string;
-    rel: string;
-  }[];
-  relevance_score?: number;
-  cited_by_count?: number;
-  journal_name?: string;
-  publisher?: string;
-  pre_evaluation?: {
-    verdict: "supports" | "contradicts" | "neutral" | "not_relevant";
-    summary: string;
-    snippet: string;
-  };
-};
-
-type PaperAnalysisResult = {
-  paperId: string;
-  pdfUrl?: string | null;
-  statement: string;
-  analysisMethod?: string;
-  analysis: {
-    support_level:
-      | "strongly_supports"
-      | "supports"
-      | "neutral"
-      | "contradicts"
-      | "strongly_contradicts"
-      | "insufficient_data";
-    confidence: number;
-    summary: string;
-    relevant_sections: Array<{
-      section_title?: string;
-      text_snippet: string;
-      page_number?: number;
-      reasoning: string;
-    }>;
-    key_findings: string[];
-    limitations: string[];
-    timestamp: string;
-  } | null;
-  error?: string;
-};
+import {
+  handleFactCheck as handleFactCheckUtil,
+  generateFinalVerdict,
+  handleDeepAnalysis,
+  type FactCheckResult,
+  type PaperAnalysisResult,
+} from "@/utilities/HandleFactCheck";
 
 const FactCheckPage = () => {
   const router = useRouter();
   const { isSignedIn, user } = useUser();
-  const [statement, setStatement] = useState("");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<FactCheckResult[]>([]);
   const [keywords, setKeywords] = useState<string[]>([]);
@@ -149,204 +91,32 @@ const FactCheckPage = () => {
     setPaperFilter(filter);
   };
 
-  const handleFactCheck = async () => {
-    if (!statement.trim()) {
-      setError("Please enter a statement to fact-check");
-      return;
-    }
-
-    // Check if user has reached the search limit (only for non-signed in users)
-    if (!isSignedIn && isLimitReached) {
-      setShowSignUpForm(true);
-      return;
-    }
-
-    // PostHog event tracking for fact-check search
-    posthog.capture("fact_check_search", {
-      statement_length: statement.length,
-      statement_words: statement.split(" ").length,
-      location: "fact_check_page",
-      timestamp: new Date().toISOString(),
+  // Handle fact check using the utility function
+  const handleFactCheck = async (statement: string) => {
+    await handleFactCheckUtil({
+      statement,
+      isSignedIn: isSignedIn ?? false,
+      isLimitReached,
+      setLoading,
+      setError,
+      setResults,
+      setKeywords,
+      setAnalysisResults,
+      setAnalyzing,
+      setCurrentBatch,
+      setFinalVerdict,
+      setGeneratingVerdict,
+      setSavingToDb,
+      setShareableId,
+      setDbSaveError,
+      setShowSignUpForm,
+      increment,
+      router,
     });
-
-    setLoading(true);
-    setError(null);
-    setResults([]);
-    setKeywords([]);
-    // Reset analysis state
-    setAnalysisResults({});
-    setAnalyzing(false);
-    setCurrentBatch(0);
-    // Reset final verdict
-    setFinalVerdict(null);
-    // Reset database save state
-    setSavingToDb(false);
-    setShareableId(null);
-    setDbSaveError(null);
-
-    try {
-      const response = await fetch("/api/fact-check/open-alex", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ statement }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fact-check statement");
-      }
-
-      const data = await response.json();
-      setResults(data.papers);
-      setKeywords(data.keywords);
-
-      // Increment search count on successful paper search (only for non-signed in users)
-      if (!isSignedIn) {
-        increment();
-      }
-
-      // PostHog event tracking for successful search results
-      posthog.capture("fact_check_results", {
-        papers_found: data.papers.length,
-        keywords_count: data.keywords.length,
-        statement_length: statement.length,
-        statement_words: statement.split(" ").length,
-        location: "fact_check_page",
-        timestamp: new Date().toISOString(),
-      });
-
-      // Automatically generate final verdict
-      if (data.papers && data.papers.length > 0) {
-        generateFinalVerdict(data.papers);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setLoading(false);
-    }
   };
-
-  const generateFinalVerdict = async (papers: FactCheckResult[]) => {
-    if (papers.length === 0) return;
-
-    setGeneratingVerdict(true);
-    try {
-      const response = await fetch("/api/fact-check/final-verdict", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          statement,
-          papers: papers,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to generate final verdict");
-      }
-
-      const verdict = await response.json();
-      setFinalVerdict(verdict);
-
-      // PostHog event tracking for final verdict generation
-      posthog.capture("fact_check_verdict_generated", {
-        verdict_type: verdict.verdict,
-        confidence_score: verdict.confidence_score,
-        papers_analyzed: papers.length,
-        statement_length: statement.length,
-        location: "fact_check_page",
-        timestamp: new Date().toISOString(),
-      });
-
-      // Automatically save to database after final verdict is generated
-      await saveToDatabase(papers, verdict);
-    } catch (error) {
-      console.error("Error generating final verdict:", error);
-      setError("Failed to generate final verdict");
-    } finally {
-      setGeneratingVerdict(false);
-    }
-  };
-
-  const saveToDatabase = async (papers: FactCheckResult[], verdict: any) => {
-    setSavingToDb(true);
-    setDbSaveError(null);
-
-    try {
-      const response = await fetch("/api/fact-check/db-save", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          statement,
-          keywords,
-          finalVerdict: verdict,
-          papers: papers,
-          analysisResults: analysisResults,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to save to database");
-      }
-
-      const result = await response.json();
-      setShareableId(result.shareableId);
-      console.log("Data saved to database successfully:", result);
-
-      // PostHog event tracking for successful database save
-      posthog.capture("fact_check_saved", {
-        shareable_id: result.shareableId,
-        papers_count: papers.length,
-        has_analysis: Object.keys(analysisResults).length > 0,
-        statement_length: statement.length,
-        location: "fact_check_page",
-        timestamp: new Date().toISOString(),
-      });
-
-      // Redirect to shared page after successful save
-      router.push(`/fact-check/shared/${result.shareableId}`);
-    } catch (error) {
-      console.error("Error saving to database:", error);
-      setDbSaveError("Failed to save data for sharing");
-    } finally {
-      setSavingToDb(false);
-    }
-  };
-
-  // Progress bar state
-  const [progress, setProgress] = useState(0);
-  const progressRef = useRef<NodeJS.Timeout | null>(null);
 
   // Combine all busy states for UI feedback
-  const isBusy =
-    loading ||
-    generatingVerdict ||
-    savingToDb ||
-    (!isSignedIn && limiterLoading);
-
-  // Animate progress bar with a fixed timer when busy
-  useEffect(() => {
-    if (isBusy) {
-      setProgress(0);
-      if (progressRef.current) clearInterval(progressRef.current);
-      progressRef.current = setInterval(() => {
-        setProgress((prev) => {
-          if (prev < 100) return prev + 0.143;
-          return 100;
-        });
-      }, 50);
-    } else {
-      setProgress(100);
-      if (progressRef.current) clearInterval(progressRef.current);
-    }
-    return () => {
-      if (progressRef.current) clearInterval(progressRef.current);
-    };
-  }, [isBusy]);
+  const isBusy = loading || generatingVerdict || savingToDb;
 
   return (
     <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center">
@@ -355,40 +125,13 @@ const FactCheckPage = () => {
           <h1 className="text-[2.5rem] mb-4 ">Check your claim</h1>
         </div>
 
-        <Card className="mb-[1rem] rounded-sm shadow-none w-full border-foreground p-4">
-          <div className="space-y-4">
-            <textarea
-              value={statement}
-              onChange={(e) => setStatement(e.target.value)}
-              placeholder="e.g., 'Vitamin D deficiency is linked to increased risk of depression' or 'Climate change is causing more frequent extreme weather events'"
-              className="w-full focus:outline-none  min-h-[160px] resize-y"
-              disabled={isBusy}
-            />
-
-            {error && <div className="text-red-500 text-sm">{error}</div>}
-
-            {/* Button or Progress Bar */}
-            {isBusy ? (
-              <div className="w-full flex flex-col items-center justify-center">
-                <div className="w-full bg-white border border-foreground h-8 flex items-center relative overflow-hidden">
-                  <div
-                    className="absolute left-0 top-0 inset-0 w-full bg-[#C5C8FF] transition-all duration-200"
-                    style={{ width: `${progress}%` }}
-                  ></div>
-                </div>
-              </div>
-            ) : (
-              <Button
-                onClick={handleFactCheck}
-                className="w-full py-3 text-[1rem] rounded-none border border-foreground bg-foreground text-background flex items-center gap-2 cursor-pointer"
-                disabled={isBusy || (!isSignedIn && limiterLoading)}
-              >
-                fact check
-                <Globe size={16} />
-              </Button>
-            )}
-          </div>
-        </Card>
+        <FactCheckForm
+          onSubmit={handleFactCheck}
+          isLoading={isBusy}
+          error={error}
+          isSignedIn={isSignedIn ?? false}
+          limiterLoading={limiterLoading}
+        />
         <div className="mb-[3rem] text-sm mx-auto w-full text-center text-muted-foreground ">
           Fact-check against research from{" "}
           <a
@@ -406,7 +149,7 @@ const FactCheckPage = () => {
         {/* Three-Step Process */}
         <div className="flex flex-wrap gap-4 justify-start mb-8">
           {/* Step 1 */}
-          
+
           <div className="flex-1 min-w-[280px] md:max-w-[350px] bg-[#C5C8FF] p-6 rounded-sm border border-foreground">
             <div className="flex flex-col items-start gap-3">
               <div className="bg-[#C5C8FF] rounded-sm">
