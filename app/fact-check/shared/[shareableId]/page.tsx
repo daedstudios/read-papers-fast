@@ -17,8 +17,7 @@ import { ChatDrawer } from "@/components/ChatDrawer";
 import FeedbackToast from "@/components/fact-check-components/Feddback";
 import FactCheckForm from "@/components/fact-check-components/FactCheckForm";
 import SignUpForm from "@/components/fact-check-components/signUpForm";
-import { ExternalLink, Share2, ArrowLeft, Globe } from "lucide-react";
-import Link from "next/link";
+import { ExternalLink, Share2, Globe } from "lucide-react";
 import posthog from "posthog-js";
 import {
   FactCheckResult,
@@ -288,12 +287,6 @@ const SharedFactCheckPage = () => {
           <p className="text-gray-600 mb-4">
             {error || "The shared fact-check data could not be found."}
           </p>
-          <Link href="/">
-            <Button className="flex items-center gap-2">
-              <ArrowLeft size={16} />
-              Back to Home
-            </Button>
-          </Link>
         </div>
       </div>
     );
@@ -304,23 +297,8 @@ const SharedFactCheckPage = () => {
   return (
     <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center">
       <div className="container w-2xl max-w-[90%] mx-auto">
-        {/* Header */}
-        <div className="mb-8 mt-[10rem]">
-          <div className="flex items-center justify-between mb-4">
-            <Link href="/">
-              <Button
-                variant="outline"
-                className="flex items-center gap-2 rounded-none border border-foreground"
-              >
-                <ArrowLeft size={16} />
-                Back to Home
-              </Button>
-            </Link>
-          </div>
-        </div>
-
         {/* New Fact Check Section */}
-        <div className="mb-8 border-b border-gray-200 pb-8">
+        <div className="mb-8 mt-[10rem] border-b border-gray-200 pb-8">
           <div className="text-center mb-6">
             <h2 className="text-2xl font-bold mb-2">Start a New Fact Check</h2>
             <p className="text-gray-600">
