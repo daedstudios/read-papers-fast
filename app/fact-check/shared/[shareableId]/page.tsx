@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -15,61 +15,17 @@ import FinalVerdictCard from "@/components/FinalVerdictCard";
 import PaperResult from "@/components/find-componenets/PaperResult";
 import { ChatDrawer } from "@/components/ChatDrawer";
 import FeedbackToast from "@/components/fact-check-components/Feddback";
+import FactCheckForm from "@/components/fact-check-components/FactCheckForm";
 import { ExternalLink, Share2, ArrowLeft, Globe } from "lucide-react";
 import Link from "next/link";
 import posthog from "posthog-js";
-
-// Types (same as in the main fact-check page)
-type FactCheckResult = {
-  id: string;
-  title: string;
-  authors: string[];
-  summary: string;
-  published: string;
-  doi?: string;
-  links: {
-    href: string;
-    type: string;
-    rel: string;
-  }[];
-  relevance_score?: number;
-  cited_by_count?: number;
-  journal_name?: string;
-  publisher?: string;
-  pre_evaluation?: {
-    verdict: "supports" | "contradicts" | "neutral" | "not_relevant";
-    summary: string;
-    snippet: string;
-  };
-};
-
-type PaperAnalysisResult = {
-  paperId: string;
-  pdfUrl?: string | null;
-  statement: string;
-  analysisMethod?: string;
-  analysis: {
-    support_level:
-      | "strongly_supports"
-      | "supports"
-      | "neutral"
-      | "contradicts"
-      | "strongly_contradicts"
-      | "insufficient_data";
-    confidence: number;
-    summary: string;
-    relevant_sections: Array<{
-      section_title?: string;
-      text_snippet: string;
-      page_number?: number;
-      reasoning: string;
-    }>;
-    key_findings: string[];
-    limitations: string[];
-    timestamp: string;
-  } | null;
-  error?: string;
-};
+import {
+  FactCheckResult,
+  PaperAnalysisResult,
+  handleFactCheck as handleFactCheckUtil,
+} from "@/utilities/HandleFactCheck";
+import { useUser } from "@clerk/nextjs";
+import { useSearchLimiter } from "@/hooks/useSearchLimiter";
 
 type SharedFactCheckData = {
   id: string;
@@ -110,7 +66,9 @@ type SharedFactCheckData = {
 
 const SharedFactCheckPage = () => {
   const params = useParams();
+  const router = useRouter();
   const shareableId = params.shareableId as string;
+  const { isSignedIn, user } = useUser();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -120,6 +78,32 @@ const SharedFactCheckPage = () => {
     "contradicting" | "neutral" | "supporting" | null
   >(null);
   const [showFeedbackToast, setShowFeedbackToast] = useState(false);
+
+  // New fact-check functionality
+  const [newFactCheckLoading, setNewFactCheckLoading] = useState(false);
+  const [newFactCheckError, setNewFactCheckError] = useState<string | null>(
+    null
+  );
+  const [newResults, setNewResults] = useState<FactCheckResult[]>([]);
+  const [newKeywords, setNewKeywords] = useState<string[]>([]);
+  const [newAnalysisResults, setNewAnalysisResults] = useState<{
+    [paperId: string]: PaperAnalysisResult;
+  }>({});
+  const [newAnalyzing, setNewAnalyzing] = useState(false);
+  const [newCurrentBatch, setNewCurrentBatch] = useState(0);
+  const [newFinalVerdict, setNewFinalVerdict] = useState<any>(null);
+  const [newGeneratingVerdict, setNewGeneratingVerdict] = useState(false);
+  const [newSavingToDb, setNewSavingToDb] = useState(false);
+  const [newShareableId, setNewShareableId] = useState<string | null>(null);
+  const [newDbSaveError, setNewDbSaveError] = useState<string | null>(null);
+
+  // Search limiter for non-signed-in users
+  const {
+    isLimitReached,
+    increment,
+    remainingSearches,
+    isLoading: limiterLoading,
+  } = useSearchLimiter();
 
   useEffect(() => {
     const fetchSharedData = async () => {
@@ -196,6 +180,29 @@ const SharedFactCheckPage = () => {
     } catch (err) {
       console.error("Failed to copy to clipboard:", err);
     }
+  };
+
+  // Handle new fact check from shared page
+  const handleNewFactCheck = async (statement: string) => {
+    await handleFactCheckUtil({
+      statement,
+      isSignedIn: isSignedIn ?? false,
+      isLimitReached,
+      setLoading: setNewFactCheckLoading,
+      setError: setNewFactCheckError,
+      setResults: setNewResults,
+      setKeywords: setNewKeywords,
+      setAnalysisResults: setNewAnalysisResults,
+      setAnalyzing: setNewAnalyzing,
+      setCurrentBatch: setNewCurrentBatch,
+      setFinalVerdict: setNewFinalVerdict,
+      setGeneratingVerdict: setNewGeneratingVerdict,
+      setSavingToDb: setNewSavingToDb,
+      setShareableId: setNewShareableId,
+      setDbSaveError: setNewDbSaveError,
+      increment,
+      router,
+    });
   };
 
   // Convert database format to component format
@@ -298,6 +305,27 @@ const SharedFactCheckPage = () => {
               </Button>
             </Link>
           </div>
+        </div>
+
+        {/* New Fact Check Section */}
+        <div className="mb-8 border-b border-gray-200 pb-8">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold mb-2">Start a New Fact Check</h2>
+            <p className="text-gray-600">
+              Have another claim you'd like to verify? Start a new fact-check
+              from here.
+            </p>
+          </div>
+
+          <FactCheckForm
+            onSubmit={handleNewFactCheck}
+            isLoading={
+              newFactCheckLoading || newGeneratingVerdict || newSavingToDb
+            }
+            error={newFactCheckError}
+            isSignedIn={isSignedIn ?? false}
+            limiterLoading={limiterLoading}
+          />
         </div>
 
         {/* Final Verdict */}
