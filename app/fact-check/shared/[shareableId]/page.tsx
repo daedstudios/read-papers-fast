@@ -19,6 +19,7 @@ import FactCheckForm from "@/components/fact-check-components/FactCheckForm";
 import SignUpForm from "@/components/fact-check-components/signUpForm";
 import { ExternalLink, Share2, Globe } from "lucide-react";
 import posthog from "posthog-js";
+import PaperFilterBoxes from "@/components/PaperFilterBoxes";
 import {
   FactCheckResult,
   PaperAnalysisResult,
@@ -298,13 +299,9 @@ const SharedFactCheckPage = () => {
     <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center">
       <div className="container w-2xl max-w-[90%] mx-auto">
         {/* New Fact Check Section */}
-        <div className="mb-8 mt-[10rem] border-b border-gray-200 pb-8">
+        <div className="mb-8 mt-[10rem]  pb-8">
           <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold mb-2">Start a New Fact Check</h2>
-            <p className="text-gray-600">
-              Have another claim you'd like to verify? Start a new fact-check
-              from here.
-            </p>
+            <h2 className="text-[2.5rem] mb-4">Check another claim</h2>
           </div>
 
           <FactCheckForm
@@ -331,13 +328,24 @@ const SharedFactCheckPage = () => {
           </div>
         )}
 
+        {/* Paper Filter Boxes */}
+        {factCheckData.finalVerdict && (
+          <PaperFilterBoxes
+            supporting={factCheckData.finalVerdict.supporting_evidence_count}
+            contradicting={
+              factCheckData.finalVerdict.contradicting_evidence_count
+            }
+            neutral={factCheckData.finalVerdict.neutral_evidence_count}
+            onFilterChange={handleFilterChange}
+            currentFilter={paperFilter}
+          />
+        )}
+
         {/* Papers Display */}
         <div className="space-y-6">
           <div className="space-y-4 mb-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold">
-                Found {papers.length} Relevant Papers
-              </h2>
+            <div className="flex items-center justify-end mb-4">
+           
               <ChatDrawer shareableId={shareableId} />
             </div>
 

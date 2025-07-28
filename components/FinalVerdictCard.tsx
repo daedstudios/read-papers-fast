@@ -212,73 +212,7 @@ const FinalVerdictCard = ({
         </div>
 
         {/* Evidence Breakdown */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div
-            className={`bg-[#FFBAD8] p-4 rounded-sm border border-foreground cursor-pointer transition-all duration-200 hover:scale-105 ${
-              isActive("contradicting")
-                ? "ring-1 ring-foreground"
-                : "hover:shadow-md"
-            }`}
-            onClick={() => {
-              if (onFilterChange) {
-                onFilterChange(
-                  isActive("contradicting") ? null : "contradicting"
-                );
-              }
-            }}
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <TrendingDown size={16} className="text-foreground" />
-              <span className="font-semibold text-foreground">
-                Contradicting
-              </span>
-            </div>
-            <div className="text-2xl font-bold text-foreground">
-              {verdict.contradicting_evidence_count}
-            </div>
-            <div className="text-xs text-foreground">papers</div>
-          </div>
-          <div
-            className={`bg-[#C5C8FF] p-4 rounded-sm border border-foreground cursor-pointer transition-all duration-200 hover:scale-105 ${
-              isActive("neutral") ? "ring-1 ring-foreground" : "hover:shadow-md"
-            }`}
-            onClick={() => {
-              if (onFilterChange) {
-                onFilterChange(isActive("neutral") ? null : "neutral");
-              }
-            }}
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <HelpCircle size={16} className="text-foreground" />
-              <span className="font-semibold text-foreground">Neutral</span>
-            </div>
-            <div className="text-2xl font-bold text-foreground ">
-              {verdict.neutral_evidence_count}
-            </div>
-            <div className="text-xs text-foreground">papers</div>
-          </div>
-          <div
-            className={`bg-[#AEFFD9] p-4 rounded-sm border border-foreground cursor-pointer transition-all duration-200 hover:scale-105 ${
-              isActive("supporting")
-                ? "ring-1 ring-foreground"
-                : "hover:shadow-md"
-            }`}
-            onClick={() => {
-              if (onFilterChange) {
-                onFilterChange(isActive("supporting") ? null : "supporting");
-              }
-            }}
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <TrendingUp size={16} className="text-foreground" />
-              <span className="font-semibold text-foreground">Supporting</span>
-            </div>
-            <div className="text-2xl font-bold text-foreground">
-              {verdict.supporting_evidence_count}
-            </div>
-            <div className="text-xs text-foreground">papers</div>
-          </div>
-        </div>
+      
 
         {/* Key Findings */}
         {verdict.key_findings.length > 0 && (

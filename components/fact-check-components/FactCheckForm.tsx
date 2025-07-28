@@ -35,7 +35,7 @@ const FactCheckForm = ({
       progressRef.current = setInterval(() => {
         setProgress((prev) => {
           if (prev < 95) {
-            return Math.min(prev + 0.5, 95); // Very slow increment, stops at 95% until actually done
+            return Math.min(prev + 0.8, 95); // Very slow increment, stops at 95% until actually done
           }
           return prev;
         });
