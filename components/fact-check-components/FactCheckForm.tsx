@@ -27,19 +27,19 @@ const FactCheckForm = ({
   // Combine all busy states for UI feedback
   const isBusy = isLoading;
 
-  // Animate progress bar with a slower timer when busy
+  // Animate progress bar with a slower timer when busy (takes about 1 minute)
   useEffect(() => {
     if (isBusy) {
       setProgress(0);
       if (progressRef.current) clearInterval(progressRef.current);
       progressRef.current = setInterval(() => {
         setProgress((prev) => {
-          if (prev < 100) {
-            return Math.min(prev + 2, 98); // Stop at 95% until actually done
+          if (prev < 95) {
+            return Math.min(prev + 0.5, 95); // Very slow increment, stops at 95% until actually done
           }
           return prev;
         });
-      }, 60);
+      }, 250); // 300ms interval for slower progression
     } else {
       setProgress(100);
       if (progressRef.current) clearInterval(progressRef.current);
