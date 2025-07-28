@@ -24,7 +24,8 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
     // Check if browser supports speech recognition
     if (typeof window !== "undefined") {
       const SpeechRecognition =
-        window.SpeechRecognition || (window as any).webkitSpeechRecognition;
+        (window as any).SpeechRecognition ||
+        (window as any).webkitSpeechRecognition;
       if (SpeechRecognition) {
         setIsSupported(true);
         recognitionRef.current = new SpeechRecognition();
