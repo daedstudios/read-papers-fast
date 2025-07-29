@@ -56,6 +56,7 @@ export type PaperAnalysisResult = {
 interface FactCheckHandlerParams {
   statement: string;
   isSignedIn: boolean;
+  hasPlanBase: boolean;
   isLimitReached: boolean;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
@@ -70,6 +71,7 @@ interface FactCheckHandlerParams {
   setShareableId: (id: string | null) => void;
   setDbSaveError: (error: string | null) => void;
   setShowSignUpForm?: (show: boolean) => void;
+  setShowCheckoutForm?: (show: boolean) => void;
   increment?: () => void;
   router: ReturnType<typeof useRouter>;
 }
@@ -91,6 +93,7 @@ interface GenerateFinalVerdictParams {
 export const handleFactCheck = async ({
   statement,
   isSignedIn,
+  hasPlanBase,
   isLimitReached,
   setLoading,
   setError,
@@ -105,6 +108,7 @@ export const handleFactCheck = async ({
   setShareableId,
   setDbSaveError,
   setShowSignUpForm,
+  setShowCheckoutForm,
   increment,
   router,
 }: FactCheckHandlerParams) => {
@@ -117,6 +121,14 @@ export const handleFactCheck = async ({
   if (!isSignedIn && isLimitReached) {
     if (setShowSignUpForm) {
       setShowSignUpForm(true);
+    }
+    return;
+  }
+
+  // Check if user is signed in but doesn't have a base plan
+  if (isSignedIn && !hasPlanBase) {
+    if (setShowCheckoutForm) {
+      setShowCheckoutForm(true);
     }
     return;
   }

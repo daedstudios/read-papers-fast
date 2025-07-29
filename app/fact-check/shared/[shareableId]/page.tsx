@@ -17,6 +17,7 @@ import { ChatDrawer } from "@/components/ChatDrawer";
 import FeedbackToast from "@/components/fact-check-components/Feddback";
 import FactCheckForm from "@/components/fact-check-components/FactCheckForm";
 import SignUpForm from "@/components/fact-check-components/signUpForm";
+import CheckoutForm from "@/components/fact-check-components/CheckoutForm";
 import { ExternalLink, Share2, Globe } from "lucide-react";
 import posthog from "posthog-js";
 import PaperFilterBoxes from "@/components/PaperFilterBoxes";
@@ -25,7 +26,7 @@ import {
   PaperAnalysisResult,
   handleFactCheck as handleFactCheckUtil,
 } from "@/utilities/HandleFactCheck";
-import { useUser } from "@clerk/nextjs";
+import { useUser, useAuth } from "@clerk/nextjs";
 import { useSearchLimiter } from "@/hooks/useSearchLimiter";
 
 type SharedFactCheckData = {
@@ -70,6 +71,8 @@ const SharedFactCheckPage = () => {
   const router = useRouter();
   const shareableId = params.shareableId as string;
   const { isSignedIn, user } = useUser();
+  const { has } = useAuth();
+  const hasPlanBase = has ? has({ plan: "base" }) : false;
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -82,6 +85,9 @@ const SharedFactCheckPage = () => {
 
   // Sign-up form state
   const [showSignUpForm, setShowSignUpForm] = useState(false);
+
+  // Checkout form state
+  const [showCheckoutForm, setShowCheckoutForm] = useState(false);
 
   // New fact-check functionality
   const [newFactCheckLoading, setNewFactCheckLoading] = useState(false);
@@ -115,6 +121,13 @@ const SharedFactCheckPage = () => {
       setShowSignUpForm(false);
     }
   }, [isSignedIn, showSignUpForm]);
+
+  // Close checkout form if user gets plan
+  useEffect(() => {
+    if (hasPlanBase && showCheckoutForm) {
+      setShowCheckoutForm(false);
+    }
+  }, [hasPlanBase, showCheckoutForm]);
 
   useEffect(() => {
     const fetchSharedData = async () => {
@@ -198,6 +211,7 @@ const SharedFactCheckPage = () => {
     await handleFactCheckUtil({
       statement,
       isSignedIn: isSignedIn ?? false,
+      hasPlanBase,
       isLimitReached,
       setLoading: setNewFactCheckLoading,
       setError: setNewFactCheckError,
@@ -212,6 +226,7 @@ const SharedFactCheckPage = () => {
       setShareableId: setNewShareableId,
       setDbSaveError: setNewDbSaveError,
       setShowSignUpForm,
+      setShowCheckoutForm,
       increment,
       router,
     });
@@ -345,7 +360,6 @@ const SharedFactCheckPage = () => {
         <div className="space-y-6">
           <div className="space-y-4 mb-4">
             <div className="flex items-center justify-end mb-4">
-           
               <ChatDrawer shareableId={shareableId} />
             </div>
 
@@ -376,6 +390,11 @@ const SharedFactCheckPage = () => {
           }}
           remainingSearches={remainingSearches}
         />
+      )}
+
+      {/* Checkout form modal */}
+      {showCheckoutForm && (
+        <CheckoutForm onClose={() => setShowCheckoutForm(false)} />
       )}
     </div>
   );

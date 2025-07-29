@@ -65,7 +65,7 @@ export default function SignUpForm({
           <SignedOut>
             <div className="space-y-4">
               <div className="flex flex-col gap-2">
-                <SignUpButton>
+                <SignUpButton forceRedirectUrl={"/pricing"}>
                   <Button
                     className="w-full py-5 text-[1rem] rounded-none border border-foreground bg-foreground text-background hover:bg-foreground/90"
                     onClick={handleSignUpClick}
@@ -80,7 +80,7 @@ export default function SignUpForm({
 
                 <div className="text-center text-sm text-foreground">or</div>
 
-                <SignInButton>
+                <SignInButton forceRedirectUrl={"/pricing"}>
                   <Button
                     variant="outline"
                     className="w-full py-5 text-[1rem] rounded-none border border-foreground bg-background text-foreground hover:bg-[#C5C8FF]"
