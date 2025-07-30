@@ -107,7 +107,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
         size="sm"
         onClick={isListening ? stopListening : startListening}
         disabled={disabled}
-        className="flex items-center gap-2 border-foreground text-[1rem] rounded-none py-3 cursor-pointer"
+        className="flex items-center gap-2 border-foreground font-medium text-[1rem] rounded-none py-3 cursor-pointer"
       >
         {isListening ? (
           <>
@@ -116,7 +116,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
           </>
         ) : (
           <>
-            <Mic className="h-4 w-4" />
+            <Mic className="h-4 w-4 font-medium" />
             Voice Input
           </>
         )}

@@ -63,7 +63,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
         className="flex items-center gap-2 border-foreground rounded-none cursor-pointer"
       >
         <Globe className="h-4 w-4" />
-        <span className="text-[1rem]">
+        <span className="text-[1rem] font-medium">
           {selectedLang.code.split("-")[0].toUpperCase()}
         </span>
       </Button>
@@ -81,7 +81,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                 selectedLanguage === language.code ? "bg-muted" : ""
               }`}
             >
-              <div className="font-medium">{language.name}</div>
+              <div className="font-semibold">{language.name}</div>
               <div className="text-xs text-muted-foreground">
                 {language.nativeName}
               </div>

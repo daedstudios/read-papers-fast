@@ -28,7 +28,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
         <div className="flex flex-row gap-2">
           <SignedOut>
             <SignInButton>
-              <Button className="bg-background w-auto p-4 text-foreground cursor-pointer rounded-none border border-foreground hover:bg-[#C5C8FF] shadow-none">
+              <Button className="bg-background w-auto p-4 text-foreground cursor-pointer rounded-none border border-foreground hover:bg-[#C4EAFF] shadow-none">
                 Log In
               </Button>
             </SignInButton>

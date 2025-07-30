@@ -227,17 +227,17 @@ const PaperResult = ({
   // Helper for pre-evaluation badge
   const getPreEvalBadge = (verdict: string) => {
     const map: Record<string, { label: string; color: string }> = {
-      supports: { label: "Supports", color: "bg-[#AEFFD9] text-foreground" },
+      supports: { label: "Supports", color: "bg-[#50C477] text-foreground" },
       contradicts: {
         label: "Contradicts",
-        color: "bg-[#FFBAD8] text-foreground",
+        color: "bg-[#FF834A] text-foreground",
       },
-      neutral: { label: "Neutral", color: "bg-[#C5C8FF] text-foreground" },
+      neutral: { label: "Neutral", color: "bg-[#C4EAFF] text-foreground" },
     };
     const config = map[verdict] || map["neutral"];
     return (
       <span
-        className={`inline-block px-3 py-1 rounded-none font-medium text-sm border border-foreground ${config.color}`}
+        className={`inline-block px-3 py-1 rounded-none font-bold text-sm border border-foreground ${config.color}`}
       >
         {config.label}
       </span>
@@ -290,24 +290,23 @@ const PaperResult = ({
                 {paper.cited_by_count && (
                   <div className="flex items-center gap-2 px-3 py-2 border border-foreground bg-white relative">
                     <Asterisk size={16} className="text-foreground" />
-                    <span className="text-sm font-medium text-foreground">
+                    <span className="text-sm font-bold text-foreground">
                       {paper.cited_by_count} Citations
                     </span>
-                  
                   </div>
                 )}
-  {isHot && (
-                      <span
-                        className="flex items-center gap-1 px-3 py-2 border border-[#FFA600] text-[#FFA600] rounded-none text-sm font-medium bg-white"
-                        style={{ fontWeight: 500 }}
-                      >
-                        <Flame size={16} /> hot
-                      </span>
-                    )}
+                {isHot && (
+                  <span
+                    className="flex items-center gap-1 px-3 py-2 border border-[#FFA600] text-[#FFA600] rounded-none text-sm font-bold bg-white"
+                    style={{ fontWeight: 500 }}
+                  >
+                    <Flame size={16} /> hot
+                  </span>
+                )}
                 {paper.journal_name && (
                   <div className="flex items-center gap-2 px-3 py-2 border border-foreground  bg-white">
                     <BookOpen size={16} className="text-foreground" />
-                    <span className="text-sm font-medium text-foreground">
+                    <span className="text-sm font-bold text-foreground">
                       {paper.journal_name}
                     </span>
                   </div>
@@ -316,7 +315,7 @@ const PaperResult = ({
                 {paper.publisher && (
                   <div className="flex items-center gap-2 px-3 py-2 border border-foreground  bg-white">
                     <GraduationCap size={16} className="text-foreground" />
-                    <span className="text-sm font-medium text-foreground">
+                    <span className="text-sm font-bold text-foreground">
                       {paper.publisher}
                     </span>
                   </div>
@@ -324,12 +323,11 @@ const PaperResult = ({
 
                 {paper.published && (
                   <div className="flex items-center gap-2 px-3 py-2 border border-foreground  bg-white">
-                    <span className="text-sm font-medium text-foreground">
+                    <span className="text-sm font-bold text-foreground">
                       {new Date(paper.published).getFullYear()}
                     </span>
                   </div>
                 )}
-                
               </div>
 
               {/* {paper.relevance_score && (

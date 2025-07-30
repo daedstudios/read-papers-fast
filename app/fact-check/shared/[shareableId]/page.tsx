@@ -301,7 +301,9 @@ const SharedFactCheckPage = () => {
         {/* New Fact Check Section */}
         <div className="mb-8 mt-[10rem]  pb-8">
           <div className="text-center mb-6">
-            <h2 className="text-[2.5rem] mb-4">Check another claim</h2>
+            <h2 className="text-[2.5rem] font-semibold mb-4">
+              Check another claim
+            </h2>
           </div>
 
           <FactCheckForm

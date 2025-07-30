@@ -55,7 +55,7 @@ export default function SignUpForm({
             Sign up for free to continue fact-checking unlimited claims.
           </p>
           {/* <div className="text-center mt-3 px-4 py-2 bg-green-50 border border-green-200">
-            <p className="text-xs text-green-700 font-medium">
+            <p className="text-xs text-green-700 font-bold">
               🎉 No credit card required • 100% free forever
             </p>
           </div> */}
@@ -83,7 +83,7 @@ export default function SignUpForm({
                 <SignInButton>
                   <Button
                     variant="outline"
-                    className="w-full py-5 text-[1rem] rounded-none border border-foreground bg-background text-foreground hover:bg-[#C5C8FF]"
+                    className="w-full py-5 text-[1rem] rounded-none border border-foreground bg-background text-foreground hover:bg-[#C4EAFF]"
                   >
                     Log in if you already have an account
                   </Button>
@@ -93,13 +93,13 @@ export default function SignUpForm({
                 Trusted by hundreds of curious minds
               </div>
               {/* <div className="mt-6 pt-4 border-t border-muted justify-center text-center">
-                <h4 className="text-sm font-medium mb-2">
+                <h4 className="text-sm font-bold mb-2">
                   With your free account, you get:
                 </h4>
                 <ul className="text-sm text-muted-foreground space-y-1">
                   <li>
                     •{" "}
-                    <span className="font-medium text-green-600">
+                    <span className="font-bold text-green-600">
                       Unlimited
                     </span>{" "}
                     fact-checking searches

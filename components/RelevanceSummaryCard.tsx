@@ -31,7 +31,7 @@ export function RelevanceSummaryCard({ data }: { data: RelevanceSummary }) {
     <div className="">
       <div className="flex items-center gap-4 mb-2">
         <span
-          className={`text-[1.25rem] font-medium  ${getScoreColor(data.score)}`}
+          className={`text-[1.25rem] font-bold  ${getScoreColor(data.score)}`}
         >
           Relevance: {(data.score * 100).toFixed(1)}%
         </span>
@@ -40,7 +40,7 @@ export function RelevanceSummaryCard({ data }: { data: RelevanceSummary }) {
       {data.relevant_sections.length > 0 && (
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="item-1">
-            <AccordionTrigger className="text-[1rem] font-medium cursor-pointer">
+            <AccordionTrigger className="text-[1rem] font-bold cursor-pointer">
               see relevant sections
             </AccordionTrigger>
             <AccordionContent>
@@ -48,9 +48,7 @@ export function RelevanceSummaryCard({ data }: { data: RelevanceSummary }) {
                 {data.relevant_sections.map((section, idx) => (
                   <li key={idx} className="border-l-4 pl-2 border-muted">
                     {section.section_heading && (
-                      <div className="font-medium">
-                        {section.section_heading}
-                      </div>
+                      <div className="font-bold">{section.section_heading}</div>
                     )}
                     <div className="text-gray-800">{section.text_snippet}</div>
                     {section.page !== undefined && (

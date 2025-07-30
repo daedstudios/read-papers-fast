@@ -211,7 +211,7 @@ export function ChatDrawer({
             {dataError && (
               <div className="flex-1 flex items-center justify-center p-4">
                 <div className="text-center text-red-600">
-                  <p className="text-lg font-medium">Error loading data</p>
+                  <p className="text-lg font-bold">Error loading data</p>
                   <p className="text-sm">{dataError}</p>
                 </div>
               </div>
@@ -223,9 +223,7 @@ export function ChatDrawer({
                   {messages.length === 0 && (
                     <div className="text-center text-muted-foreground py-8">
                       <MessageCircle className="mx-auto h-12 w-12 opacity-50 mb-4" />
-                      <p className="text-lg font-medium">
-                        Start a conversation
-                      </p>
+                      <p className="text-lg font-bold">Start a conversation</p>
                       <p className="text-sm">
                         Ask questions about this fact-check session and the
                         analyzed papers
@@ -239,7 +237,7 @@ export function ChatDrawer({
                         <p>• "What are the limitations of this research?"</p>
                       </div>
                       <div className="mt-4 p-3 bg-muted rounded-lg text-left">
-                        <p className="text-sm font-medium mb-2">
+                        <p className="text-sm font-bold mb-2">
                           Current fact-check session:
                         </p>
                         <p className="text-xs text-muted-foreground">
