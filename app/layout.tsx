@@ -27,12 +27,12 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
         <TopLeftBrand />
         <div className="flex flex-row gap-2">
           <SignedOut>
-            <SignInButton>
+            <SignInButton forceRedirectUrl={"/pricing"}>
               <Button className="bg-background w-auto p-4 text-foreground cursor-pointer rounded-none border border-foreground hover:bg-[#C5C8FF] shadow-none">
                 Log In
               </Button>
             </SignInButton>
-            <SignUpButton>
+            <SignUpButton forceRedirectUrl={"/pricing"}>
               <Button className="bg-foreground w-auto p-4 text-background cursor-pointer rounded-none  hover:bg-muted-foreground shadow-none">
                 Sign Up
               </Button>
