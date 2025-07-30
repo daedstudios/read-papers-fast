@@ -18,7 +18,8 @@ import { getShareableUrl, copyToClipboard } from "@/lib/factCheckUtils";
 import { useSearchLimiter } from "@/hooks/useSearchLimiter";
 import SignUpForm from "@/components/fact-check-components/signUpForm";
 import FactCheckForm from "@/components/fact-check-components/FactCheckForm";
-import { useUser } from "@clerk/nextjs";
+import CheckoutForm from "@/components/fact-check-components/CheckoutForm";
+import { useUser, useAuth } from "@clerk/nextjs";
 import posthog from "posthog-js";
 import TrendingShitcheckCard from "@/components/TrendingShitcheckCard";
 import { trendingClaims } from "@/data/trendingClaims";
@@ -46,8 +47,15 @@ const FactCheckPage = () => {
     isLoading: limiterLoading,
   } = useSearchLimiter();
 
+  const { has } = useAuth();
+  console.log("User has plans:", has);
+  const hasPlanBase = has ? has({ plan: "base" }) : false;
+
   // Sign-up form state
   const [showSignUpForm, setShowSignUpForm] = useState(false);
+
+  // Checkout form state
+  const [showCheckoutForm, setShowCheckoutForm] = useState(false);
 
   // Close sign-up form if user signs in
   useEffect(() => {
@@ -55,6 +63,15 @@ const FactCheckPage = () => {
       setShowSignUpForm(false);
     }
   }, [isSignedIn, showSignUpForm]);
+
+  console.log("hasPlanBase:", hasPlanBase);
+
+  // Close checkout form if user gets plan
+  useEffect(() => {
+    if (hasPlanBase && showCheckoutForm) {
+      setShowCheckoutForm(false);
+    }
+  }, [hasPlanBase, showCheckoutForm]);
 
   // Analysis state
   const [analyzing, setAnalyzing] = useState(false);
@@ -96,6 +113,7 @@ const FactCheckPage = () => {
     await handleFactCheckUtil({
       statement,
       isSignedIn: isSignedIn ?? false,
+      hasPlanBase,
       isLimitReached,
       setLoading,
       setError,
@@ -110,6 +128,7 @@ const FactCheckPage = () => {
       setShareableId,
       setDbSaveError,
       setShowSignUpForm,
+      setShowCheckoutForm,
       increment,
       router,
     });
@@ -226,6 +245,11 @@ const FactCheckPage = () => {
           }}
           remainingSearches={remainingSearches}
         />
+      )}
+
+      {/* Checkout form modal */}
+      {showCheckoutForm && (
+        <CheckoutForm onClose={() => setShowCheckoutForm(false)} />
       )}
     </div>
   );

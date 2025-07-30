@@ -1,6 +1,10 @@
 import { useRouter } from "next/navigation";
 import posthog from "posthog-js";
 
+// Import search limiter constants
+const MAX_FREE_SEARCHES = 2;
+const STORAGE_KEY = "search_count";
+
 // Types
 export type FactCheckResult = {
   id: string;
@@ -56,6 +60,7 @@ export type PaperAnalysisResult = {
 interface FactCheckHandlerParams {
   statement: string;
   isSignedIn: boolean;
+  hasPlanBase: boolean;
   isLimitReached: boolean;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
@@ -70,6 +75,7 @@ interface FactCheckHandlerParams {
   setShareableId: (id: string | null) => void;
   setDbSaveError: (error: string | null) => void;
   setShowSignUpForm?: (show: boolean) => void;
+  setShowCheckoutForm?: (show: boolean) => void;
   increment?: () => void;
   router: ReturnType<typeof useRouter>;
 }
@@ -79,6 +85,8 @@ interface GenerateFinalVerdictParams {
   papers: FactCheckResult[];
   analysisResults: { [paperId: string]: PaperAnalysisResult };
   keywords: string[];
+  isSignedIn: boolean;
+  hasPlanBase: boolean;
   setGeneratingVerdict: (generating: boolean) => void;
   setFinalVerdict: (verdict: any) => void;
   setError: (error: string | null) => void;
@@ -91,6 +99,7 @@ interface GenerateFinalVerdictParams {
 export const handleFactCheck = async ({
   statement,
   isSignedIn,
+  hasPlanBase,
   isLimitReached,
   setLoading,
   setError,
@@ -105,6 +114,7 @@ export const handleFactCheck = async ({
   setShareableId,
   setDbSaveError,
   setShowSignUpForm,
+  setShowCheckoutForm,
   increment,
   router,
 }: FactCheckHandlerParams) => {
@@ -164,7 +174,7 @@ export const handleFactCheck = async ({
     setKeywords(data.keywords);
 
     // Increment search count on successful paper search (only for non-signed in users)
-    if (!isSignedIn && increment) {
+    if (!hasPlanBase && increment) {
       increment();
     }
 
@@ -185,6 +195,8 @@ export const handleFactCheck = async ({
         papers: data.papers,
         analysisResults: {},
         keywords: data.keywords,
+        isSignedIn,
+        hasPlanBase,
         setGeneratingVerdict,
         setFinalVerdict,
         setError,
@@ -206,6 +218,8 @@ export const generateFinalVerdict = async ({
   papers,
   analysisResults,
   keywords,
+  isSignedIn,
+  hasPlanBase,
   setGeneratingVerdict,
   setFinalVerdict,
   setError,
@@ -253,6 +267,8 @@ export const generateFinalVerdict = async ({
       finalVerdict: verdict,
       papers,
       analysisResults,
+      isSignedIn,
+      hasPlanBase,
       setSavingToDb,
       setShareableId,
       setDbSaveError,
@@ -272,6 +288,8 @@ interface SaveToDatabaseParams {
   finalVerdict: any;
   papers: FactCheckResult[];
   analysisResults: { [paperId: string]: PaperAnalysisResult };
+  isSignedIn: boolean;
+  hasPlanBase: boolean;
   setSavingToDb: (saving: boolean) => void;
   setShareableId: (id: string | null) => void;
   setDbSaveError: (error: string | null) => void;
@@ -284,6 +302,8 @@ export const saveToDatabase = async ({
   finalVerdict,
   papers,
   analysisResults,
+  isSignedIn,
+  hasPlanBase,
   setSavingToDb,
   setShareableId,
   setDbSaveError,
@@ -325,8 +345,28 @@ export const saveToDatabase = async ({
       timestamp: new Date().toISOString(),
     });
 
+   
     // Redirect to shared page after successful save
-    router.push(`/fact-check/shared/${result.shareableId}`);
+    // Check if this was exactly the last free search (only for non-signed users without base plan)
+    let shouldShowCheckout = false;
+    
+    if (isSignedIn && !hasPlanBase && typeof window !== 'undefined') {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      let searchCount = 0;
+      
+      if (stored !== null) {
+        const parsedCount = parseInt(stored, 10);
+        searchCount = isNaN(parsedCount) ? 0 : parsedCount;
+      }
+      
+      shouldShowCheckout = searchCount >= MAX_FREE_SEARCHES;
+    }
+    
+    const redirectUrl = shouldShowCheckout
+      ? `/fact-check/shared/${result.shareableId}?checkout=1`
+      : `/fact-check/shared/${result.shareableId}`;
+    
+    router.push(redirectUrl);
   } catch (error) {
     console.error("Error saving to database:", error);
     setDbSaveError("Failed to save data for sharing");
