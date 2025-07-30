@@ -20,7 +20,7 @@ export async function preEvaluateAbstract(
   }
 
   // Step 1: Detect language using Gemini (only if not provided)
-  let language = detectedLanguage || "EN";
+  const language = detectedLanguage || "EN";
 
   const prompt = `
 IMPORTANT: Respond in ${language}. Do NOT use any other language.
