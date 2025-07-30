@@ -359,7 +359,7 @@ export const saveToDatabase = async ({
         searchCount = isNaN(parsedCount) ? 0 : parsedCount;
       }
       
-      shouldShowCheckout = searchCount === MAX_FREE_SEARCHES;
+      shouldShowCheckout = searchCount >= MAX_FREE_SEARCHES;
     }
     
     const redirectUrl = shouldShowCheckout
