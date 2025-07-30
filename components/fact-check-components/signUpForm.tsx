@@ -39,10 +39,10 @@ export default function SignUpForm({
       <Card className="w-full max-w-md bg-white border border-foreground rounded-sm shadow-none">
         <CardHeader className="relative">
           <CardTitle className="text-[1.5rem] font-bold text-center">
-            Keep Fact-Checking – It’s Free
+            Want to continue checking facts?
           </CardTitle>
           <p className="text-sm text-muted-foreground text-center mt-2">
-            Sign up for free to continue fact-checking unlimited claims.
+            Sign up to continue checking unlimited facts.
           </p>
         </CardHeader>
 
@@ -55,13 +55,11 @@ export default function SignUpForm({
                     className="w-full py-5 text-[1rem] rounded-none border border-foreground bg-foreground text-background hover:bg-foreground/90"
                     onClick={handleSignUpClick}
                   >
-                    Sign Up for free
+                    Sign Up
                   </Button>
                 </SignUpButton>
 
-                <div className="text-center text-xs text-muted-foreground">
-                  No credit card required (takes 30 seconds)
-                </div>
+               
 
                 <div className="text-center text-sm text-foreground">or</div>
 

@@ -189,15 +189,15 @@ const FinalVerdictCard = ({
             ></div>
             {/* Black marker line */}
             <div
-              className="absolute top-0 h-[3rem] w-[4px] bg-black z-20"
+              className="absolute top-0 h-[3rem] w-[4px] bg-black z-0"
               style={{ left: `calc(${config.sliderPosition}% - 1px)` }}
             ></div>
           </div>
           <div className=" flex items-center justify-between mt-2">
-            <span className="text-sm font-bold text-foreground z-10">
+            <span className="text-sm font-bold text-foreground z-0">
               BULLSHIT
             </span>
-            <span className="text-sm font-bold text-foreground z-10">TRUE</span>
+            <span className="text-sm font-bold text-foreground z-0">TRUE</span>
           </div>
         </div>
         <p className="text-foreground text-[1.5rem] italic">"{statement}"</p>
