@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -69,10 +69,15 @@ type SharedFactCheckData = {
 const SharedFactCheckPage = () => {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const shareableId = params.shareableId as string;
   const { isSignedIn, user } = useUser();
   const { has } = useAuth();
   const hasPlanBase = has ? has({ plan: "base" }) : false;
+
+  // Get checkout parameter from URL (0 or 1, defaults to false if not present)
+  const checkoutParam = searchParams.get("checkout");
+  const initialCheckoutState = checkoutParam === "1" ? true : false;
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -86,8 +91,9 @@ const SharedFactCheckPage = () => {
   // Sign-up form state
   const [showSignUpForm, setShowSignUpForm] = useState(false);
 
-  // Checkout form state
-  const [showCheckoutForm, setShowCheckoutForm] = useState(false);
+  // Checkout form state - initialized from URL parameter
+  const [showCheckoutForm, setShowCheckoutForm] =
+    useState(initialCheckoutState);
 
   // New fact-check functionality
   const [newFactCheckLoading, setNewFactCheckLoading] = useState(false);
