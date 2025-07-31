@@ -23,16 +23,18 @@ import TopLeftBrand from "@/components/TopLeftBrand";
 function LayoutContent({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <header className="flex flex-row absolute md:fixed top-0 left-0 right-0 p-[1rem] w-screen  justify-between bg-transparent z-[100]">
+      <header className="flex flex-row absolute md:fixed top-0 left-0 right-0 p-[1rem] w-screen  justify-between bg-transparent z-0">
         <TopLeftBrand />
         <div className="flex flex-row gap-2">
           <SignedOut>
-            <SignInButton>
-              <Button className="bg-background w-auto p-4 text-foreground cursor-pointer rounded-none border border-foreground hover:bg-[#C4EAFF] shadow-none">
+
+            <SignInButton forceRedirectUrl={"/pricing"}>
+              <Button className="bg-background w-auto p-4 text-foreground cursor-pointer rounded-none border border-foreground hover:bg-[#C5C8FF] shadow-none">
+
                 Log In
               </Button>
             </SignInButton>
-            <SignUpButton>
+            <SignUpButton forceRedirectUrl={"/pricing"}>
               <Button className="bg-foreground w-auto p-4 text-background cursor-pointer rounded-none  hover:bg-muted-foreground shadow-none">
                 Sign Up
               </Button>
@@ -45,6 +47,22 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       </header>
       <AppContextProvider>
         {children}
+        <footer className="bg-background border-t border-foreground/20 py-6 mt-16">
+          <div className=" mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+            <div className="text-sm text-foreground/70 mb-4 md:mb-0">
+            2025 shitcheck. All rights reserved.
+            </div>
+            <div className="flex space-x-6">
+              <Link
+                href="/impressum"
+                className="text-sm text-foreground/70 hover:text-foreground transition-colors"
+              >
+                Impressum
+              </Link>
+            
+            </div>
+          </div>
+        </footer>
         <SurveyPopup />
       </AppContextProvider>
     </>

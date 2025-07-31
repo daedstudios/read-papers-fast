@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { generateObject } from "ai";
 import { google } from "@ai-sdk/google";
 import { z } from "zod";
-import { preEvaluateAbstract } from "@/lib/factCheckUtils";
+import { preEvaluateAbstract, detectLanguage } from "@/lib/factCheckUtils";
 
 export const runtime = "nodejs";
 
@@ -59,6 +59,9 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
+
+  // Step 1: Detect language once at the beginning
+  const detectedLanguage = await detectLanguage(statement);
 
   // Prompt to generate keywords and search terms for fact-checking
   const prompt = `
@@ -292,7 +295,8 @@ Return only the search query string, nothing else.`;
         const result = await preEvaluateAbstract(
           statement,
           paper.summary,
-          paper.title
+          paper.title,
+          detectedLanguage
         );
         // console.log(`[PreEval] Success:`, result);
         return result;
@@ -334,6 +338,7 @@ Return only the search query string, nothing else.`;
 
     return NextResponse.json({
       statement: statement,
+      detectedLanguage: detectedLanguage,
       originalQuery: queryString,
       optimizedQuery: finalQuery,
       keywords: keywords,
