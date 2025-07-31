@@ -13,6 +13,8 @@ interface FactCheckFormProps {
   error?: string | null;
   isSignedIn?: boolean;
   limiterLoading?: boolean;
+  remainingSearches?: number;
+  hasPlanBase?: boolean;
 }
 
 const FactCheckForm = ({
@@ -21,6 +23,8 @@ const FactCheckForm = ({
   error = null,
   isSignedIn = true,
   limiterLoading = false,
+  remainingSearches,
+  hasPlanBase = false,
 }: FactCheckFormProps) => {
   const [statement, setStatement] = useState("");
   const [progress, setProgress] = useState(0);
@@ -83,17 +87,28 @@ const FactCheckForm = ({
         </div>
 
         {error && <div className="text-red-500 text-sm">{error}</div>}
-        <div className="flex flex-row gap-2 justify-end">
-          <LanguageSelector
-            selectedLanguage={selectedLanguage}
-            onLanguageChange={setSelectedLanguage}
-            disabled={isBusy}
-          />
-          <VoiceInput
-            onTranscript={handleVoiceTranscript}
-            disabled={isBusy}
-            language={selectedLanguage}
-          />
+
+        <div className="flex flex-row gap-2 justify-between">
+          {/* Only show remaining searches if user doesn't have a paid plan */}
+          {!hasPlanBase && remainingSearches !== undefined && (
+            <div className="text-[1rem] text-muted-foreground text-center">
+              {remainingSearches}
+              {remainingSearches !== 1 ? " searches" : " search"} remaining
+            </div>
+          )}
+
+          <div className="flex flex-row gap-2 justify-end">
+            <LanguageSelector
+              selectedLanguage={selectedLanguage}
+              onLanguageChange={setSelectedLanguage}
+              disabled={isBusy}
+            />
+            <VoiceInput
+              onTranscript={handleVoiceTranscript}
+              disabled={isBusy}
+              language={selectedLanguage}
+            />
+          </div>
         </div>
         {/* Button or Progress Bar */}
         {isBusy ? (

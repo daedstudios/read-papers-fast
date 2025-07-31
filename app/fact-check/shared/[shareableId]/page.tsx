@@ -117,9 +117,27 @@ const SharedFactCheckPage = () => {
   const {
     isLimitReached,
     increment,
-    remainingSearches,
+    remainingSearches: localStorageRemainingSearches,
     isLoading: limiterLoading,
   } = useSearchLimiter();
+
+  // For signed-in users, we'll get remaining searches from user metadata
+  const [userRemainingSearches, setUserRemainingSearches] = useState<
+    number | undefined
+  >(undefined);
+
+  // Get user's remaining searches from metadata
+  useEffect(() => {
+    if (isSignedIn && user?.publicMetadata) {
+      const metadata = user.publicMetadata as any;
+      setUserRemainingSearches(metadata.freeSearchesRemaining);
+    }
+  }, [isSignedIn, user?.publicMetadata]);
+
+  // Use user metadata for signed-in users, localStorage for non-signed-in users
+  const remainingSearches = isSignedIn
+    ? userRemainingSearches
+    : localStorageRemainingSearches;
 
   // Close sign-up form if user signs in
   useEffect(() => {
@@ -219,6 +237,7 @@ const SharedFactCheckPage = () => {
       isSignedIn: isSignedIn ?? false,
       hasPlanBase,
       isLimitReached,
+      userId: user?.id, // Pass the user ID
       setLoading: setNewFactCheckLoading,
       setError: setNewFactCheckError,
       setResults: setNewResults,
@@ -333,6 +352,8 @@ const SharedFactCheckPage = () => {
             error={newFactCheckError}
             isSignedIn={isSignedIn ?? false}
             limiterLoading={limiterLoading}
+            remainingSearches={remainingSearches}
+            hasPlanBase={hasPlanBase}
           />
         </div>
 
