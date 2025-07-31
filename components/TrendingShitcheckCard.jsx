@@ -6,9 +6,9 @@ export default function TrendingShitcheckCard({ claim }) {
   const truePercent = claim.score ?? 0;
 
   function getBarColor(percent) {
-    if (percent < 34) return "bg-[#FFBAD8]"; // mostly bullshit
-    if (percent < 67) return "bg-[#C5C8FF]"; // mixed
-    return "bg-[#AEFFD9]"; // mostly true
+    if (percent < 34) return "bg-[#FF834A]"; // mostly bullshit
+    if (percent < 67) return "bg-[#C4EAFF]"; // mixed
+    return "bg-[#50C477]"; // mostly true
   }
 
   const handleCardClick = () => {
@@ -38,7 +38,7 @@ export default function TrendingShitcheckCard({ claim }) {
           href={claim.tiktokUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="font-medium text-base underline"
+          className="font-bold text-base underline"
           onClick={(e) => e.stopPropagation()}
         >
           tiktok.com/link

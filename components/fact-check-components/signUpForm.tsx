@@ -66,7 +66,7 @@ export default function SignUpForm({
                 <SignInButton forceRedirectUrl={"/pricing"}>
                   <Button
                     variant="outline"
-                    className="w-full py-5 text-[1rem] rounded-none border border-foreground bg-background text-foreground hover:bg-[#C5C8FF]"
+                    className="w-full py-5 text-[1rem] rounded-none border border-foreground bg-background text-foreground hover:bg-[#C4EAFF]"
                   >
                     Log in if you already have an account
                   </Button>
@@ -75,6 +75,7 @@ export default function SignUpForm({
               <div className="mt-3 text-muted-foreground text-center text-sm">
                 Trusted by hundreds of curious minds
               </div>
+
             </div>
           </SignedOut>
         </CardContent>

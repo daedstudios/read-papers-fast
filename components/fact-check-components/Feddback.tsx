@@ -120,7 +120,7 @@ export default function FeedbackToast({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <MessageSquare size={16} className="text-foreground" />
-                  <span className="font-medium text-sm">
+                  <span className="font-bold text-sm">
                     How was this result?
                   </span>
                 </div>
@@ -155,7 +155,7 @@ export default function FeedbackToast({
                     onClick={() => handleThumbsClick("negative")}
                     className={`flex items-center gap-1 h-8 ${
                       feedbackType === "negative"
-                        ? "bg-red-50 border-[#FFBAD8] text-[#FFBAD8]"
+                        ? "bg-red-50 border-[#FF834A] text-[#FF834A]"
                         : "hover:bg-red-50"
                     }`}
                   >
@@ -181,7 +181,7 @@ export default function FeedbackToast({
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs font-medium text-muted-foreground">
+                    <label className="text-xs font-bold text-muted-foreground">
                       Your feedback:
                     </label>
                     <textarea
@@ -191,7 +191,7 @@ export default function FeedbackToast({
                       className="w-full text-xs border border-gray-200 rounded p-2 min-h-[60px] resize-none focus:outline-none focus:border-gray-400"
                       rows={3}
                     />
-                    <label className="text-xs font-medium text-gray-700">
+                    <label className="text-xs font-bold text-gray-700">
                       What is your age?
                     </label>
                     <select
@@ -209,7 +209,7 @@ export default function FeedbackToast({
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs font-medium text-muted-foreground">
+                    <label className="text-xs font-bold text-muted-foreground">
                       What are you here for?
                     </label>
                     <textarea
@@ -232,7 +232,7 @@ export default function FeedbackToast({
                       onClick={handleSubmit}
                       disabled={isSubmitting}
                       size="sm"
-                      className="flex-1 h-8 text-xs border text-foreground rounded-none border-foreground bg-[#C5C8FF] hover:bg-white hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 h-8 text-xs border text-foreground rounded-none border-foreground bg-[#C4EAFF] hover:bg-white hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isSubmitting ? "Submitting..." : "Submit Feedback"}
                     </Button>
@@ -243,7 +243,7 @@ export default function FeedbackToast({
           ) : (
             /* Thank you message */
             <div className="text-center py-2">
-              <div className="text-[#C] font-medium text-sm mb-1">
+              <div className="text-[#C] font-bold text-sm mb-1">
                 Thank you for your feedback!
               </div>
               <div className="text-xs text-gray-500">

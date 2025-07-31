@@ -100,7 +100,7 @@ const FactCheckForm = ({
           <div className="w-full flex flex-col items-center justify-center">
             <div className="w-full bg-white border border-foreground h-8 flex items-center relative overflow-hidden">
               <div
-                className="absolute left-0 top-0 inset-0 w-full bg-[#C5C8FF] transition-all duration-200"
+                className="absolute left-0 top-0 inset-0 w-full bg-[#C4EAFF] transition-all duration-200"
                 style={{ width: `${progress}%` }}
               ></div>
             </div>
@@ -108,11 +108,11 @@ const FactCheckForm = ({
         ) : (
           <Button
             onClick={handleSubmit}
-            className="w-full py-3 text-[1rem] rounded-none border border-foreground bg-foreground text-background flex items-center gap-2 cursor-pointer"
+            className="w-full h-12 text-[1.5rem] rounded-none border border-foreground bg-foreground text-background flex items-center gap-2 cursor-pointer"
             disabled={isBusy || !statement.trim()}
           >
             fact check
-            <Globe size={16} />
+            <Globe style={{ width: "24px", height: "24px" }} />
           </Button>
         )}
       </div>

@@ -58,7 +58,7 @@ const FinalVerdictCard = ({
         icon: CheckCircle,
         bgColor: "bg-green-50",
         sliderPosition: 95,
-        sliderColor: "bg-[#AEFFD9]",
+        sliderColor: "bg-[#50C477]",
       },
       mostly_true: {
         label: "MOSTLY TRUE",
@@ -66,7 +66,7 @@ const FinalVerdictCard = ({
         icon: CheckCircle,
         bgColor: "bg-green-50",
         sliderPosition: 75,
-        sliderColor: "bg-[#AEFFD9]",
+        sliderColor: "bg-[#50C477]",
       },
       mixed_evidence: {
         label: "MIXED EVIDENCE",
@@ -82,7 +82,7 @@ const FinalVerdictCard = ({
         icon: XCircle,
         bgColor: "bg-red-50",
         sliderPosition: 25,
-        sliderColor: "bg-[#FFBAD8]",
+        sliderColor: "bg-[#FF834A]",
       },
       false: {
         label: "FALSE",
@@ -90,7 +90,7 @@ const FinalVerdictCard = ({
         icon: XCircle,
         bgColor: "bg-red-50",
         sliderPosition: 5,
-        sliderColor: "bg-[#FFBAD8]",
+        sliderColor: "bg-[#FF834A]",
       },
       insufficient_evidence: {
         label: "INSUFFICIENT EVIDENCE",
@@ -167,10 +167,10 @@ const FinalVerdictCard = ({
           </CardTitle>
           <button
             onClick={handleShare}
-            className="p-2  border bg-background border-foreground hover:bg-[#C5C8FF] transition-colors flex items-center gap-2 cursor-pointer"
+            className="p-2  border bg-background border-foreground hover:bg-[#C4EAFF] transition-colors flex items-center gap-2 cursor-pointer"
             title="Copy share link"
           >
-            <span className="text-[1rem] text-foreground font-medium">
+            <span className="text-[1rem] text-foreground font-bold">
               {copied ? "Copied!" : "Share"}
             </span>
             <Share size={16} className="text-foreground" />
@@ -212,7 +212,6 @@ const FinalVerdictCard = ({
         </div>
 
         {/* Evidence Breakdown */}
-      
 
         {/* Key Findings */}
         {verdict.key_findings.length > 0 && (

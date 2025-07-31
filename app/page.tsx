@@ -141,7 +141,7 @@ const FactCheckPage = () => {
     <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center">
       <div className="container w-2xl max-w-[90%] mx-auto ">
         <div className="text-center mb-8 mt-[10rem] mx-auto">
-          <h1 className="text-[2.5rem] mb-4 ">Check your claim</h1>
+          <h1 className="text-[2.5rem] font-semibold mb-4 ">Check your claim</h1>
         </div>
 
         <FactCheckForm
@@ -169,13 +169,13 @@ const FactCheckPage = () => {
         <div className="flex flex-wrap gap-4 justify-start mb-8">
           {/* Step 1 */}
 
-          <div className="flex-1 min-w-[280px] md:max-w-[350px] bg-[#C5C8FF] p-6 rounded-sm border border-foreground">
+          <div className="flex-1 min-w-[280px] md:max-w-[350px] bg-[#C4EAFF] p-6 rounded-sm border border-foreground">
             <div className="flex flex-col items-start gap-3">
-              <div className="bg-[#C5C8FF] rounded-sm">
+              <div className="bg-[#C4EAFF] rounded-sm">
                 <ArrowUpFromLine size={24} className="text-foreground" />
               </div>
               <div>
-                <h3 className="text-[1.5rem] font-medium text-foreground mb-2">
+                <h3 className="text-[1.5rem] font-bold text-foreground mb-2">
                   Step 1
                 </h3>
                 <p className="text-foreground text-sm">
@@ -187,15 +187,15 @@ const FactCheckPage = () => {
           </div>
 
           {/* Step 2 */}
-          <div className="flex-1 min-w-[280px] md:max-w-[350px] bg-[#AEFFD9] p-6 rounded-sm border border-foreground">
+          <div className="flex-1 min-w-[280px] md:max-w-[350px] bg-[#50C477] p-6 rounded-sm border border-foreground">
             <div className="flex flex-col items-start gap-3">
-              <div className="bg-[#AEFFD9]  rounded-sm">
+              <div className="bg-[#50C477]  rounded-sm">
                 <div className="relative">
                   <TextSearch size={24} className="text-foreground" />
                 </div>
               </div>
               <div>
-                <h3 className="text-[1.5rem] font-medium text-foreground mb-2">
+                <h3 className="text-[1.5rem] font-bold text-foreground mb-2">
                   Step 2
                 </h3>
                 <p className="text-foreground text-sm">
@@ -207,13 +207,13 @@ const FactCheckPage = () => {
           </div>
 
           {/* Step 3 */}
-          <div className="flex-1 min-w-[280px] w-full bg-[#FFBAD8] p-6 rounded-sm border border-foreground">
+          <div className="flex-1 min-w-[280px] w-full bg-[#FF834A] p-6 rounded-sm border border-foreground">
             <div className="flex flex-col items-start gap-3">
-              <div className="bg-[#FFBAD8] rounded-sm">
+              <div className="bg-[#FF834A] rounded-sm">
                 <Gavel size={24} className="text-foreground" />
               </div>
               <div>
-                <h3 className="text-[1.5rem] font-medium text-foreground mb-2">
+                <h3 className="text-[1.5rem] font-bold text-foreground mb-2">
                   Step 3
                 </h3>
                 <p className="text-foreground text-sm">
@@ -225,7 +225,7 @@ const FactCheckPage = () => {
           </div>
         </div>
         <div className="flex flex-col w-full mt-[3rem] mb-[3rem]">
-          <h1 className="text-[1.5rem] font-medium text-foreground mb-4">
+          <h1 className="text-[1.5rem] font-bold text-foreground mb-4">
             Trending claims
           </h1>
           {trendingClaims.map((claim) => (
