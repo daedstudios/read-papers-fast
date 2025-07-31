@@ -115,6 +115,7 @@ const FactCheckPage = () => {
       isSignedIn: isSignedIn ?? false,
       hasPlanBase,
       isLimitReached,
+      userId: user?.id, // Pass the user ID
       setLoading,
       setError,
       setResults,

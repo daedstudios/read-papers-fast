@@ -219,6 +219,7 @@ const SharedFactCheckPage = () => {
       isSignedIn: isSignedIn ?? false,
       hasPlanBase,
       isLimitReached,
+      userId: user?.id, // Pass the user ID
       setLoading: setNewFactCheckLoading,
       setError: setNewFactCheckError,
       setResults: setNewResults,
