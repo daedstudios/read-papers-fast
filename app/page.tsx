@@ -43,9 +43,27 @@ const FactCheckPage = () => {
   const {
     isLimitReached,
     increment,
-    remainingSearches,
+    remainingSearches: localStorageRemainingSearches,
     isLoading: limiterLoading,
   } = useSearchLimiter();
+
+  // For signed-in users, we'll get remaining searches from user metadata
+  const [userRemainingSearches, setUserRemainingSearches] = useState<
+    number | undefined
+  >(undefined);
+
+  // Get user's remaining searches from metadata
+  useEffect(() => {
+    if (isSignedIn && user?.publicMetadata) {
+      const metadata = user.publicMetadata as any;
+      setUserRemainingSearches(metadata.freeSearchesRemaining);
+    }
+  }, [isSignedIn, user?.publicMetadata]);
+
+  // Use user metadata for signed-in users, localStorage for non-signed-in users
+  const remainingSearches = isSignedIn
+    ? userRemainingSearches
+    : localStorageRemainingSearches;
 
   const { has } = useAuth();
   console.log("User has plans:", has);
@@ -151,6 +169,8 @@ const FactCheckPage = () => {
           error={error}
           isSignedIn={isSignedIn ?? false}
           limiterLoading={limiterLoading}
+          remainingSearches={remainingSearches}
+          hasPlanBase={hasPlanBase}
         />
         <div className="mb-[3rem] text-sm mx-auto w-full text-center text-muted-foreground ">
           Fact-check against research from{" "}

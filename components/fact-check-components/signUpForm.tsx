@@ -42,7 +42,7 @@ export default function SignUpForm({
             Want to continue checking facts?
           </CardTitle>
           <p className="text-sm text-muted-foreground text-center mt-2">
-            Sign up to continue checking unlimited facts.
+            Sign up for free to continue checking facts.
           </p>
         </CardHeader>
 
