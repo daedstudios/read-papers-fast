@@ -232,7 +232,7 @@ export default function FeedbackToast({
                       onClick={handleSubmit}
                       disabled={isSubmitting}
                       size="sm"
-                      className="flex-1 h-8 text-xs border text-foreground rounded-none border-foreground bg-[#C4EAFF] hover:bg-white hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 h-8 text-xs border text-foreground rounded-none border-foreground bg-muted hover:bg-white hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isSubmitting ? "Submitting..." : "Submit Feedback"}
                     </Button>

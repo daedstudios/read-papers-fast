@@ -232,7 +232,7 @@ const PaperResult = ({
         label: "Contradicts",
         color: "bg-[#FF834A] text-foreground",
       },
-      neutral: { label: "Neutral", color: "bg-[#C4EAFF] text-foreground" },
+      neutral: { label: "Neutral", color: "bg-muted text-foreground" },
     };
     const config = map[verdict] || map["neutral"];
     return (

@@ -141,7 +141,9 @@ const FactCheckPage = () => {
     <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center">
       <div className="container w-2xl max-w-[90%] mx-auto ">
         <div className="text-center mb-8 mt-[10rem] mx-auto">
-          <h1 className="text-[2.5rem] font-semibold mb-4 ">Check your claim</h1>
+          <h1 className="text-[2.5rem] font-semibold mb-4 ">
+            Check your claim
+          </h1>
         </div>
 
         <FactCheckForm
@@ -169,9 +171,9 @@ const FactCheckPage = () => {
         <div className="flex flex-wrap gap-4 justify-start mb-8">
           {/* Step 1 */}
 
-          <div className="flex-1 min-w-[280px] md:max-w-[350px] bg-[#C4EAFF] p-6 rounded-sm border border-foreground">
+          <div className="flex-1 min-w-[280px] md:max-w-[350px] bg-mutedp-6 rounded-sm border border-foreground">
             <div className="flex flex-col items-start gap-3">
-              <div className="bg-[#C4EAFF] rounded-sm">
+              <div className="bg-mutedrounded-sm">
                 <ArrowUpFromLine size={24} className="text-foreground" />
               </div>
               <div>

@@ -98,9 +98,9 @@ const FactCheckForm = ({
         {/* Button or Progress Bar */}
         {isBusy ? (
           <div className="w-full flex flex-col items-center justify-center">
-            <div className="w-full bg-white border border-foreground h-8 flex items-center relative overflow-hidden">
+            <div className="w-full bg-white border border-foreground h-12 flex items-center relative overflow-hidden">
               <div
-                className="absolute left-0 top-0 inset-0 w-full bg-[#C4EAFF] transition-all duration-200"
+                className="absolute left-0 top-0 inset-0 w-full bg-muted transition-all duration-200"
                 style={{ width: `${progress}%` }}
               ></div>
             </div>

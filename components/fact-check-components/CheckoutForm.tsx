@@ -37,7 +37,7 @@ export default function CheckoutForm({ onClose }: { onClose?: () => void }) {
                 borderRadius: "0.125rem",
               },
               button: {
-                backgroundColor: "#C5C8FF",
+                backgroundColor: "#50C477",
                 color: "black",
                 borderRadius: "0",
                 fontWeight: "600",

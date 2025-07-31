@@ -42,7 +42,9 @@ const PaperFilterBoxes: React.FC<PaperFilterBoxesProps> = ({
         >
           <div className="flex items-center gap-2 mb-2">
             <TrendingDown size={16} className="text-foreground" />
-            <span className="font-semibold text-[1.2rem] text-foreground">Contradicting</span>
+            <span className="font-semibold text-[1.2rem] text-foreground">
+              Contradicting
+            </span>
           </div>
           <div className="text-[1rem] font-bold text-foreground">
             {contradicting}
@@ -51,7 +53,7 @@ const PaperFilterBoxes: React.FC<PaperFilterBoxesProps> = ({
         </div>
 
         <div
-          className={`bg-[#C4EAFF] p-4 rounded-sm w-full border border-foreground cursor-pointer transition-all duration-200 hover:scale-105 ${
+          className={`bg-muted p-4 rounded-sm w-full border border-foreground cursor-pointer transition-all duration-200 hover:scale-105 ${
             isActive("neutral") ? "ring-1 ring-foreground" : "hover:shadow-md"
           }`}
           onClick={() => {
@@ -62,7 +64,9 @@ const PaperFilterBoxes: React.FC<PaperFilterBoxesProps> = ({
         >
           <div className="flex items-center gap-2 mb-2">
             <HelpCircle size={16} className="text-foreground" />
-            <span className="font-semibold text-[1.2rem] text-foreground">Neutral</span>
+            <span className="font-semibold text-[1.2rem] text-foreground">
+              Neutral
+            </span>
           </div>
           <div className="text-[1rem] font-bold text-foreground">{neutral}</div>
           <div className="text-xs text-foreground">papers</div>
@@ -82,7 +86,9 @@ const PaperFilterBoxes: React.FC<PaperFilterBoxesProps> = ({
         >
           <div className="flex items-center gap-2 mb-2">
             <TrendingUp size={16} className="text-foreground" />
-            <span className="font-semibold text-[1.2rem] text-foreground">Supporting</span>
+            <span className="font-semibold text-[1.2rem] text-foreground">
+              Supporting
+            </span>
           </div>
           <div className="text-[1rem] font-bold text-foreground">
             {supporting}

@@ -167,7 +167,7 @@ const FinalVerdictCard = ({
           </CardTitle>
           <button
             onClick={handleShare}
-            className="p-2  border bg-background border-foreground hover:bg-[#C4EAFF] transition-colors flex items-center gap-2 cursor-pointer"
+            className="p-2  border bg-background border-foreground hover:bg-muted transition-colors flex items-center gap-2 cursor-pointer"
             title="Copy share link"
           >
             <span className="text-[1rem] text-foreground font-bold">
