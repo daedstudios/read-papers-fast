@@ -10,8 +10,18 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { X } from "lucide-react";
+import { useEffect } from "react";
+import posthog from "posthog-js";
 
 export default function CheckoutForm({ onClose }: { onClose?: () => void }) {
+  useEffect(() => {
+    // Track when checkout form is displayed (payment flow initiated)
+    posthog.capture("payment_triggered", {
+      location: "checkout_form",
+      timestamp: new Date().toISOString(),
+    });
+  }, []);
+
   return (
     <div className="fixed inset-0 bg-background/30 backdrop-blur-sm flex items-center justify-center z-0 p-4">
       <div className="max-w-[90%] w-xl bg-white border border-foreground rounded-sm shadow-none">
