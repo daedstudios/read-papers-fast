@@ -3,6 +3,7 @@
 import { PricingTable, useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import posthog from "posthog-js";
 
 export default function PricingPage() {
   const { has } = useAuth();
@@ -15,6 +16,14 @@ export default function PricingPage() {
       router.push("/");
     }
   }, [hasPlanBase, router]);
+
+  useEffect(() => {
+    // Track when pricing page is viewed (payment flow initiated)
+    posthog.capture("payment_triggered", {
+      location: "pricing_page",
+      timestamp: new Date().toISOString(),
+    });
+  }, []);
 
   // Don't render if user already has base plan
   if (hasPlanBase) {

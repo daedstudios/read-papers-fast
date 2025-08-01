@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { X } from "lucide-react";
 import { SignInButton, SignUpButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import posthog from "posthog-js";
+import { useEffect } from "react";
 
 interface SignUpFormProps {
   onClose?: () => void;
@@ -17,6 +18,14 @@ export default function SignUpForm({
   onSuccess,
   remainingSearches = 0,
 }: SignUpFormProps) {
+  useEffect(() => {
+    // Track when sign-up form is displayed (sign up triggered)
+    posthog.capture("sign_up_triggered", {
+      timestamp: new Date().toISOString(),
+      remainingSearches,
+    });
+  }, [remainingSearches]);
+
   const handleSuccess = () => {
     posthog.capture("sign_up_completed", {
       timestamp: new Date().toISOString(),
@@ -29,6 +38,13 @@ export default function SignUpForm({
 
   const handleSignUpClick = () => {
     posthog.capture("sign_up_clicked", {
+      timestamp: new Date().toISOString(),
+      remainingSearches,
+    });
+  };
+
+  const handleSignInClick = () => {
+    posthog.capture("log_in_clicked", {
       timestamp: new Date().toISOString(),
       remainingSearches,
     });
@@ -59,14 +75,13 @@ export default function SignUpForm({
                   </Button>
                 </SignUpButton>
 
-               
-
                 <div className="text-center text-sm text-foreground">or</div>
 
                 <SignInButton forceRedirectUrl={"/pricing"}>
                   <Button
                     variant="outline"
                     className="w-full py-5 text-[1rem] rounded-none border border-foreground bg-background text-foreground hover:bg-[#C5C8FF]"
+                    onClick={handleSignInClick}
                   >
                     Log in if you already have an account
                   </Button>
