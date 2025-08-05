@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
         ...currentMetadata,
         numberOfSearches: 1,
         firstSearch: new Date().toISOString(),
-        freeSearchesRemaining: 4 // Start with 4 remaining since we're using 1
+        freeSearchesRemaining: 2 // Start with 2 remaining since we're using 1
       };
     } else {
       // Increment search count
